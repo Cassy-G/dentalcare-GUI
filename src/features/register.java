@@ -5,6 +5,8 @@
  */
 package features;
 
+import java.awt.Color;
+
 /**
  *
  * @author Cassandra Gallera
@@ -29,112 +31,165 @@ int xMouse, yMouse;
 
         hdr = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        bg = new javax.swing.JPanel();
+        xpnl = new javax.swing.JPanel();
+        xbtn = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jLabel3 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
-        jLabel4 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
-        jLabel5 = new javax.swing.JLabel();
-        jTextField4 = new javax.swing.JTextField();
-        jLabel6 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
-        jLabel7 = new javax.swing.JLabel();
-        jTextField5 = new javax.swing.JTextField();
-        jPanel3 = new javax.swing.JPanel();
+        createacc = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        jTextField2 = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
+        jTextField3 = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
+        jTextField4 = new javax.swing.JTextField();
+        createaccpnl = new javax.swing.JPanel();
+        createaccbtn = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
+        signIN = new javax.swing.JLabel();
+        jCheckBox1 = new javax.swing.JCheckBox();
+        jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
         setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        hdr.setBackground(new java.awt.Color(255, 255, 255));
+        hdr.setBackground(new java.awt.Color(204, 255, 255));
         hdr.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
             public void mouseDragged(java.awt.event.MouseEvent evt) {
                 hdrMouseDragged(evt);
             }
         });
+        hdr.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                hdrMousePressed(evt);
+            }
+        });
         hdr.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/output-onlinepngtools (3).png"))); // NOI18N
-        hdr.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 60, 60));
+        hdr.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 50, 50));
 
-        getContentPane().add(hdr, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 850, 60));
+        xpnl.setPreferredSize(new java.awt.Dimension(40, 30));
 
-        bg.setBackground(new java.awt.Color(102, 153, 255));
-        bg.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        xbtn.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
+        xbtn.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        xbtn.setText("X");
+        xbtn.setPreferredSize(null);
+        xbtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                xbtnMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                xbtnMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                xbtnMouseExited(evt);
+            }
+        });
 
+        javax.swing.GroupLayout xpnlLayout = new javax.swing.GroupLayout(xpnl);
+        xpnl.setLayout(xpnlLayout);
+        xpnlLayout.setHorizontalGroup(
+            xpnlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(xbtn, javax.swing.GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE)
+        );
+        xpnlLayout.setVerticalGroup(
+            xpnlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(xbtn, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
+        );
+
+        hdr.add(xpnl, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 10, 40, 30));
+
+        getContentPane().add(hdr, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
+
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel2.setText("Name");
-        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(61, 70, -1, -1));
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        createacc.setFont(new java.awt.Font("Times New Roman", 2, 24)); // NOI18N
+        createacc.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        createacc.setText("Create your Account.");
+        jPanel2.add(createacc, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 360, -1));
+
+        jLabel3.setText("Usernme");
+        jPanel2.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 70, -1, -1));
 
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTextField1ActionPerformed(evt);
             }
         });
-        jPanel1.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(61, 93, 175, -1));
+        jPanel2.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 90, 210, -1));
 
-        jLabel3.setText("Lastname ");
-        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(308, 70, -1, -1));
-        jPanel1.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(308, 93, 173, -1));
+        jLabel4.setText("E-mail");
+        jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 130, -1, -1));
 
-        jLabel4.setText("Address");
-        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(61, 133, -1, -1));
-        jPanel1.add(jTextField3, new org.netbeans.lib.awtextra.AbsoluteConstraints(61, 156, 175, -1));
+        jTextField2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField2ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 150, 210, -1));
 
         jLabel5.setText("Password");
-        jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(308, 133, -1, -1));
-        jPanel1.add(jTextField4, new org.netbeans.lib.awtextra.AbsoluteConstraints(308, 156, 173, -1));
+        jPanel2.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 190, -1, -1));
 
-        jLabel6.setText("Email");
-        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(61, 196, -1, -1));
+        jTextField3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField3ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jTextField3, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 210, 210, -1));
 
-        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        jLabel6.setText("Confirm Password");
+        jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 250, -1, -1));
+        jPanel2.add(jTextField4, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 270, 210, -1));
 
-        jLabel7.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel7.setText("Submit");
-        jPanel2.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 70, -1));
+        createaccpnl.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(153, 296, -1, -1));
-        jPanel1.add(jTextField5, new org.netbeans.lib.awtextra.AbsoluteConstraints(61, 219, 175, -1));
+        createaccbtn.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        createaccbtn.setText("Create Account");
+        createaccpnl.add(createaccbtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(-110, 0, 350, 30));
 
-        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel2.add(createaccpnl, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 340, 130, 30));
 
-        jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel8.setText("Sign Up");
+        jLabel8.setText("Already have an account?");
+        jPanel2.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 390, -1, 20));
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 2, Short.MAX_VALUE))
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, 20, Short.MAX_VALUE)
-        );
+        signIN.setForeground(new java.awt.Color(51, 102, 255));
+        signIN.setText("Sign in");
+        signIN.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                signINMouseClicked(evt);
+            }
+        });
+        jPanel2.add(signIN, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 390, 70, 20));
 
-        jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 290, 80, 20));
+        jCheckBox1.setBackground(new java.awt.Color(255, 255, 255));
+        jCheckBox1.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jCheckBox1.setText(" Accept the terms and policies");
+        jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox1ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jCheckBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 300, 210, 30));
 
-        bg.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 130, 560, 340));
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 20, 350, 430));
 
-        getContentPane().add(bg, new org.netbeans.lib.awtextra.AbsoluteConstraints(-5, 0, 850, 520));
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/13.jpg"))); // NOI18N
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 470));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 50, 810, 470));
 
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
-
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
 
     private void hdrMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_hdrMouseDragged
         // TODO add your handling code here:
@@ -142,6 +197,55 @@ int xMouse, yMouse;
         int y = evt.getYOnScreen();
         this.setLocation(x - xMouse,y - yMouse);
     }//GEN-LAST:event_hdrMouseDragged
+
+    private void xbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_xbtnMouseClicked
+        // TODO add your handling code here:
+        System.exit(0);
+        
+        
+    }//GEN-LAST:event_xbtnMouseClicked
+
+    private void xbtnMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_xbtnMouseExited
+        // TODO add your handling code here:
+       
+        xpnl.setBackground(Color. white);
+        xbtn.setForeground(Color.black);
+    }//GEN-LAST:event_xbtnMouseExited
+
+    private void xbtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_xbtnMouseEntered
+        // TODO add your handling code here:
+        xpnl.setBackground(Color. red);
+        xbtn.setForeground(Color.white);
+    }//GEN-LAST:event_xbtnMouseEntered
+
+    private void hdrMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_hdrMousePressed
+        // TODO add your handling code here:
+        xMouse = evt.getX();
+        yMouse = evt.getY();
+    }//GEN-LAST:event_hdrMousePressed
+
+    private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField2ActionPerformed
+
+    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField1ActionPerformed
+
+    private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField3ActionPerformed
+
+    private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jCheckBox1ActionPerformed
+
+    private void signINMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_signINMouseClicked
+        // TODO add your handling code here:
+        admin signin = new admin();
+        this.dispose();
+        signin.setVisible(true);
+    }//GEN-LAST:event_signINMouseClicked
 
     /**
      * @param args the command line arguments
@@ -179,23 +283,26 @@ int xMouse, yMouse;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel bg;
+    private javax.swing.JLabel createacc;
+    private javax.swing.JLabel createaccbtn;
+    private javax.swing.JPanel createaccpnl;
     private javax.swing.JPanel hdr;
+    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
+    private javax.swing.JLabel signIN;
+    private javax.swing.JLabel xbtn;
+    private javax.swing.JPanel xpnl;
     // End of variables declaration//GEN-END:variables
 }

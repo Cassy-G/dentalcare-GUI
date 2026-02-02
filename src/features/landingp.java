@@ -7,6 +7,7 @@ package features;
 
 import java.awt.Color;
 import static java.lang.System.exit;
+import config.config;
 
 /**
  *
@@ -71,10 +72,13 @@ public class landingp extends javax.swing.JFrame {
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 hdrMouseExited(evt);
             }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                hdrMousePressed(evt);
+            }
         });
         hdr.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        exitb.setFont(new java.awt.Font("Verdana", 1, 14)); // NOI18N
+        exitb.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         exitb.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         exitb.setText("X");
         exitb.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -93,14 +97,18 @@ public class landingp extends javax.swing.JFrame {
         exitp.setLayout(exitpLayout);
         exitpLayout.setHorizontalGroup(
             exitpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(exitb, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, exitpLayout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(exitb, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         exitpLayout.setVerticalGroup(
             exitpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(exitb, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, exitpLayout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(exitb, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
-        hdr.add(exitp, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 10, 40, 30));
+        hdr.add(exitp, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 10, 40, 30));
 
         jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/output-onlinepngtools (3).png"))); // NOI18N
         hdr.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 60, 50));
@@ -192,7 +200,7 @@ public class landingp extends javax.swing.JFrame {
         bookpnel.setLayout(bookpnelLayout);
         bookpnelLayout.setHorizontalGroup(
             bookpnelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(bookbtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE)
+            .addComponent(bookbtn, javax.swing.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
         );
         bookpnelLayout.setVerticalGroup(
             bookpnelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -201,7 +209,7 @@ public class landingp extends javax.swing.JFrame {
                 .addComponent(bookbtn, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
-        jPanel1.add(bookpnel, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 360, 270, -1));
+        jPanel1.add(bookpnel, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 360, 250, -1));
 
         jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/t.png"))); // NOI18N
         jLabel4.setVerticalAlignment(javax.swing.SwingConstants.TOP);
@@ -295,6 +303,12 @@ public class landingp extends javax.swing.JFrame {
         lgn.setBackground(Color. white);
         lgn.setForeground(Color.black);
     }//GEN-LAST:event_lgnMouseExited
+
+    private void hdrMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_hdrMousePressed
+        // TODO add your handling code here:
+        xMouse = evt.getX();
+        yMouse = evt.getY();
+    }//GEN-LAST:event_hdrMousePressed
 
     /**
      * @param args the command line arguments
