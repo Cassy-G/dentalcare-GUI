@@ -320,7 +320,7 @@ jPanel3.add(passwordField, new org.netbeans.lib.awtextra.AbsoluteConstraints(50,
 //                        staffDash.setVisible(true);
                         break;
                     case "admin":
-                 //       admin adminDash = new admin(name);
+//                        admin adminDash = new admin(name);
                         this.dispose();
                     //    adminDash.setVisible(true);
                         break;

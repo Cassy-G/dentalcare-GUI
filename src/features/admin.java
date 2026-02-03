@@ -18,7 +18,7 @@ public class admin extends javax.swing.JFrame {
      */
     public admin() {
         initComponents();
-        //lblUser.setText("Welcome, " + name);
+//        lblUser.setText("Welcome, " + name);
     }
 
     /**
