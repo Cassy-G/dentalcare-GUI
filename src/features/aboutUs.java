@@ -36,9 +36,11 @@ public class aboutUs extends javax.swing.JFrame {
         xbtn = new javax.swing.JLabel();
         logo = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
         det1 = new javax.swing.JLabel();
         picPnl = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
         modern = new javax.swing.JLabel();
         who = new javax.swing.JLabel();
         det2 = new javax.swing.JLabel();
@@ -101,7 +103,7 @@ public class aboutUs extends javax.swing.JFrame {
 
         header.add(xpnl, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 10, 40, 30));
 
-        logo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/output-onlinepngtools (3).png"))); // NOI18N
+        logo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/output-onlinepngtools__3_-removebg-preview.png"))); // NOI18N
         logo.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 logoMouseClicked(evt);
@@ -114,6 +116,9 @@ public class aboutUs extends javax.swing.JFrame {
         jLabel2.setText("DentalCare");
         header.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 0, 90, 50));
 
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/5046faad4a4c9af72bcf4fe75c8a11d0.jpg"))); // NOI18N
+        header.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
+
         bg.add(header, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
 
         det1.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
@@ -125,6 +130,19 @@ public class aboutUs extends javax.swing.JFrame {
 
         jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/3.jpg"))); // NOI18N
         picPnl.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -20, 340, 360));
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+
+        picPnl.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 50, -1, -1));
 
         bg.add(picPnl, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 130, -1, 320));
 
@@ -148,6 +166,7 @@ public class aboutUs extends javax.swing.JFrame {
         det3.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         bg.add(det3, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 240, -1, 20));
 
+        abtUs.setBackground(new java.awt.Color(165, 215, 240));
         abtUs.setFont(new java.awt.Font("Times New Roman", 0, 24)); // NOI18N
         abtUs.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         abtUs.setText("About Us");
@@ -160,7 +179,7 @@ public class aboutUs extends javax.swing.JFrame {
 
         jLabel4.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
         jLabel4.setText("Clinic that prioritizes your satisfaction ");
-        bg.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 320, 420, 30));
+        bg.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 310, 420, 30));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -181,7 +200,7 @@ public class aboutUs extends javax.swing.JFrame {
         bg.add(det5, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 280, 100, 20));
 
         bgpic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/p.jpg"))); // NOI18N
-        bg.add(bgpic, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 810, 520));
+        bg.add(bgpic, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 530));
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -293,11 +312,13 @@ public class aboutUs extends javax.swing.JFrame {
     private javax.swing.JLabel det4;
     private javax.swing.JLabel det5;
     private javax.swing.JPanel header;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JLabel logo;
     private javax.swing.JLabel modern;
     private javax.swing.JPanel picPnl;

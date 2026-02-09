@@ -33,14 +33,15 @@ public class landingp extends javax.swing.JFrame {
 
         bg = new javax.swing.JPanel();
         hdr = new javax.swing.JPanel();
+        logo = new javax.swing.JLabel();
         exitp = new javax.swing.JPanel();
         exitb = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
         Home = new javax.swing.JLabel();
         about = new javax.swing.JLabel();
         services = new javax.swing.JLabel();
         loc = new javax.swing.JLabel();
         lgn = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
         backg = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
@@ -51,6 +52,7 @@ public class landingp extends javax.swing.JFrame {
         bookpnel = new javax.swing.JPanel();
         bookbtn = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
@@ -77,6 +79,9 @@ public class landingp extends javax.swing.JFrame {
             }
         });
         hdr.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        logo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/output-onlinepngtools__3_-removebg-preview.png"))); // NOI18N
+        hdr.add(logo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 60, 50));
 
         exitb.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         exitb.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -109,9 +114,6 @@ public class landingp extends javax.swing.JFrame {
         );
 
         hdr.add(exitp, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 10, 40, 30));
-
-        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/output-onlinepngtools (3).png"))); // NOI18N
-        hdr.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 60, 50));
 
         Home.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         Home.setText("Home");
@@ -191,6 +193,9 @@ public class landingp extends javax.swing.JFrame {
         });
         hdr.add(lgn, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 0, 60, 50));
 
+        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/5046faad4a4c9af72bcf4fe75c8a11d0.jpg"))); // NOI18N
+        hdr.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
+
         bg.add(hdr, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
 
         backg.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
@@ -225,7 +230,7 @@ public class landingp extends javax.swing.JFrame {
         smile.setText("Smile");
         jPanel1.add(smile, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 240, 80, 30));
 
-        bookbtn.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        bookbtn.setFont(new java.awt.Font("Times New Roman", 1, 15)); // NOI18N
         bookbtn.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         bookbtn.setText("Book An Appointment");
         bookbtn.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -244,7 +249,7 @@ public class landingp extends javax.swing.JFrame {
         bookpnel.setLayout(bookpnelLayout);
         bookpnelLayout.setHorizontalGroup(
             bookpnelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(bookbtn, javax.swing.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
+            .addComponent(bookbtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE)
         );
         bookpnelLayout.setVerticalGroup(
             bookpnelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -253,11 +258,14 @@ public class landingp extends javax.swing.JFrame {
                 .addComponent(bookbtn, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
-        jPanel1.add(bookpnel, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 360, 250, -1));
+        jPanel1.add(bookpnel, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 370, 220, 50));
 
         jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/t.png"))); // NOI18N
         jLabel4.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 140, 190, 150));
+
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/77.jpg"))); // NOI18N
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -50, 390, 520));
 
         bg.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 50, 390, 470));
 
@@ -468,12 +476,14 @@ public class landingp extends javax.swing.JFrame {
     private javax.swing.JLabel exitb;
     private javax.swing.JPanel exitp;
     private javax.swing.JPanel hdr;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel lgn;
     private javax.swing.JLabel loc;
+    private javax.swing.JLabel logo;
     private javax.swing.JLabel services;
     private javax.swing.JLabel smile;
     private javax.swing.JLabel tagline;

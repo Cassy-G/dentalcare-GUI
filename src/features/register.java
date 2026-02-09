@@ -36,9 +36,11 @@ int xMouse, yMouse;
     private void initComponents() {
 
         hdr = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
+        logo = new javax.swing.JLabel();
         xpnl = new javax.swing.JPanel();
         xbtn = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         createacc = new javax.swing.JLabel();
@@ -75,8 +77,13 @@ int xMouse, yMouse;
         });
         hdr.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/output-onlinepngtools (3).png"))); // NOI18N
-        hdr.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 50, 50));
+        logo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/output-onlinepngtools__3_-removebg-preview.png"))); // NOI18N
+        logo.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                logoMouseClicked(evt);
+            }
+        });
+        hdr.add(logo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 50, 50));
 
         xpnl.setPreferredSize(new java.awt.Dimension(40, 30));
 
@@ -109,6 +116,12 @@ int xMouse, yMouse;
 
         hdr.add(xpnl, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 10, 40, 30));
 
+        jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/output-onlinepngtools__3_-removebg-preview.png"))); // NOI18N
+        hdr.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, 50));
+
+        jLabel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/5046faad4a4c9af72bcf4fe75c8a11d0.jpg"))); // NOI18N
+        hdr.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
+
         getContentPane().add(hdr, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
@@ -117,10 +130,10 @@ int xMouse, yMouse;
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        createacc.setFont(new java.awt.Font("Times New Roman", 2, 24)); // NOI18N
+        createacc.setFont(new java.awt.Font("Times New Roman", 2, 21)); // NOI18N
         createacc.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         createacc.setText("Create your Account.");
-        jPanel2.add(createacc, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 360, -1));
+        jPanel2.add(createacc, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 20, 350, -1));
 
         jLabel3.setText("Username");
         jPanel2.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 70, -1, -1));
@@ -130,7 +143,7 @@ int xMouse, yMouse;
                 usernameActionPerformed(evt);
             }
         });
-        jPanel2.add(username, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 90, 210, -1));
+        jPanel2.add(username, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 90, 210, 30));
 
         jLabel4.setText("E-mail");
         jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 130, -1, -1));
@@ -140,7 +153,7 @@ int xMouse, yMouse;
                 emailActionPerformed(evt);
             }
         });
-        jPanel2.add(email, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 150, 210, -1));
+        jPanel2.add(email, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 150, 210, 30));
 
         jLabel5.setText("Password");
         jPanel2.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 190, -1, -1));
@@ -392,6 +405,13 @@ int xMouse, yMouse;
          createaccbtn.setForeground(Color.black);
     }//GEN-LAST:event_createaccbtnMouseExited
 
+    private void logoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logoMouseClicked
+        // TODO add your handling code here:
+           landingp logo = new landingp();
+        this.dispose();
+        logo.setVisible(true);
+    }//GEN-LAST:event_logoMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -435,15 +455,17 @@ int xMouse, yMouse;
     private javax.swing.JTextField email;
     private javax.swing.JPanel hdr;
     private javax.swing.JCheckBox jCheckBox1;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JLabel logo;
     private javax.swing.JPasswordField pass;
     private javax.swing.JLabel signIN;
     private javax.swing.JTextField username;

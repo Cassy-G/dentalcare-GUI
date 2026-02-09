@@ -35,6 +35,7 @@ int xMouse, yMouse;
         xbtn = new javax.swing.JLabel();
         logo = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
         lgnpc = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -101,7 +102,7 @@ int xMouse, yMouse;
 
         hdr.add(xpn, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 10, 40, 30));
 
-        logo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/output-onlinepngtools (3).png"))); // NOI18N
+        logo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/output-onlinepngtools__3_-removebg-preview.png"))); // NOI18N
         hdr.add(logo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 50, 50));
 
         jLabel4.setBackground(new java.awt.Color(51, 102, 255));
@@ -109,6 +110,9 @@ int xMouse, yMouse;
         jLabel4.setForeground(new java.awt.Color(51, 102, 255));
         jLabel4.setText("DentalCare");
         hdr.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, -1, 50));
+
+        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/5046faad4a4c9af72bcf4fe75c8a11d0.jpg"))); // NOI18N
+        hdr.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
 
         bg.add(hdr, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
 
@@ -374,6 +378,7 @@ int xMouse, yMouse;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
