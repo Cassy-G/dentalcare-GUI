@@ -5,7 +5,13 @@
  */
 package features;
 
+import config.config;
 import java.awt.Color;
+import javax.swing.BorderFactory;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 
 /**
  *
@@ -37,18 +43,18 @@ int xMouse, yMouse;
         jPanel2 = new javax.swing.JPanel();
         createacc = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        username = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
+        email = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
-        jTextField4 = new javax.swing.JTextField();
         createaccpnl = new javax.swing.JPanel();
         createaccbtn = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         signIN = new javax.swing.JLabel();
         jCheckBox1 = new javax.swing.JCheckBox();
+        cpass = new javax.swing.JPasswordField();
+        pass = new javax.swing.JPasswordField();
         jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -56,7 +62,7 @@ int xMouse, yMouse;
         setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        hdr.setBackground(new java.awt.Color(204, 255, 255));
+        hdr.setBackground(new java.awt.Color(255, 255, 255));
         hdr.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
             public void mouseDragged(java.awt.event.MouseEvent evt) {
                 hdrMouseDragged(evt);
@@ -116,44 +122,55 @@ int xMouse, yMouse;
         createacc.setText("Create your Account.");
         jPanel2.add(createacc, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 360, -1));
 
-        jLabel3.setText("Usernme");
+        jLabel3.setText("Username");
         jPanel2.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 70, -1, -1));
 
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+        username.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
+                usernameActionPerformed(evt);
             }
         });
-        jPanel2.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 90, 210, -1));
+        jPanel2.add(username, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 90, 210, -1));
 
         jLabel4.setText("E-mail");
         jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 130, -1, -1));
 
-        jTextField2.addActionListener(new java.awt.event.ActionListener() {
+        email.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField2ActionPerformed(evt);
+                emailActionPerformed(evt);
             }
         });
-        jPanel2.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 150, 210, -1));
+        jPanel2.add(email, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 150, 210, -1));
 
         jLabel5.setText("Password");
         jPanel2.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 190, -1, -1));
 
-        jTextField3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField3ActionPerformed(evt);
-            }
-        });
-        jPanel2.add(jTextField3, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 210, 210, -1));
-
         jLabel6.setText("Confirm Password");
         jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 250, -1, -1));
-        jPanel2.add(jTextField4, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 270, 210, -1));
 
+        createaccpnl.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                createaccpnlMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                createaccpnlMouseEntered(evt);
+            }
+        });
         createaccpnl.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         createaccbtn.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         createaccbtn.setText("Create Account");
+        createaccbtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                createaccbtnMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                createaccbtnMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                createaccbtnMouseExited(evt);
+            }
+        });
         createaccpnl.add(createaccbtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(-110, 0, 350, 30));
 
         jPanel2.add(createaccpnl, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 340, 130, 30));
@@ -179,6 +196,20 @@ int xMouse, yMouse;
             }
         });
         jPanel2.add(jCheckBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 300, 210, 30));
+
+        cpass.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cpassActionPerformed(evt);
+            }
+        });
+        jPanel2.add(cpass, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 270, 210, 30));
+
+        pass.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                passActionPerformed(evt);
+            }
+        });
+        jPanel2.add(pass, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 212, 210, 30));
 
         jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 20, 350, 430));
 
@@ -224,17 +255,13 @@ int xMouse, yMouse;
         yMouse = evt.getY();
     }//GEN-LAST:event_hdrMousePressed
 
-    private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
+    private void emailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_emailActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField2ActionPerformed
+    }//GEN-LAST:event_emailActionPerformed
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+    private void usernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usernameActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
-
-    private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField3ActionPerformed
+    }//GEN-LAST:event_usernameActionPerformed
 
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
         // TODO add your handling code here:
@@ -246,6 +273,124 @@ int xMouse, yMouse;
         this.dispose();
         signin.setVisible(true);
     }//GEN-LAST:event_signINMouseClicked
+
+    private void createaccbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_createaccbtnMouseClicked
+
+
+    String usern = username.getText();
+    String eml = email.getText();
+    String rawPass = new String(pass.getPassword());
+    String confirmRaw = new String(cpass.getPassword());
+
+
+    if (usern.isEmpty() || eml.isEmpty() || rawPass.isEmpty() || confirmRaw.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Please fill in all fields");
+        return;
+    }
+
+    if (!rawPass.equals(confirmRaw)) {
+        JOptionPane.showMessageDialog(this, "Passwords do not match");
+        return;
+    }
+
+    try {
+        config db = new config();
+
+        String checkSql = "SELECT COUNT(*) FROM t_users WHERE eml=?";
+        double count = db.getSingleValue(checkSql, eml);
+
+        if (count > 0) {
+            JOptionPane.showMessageDialog(this, "Email is already in use. Please use another email.");
+            return;
+        }
+
+        final JDialog loading = new JDialog(this, "Sending OTP...", true);
+        JLabel lbl = new JLabel("Please wait, sending OTP to your email...");
+        lbl.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        loading.add(lbl);
+        loading.pack();
+        loading.setLocationRelativeTo(this);
+
+
+        SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+            String otp = config.generateOtp();
+
+            @Override
+            protected Boolean doInBackground() {
+                return config.sendOtpEmail(eml, otp);
+            }
+
+            @Override
+            protected void done() {
+                loading.dispose(); 
+                try {
+                    boolean sent = get();
+                    if (!sent) {
+                        JOptionPane.showMessageDialog(null, "Failed to send OTP. Please try again later.");
+                        return;
+                    }
+
+                    
+                    String inputOtp = JOptionPane.showInputDialog(null, "Enter the OTP sent to your email:");
+
+                    if (inputOtp != null && inputOtp.equals(otp)) {
+                        
+                        String hashedPass = config.hashPassword(rawPass);
+
+                        String sql = "INSERT INTO t_users(usern, eml, pass, role) "
+                                   + "VALUES(?,?,?,'customer')";
+
+                        db.addRecord(sql, usern, eml,hashedPass);
+
+                        JOptionPane.showMessageDialog(null, "Sign Up Successful! Your account is verified.");
+                        dispose();
+                        new login().setVisible(true);
+
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Incorrect OTP. Account creation failed.");
+                    }
+
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
+                }
+            }
+        };
+
+        worker.execute();
+        loading.setVisible(true);
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+    }
+    }//GEN-LAST:event_createaccbtnMouseClicked
+
+    private void cpassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cpassActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cpassActionPerformed
+
+    private void passActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_passActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_passActionPerformed
+
+    private void createaccpnlMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_createaccpnlMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_createaccpnlMouseClicked
+
+    private void createaccpnlMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_createaccpnlMouseEntered
+        // TODO add your handling code here:
+         
+    }//GEN-LAST:event_createaccpnlMouseEntered
+
+    private void createaccbtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_createaccbtnMouseEntered
+        // TODO add your handling code here:
+         createaccpnl.setBackground(new Color(147, 199, 237));
+         createaccbtn.setForeground(Color.blue);
+    }//GEN-LAST:event_createaccbtnMouseEntered
+
+    private void createaccbtnMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_createaccbtnMouseExited
+         createaccpnl.setBackground(new Color(240,240,240));
+         createaccbtn.setForeground(Color.black);
+    }//GEN-LAST:event_createaccbtnMouseExited
 
     /**
      * @param args the command line arguments
@@ -283,9 +428,11 @@ int xMouse, yMouse;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPasswordField cpass;
     private javax.swing.JLabel createacc;
     private javax.swing.JLabel createaccbtn;
     private javax.swing.JPanel createaccpnl;
+    private javax.swing.JTextField email;
     private javax.swing.JPanel hdr;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel1;
@@ -297,11 +444,9 @@ int xMouse, yMouse;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
+    private javax.swing.JPasswordField pass;
     private javax.swing.JLabel signIN;
+    private javax.swing.JTextField username;
     private javax.swing.JLabel xbtn;
     private javax.swing.JPanel xpnl;
     // End of variables declaration//GEN-END:variables

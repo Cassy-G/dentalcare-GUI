@@ -12,56 +12,13 @@ import javax.swing.JOptionPane;
 public class login extends javax.swing.JFrame {
 int xMouse, yMouse;
 
-
-    private javax.swing.JTextField usernameField;
-    private javax.swing.JPasswordField passwordField;
     public login() {
         
+
         initComponents();
         // Username field with placeholder
-usernameField = new javax.swing.JTextField("Enter username");
-usernameField.setForeground(Color.GRAY);
-usernameField.addFocusListener(new java.awt.event.FocusAdapter() {
-    public void focusGained(java.awt.event.FocusEvent evt) {
-        if(usernameField.getText().equals("Enter username")) {
-            usernameField.setText("");
-            usernameField.setForeground(Color.BLACK);
+       
         }
-    }
-    public void focusLost(java.awt.event.FocusEvent evt) {
-        if(usernameField.getText().isEmpty()) {
-            usernameField.setText("Enter username");
-            usernameField.setForeground(Color.GRAY);
-        }
-    }
-});
-jPanel3.add(usernameField, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 150, 210, 30));
-
-// Password field with placeholder
-passwordField = new javax.swing.JPasswordField("Enter password");
-passwordField.setForeground(Color.GRAY);
-passwordField.setEchoChar((char)0); // Show placeholder
-passwordField.addFocusListener(new java.awt.event.FocusAdapter() {
-    public void focusGained(java.awt.event.FocusEvent evt) {
-        String pass = new String(passwordField.getPassword());
-        if(pass.equals("Enter password")) {
-            passwordField.setText("");
-            passwordField.setEchoChar('•'); // Mask password
-            passwordField.setForeground(Color.BLACK);
-        }
-    }
-    public void focusLost(java.awt.event.FocusEvent evt) {
-        String pass = new String(passwordField.getPassword());
-        if(pass.isEmpty()) {
-            passwordField.setText("Enter password");
-            passwordField.setEchoChar((char)0); // Show placeholder again
-            passwordField.setForeground(Color.GRAY);
-        }
-    }
-});
-jPanel3.add(passwordField, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 230, 210, 30));
-
-    }
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -77,6 +34,7 @@ jPanel3.add(passwordField, new org.netbeans.lib.awtextra.AbsoluteConstraints(50,
         xpn = new javax.swing.JPanel();
         xbtn = new javax.swing.JLabel();
         logo = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
         lgnpc = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -87,6 +45,8 @@ jPanel3.add(passwordField, new org.netbeans.lib.awtextra.AbsoluteConstraints(50,
         jLabel6 = new javax.swing.JLabel();
         createnewacc = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
+        userTxt = new javax.swing.JTextField();
+        JPasswordField = new javax.swing.JPasswordField();
         jPanel1 = new javax.swing.JPanel();
         bgpic = new javax.swing.JLabel();
 
@@ -98,7 +58,7 @@ jPanel3.add(passwordField, new org.netbeans.lib.awtextra.AbsoluteConstraints(50,
         bg.setBackground(new java.awt.Color(51, 102, 255));
         bg.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        hdr.setBackground(new java.awt.Color(204, 255, 255));
+        hdr.setBackground(new java.awt.Color(255, 255, 255));
         hdr.setMinimumSize(new java.awt.Dimension(800, 50));
         hdr.setPreferredSize(new java.awt.Dimension(810, 50));
         hdr.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
@@ -143,6 +103,12 @@ jPanel3.add(passwordField, new org.netbeans.lib.awtextra.AbsoluteConstraints(50,
 
         logo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/output-onlinepngtools (3).png"))); // NOI18N
         hdr.add(logo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 50, 50));
+
+        jLabel4.setBackground(new java.awt.Color(51, 102, 255));
+        jLabel4.setFont(new java.awt.Font("Yu Gothic Light", 1, 14)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(51, 102, 255));
+        jLabel4.setText("DentalCare");
+        hdr.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, -1, 50));
 
         bg.add(hdr, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
 
@@ -223,6 +189,8 @@ jPanel3.add(passwordField, new org.netbeans.lib.awtextra.AbsoluteConstraints(50,
 
         jLabel7.setText("Enter your details below.");
         jPanel3.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 80, -1, -1));
+        jPanel3.add(userTxt, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 150, 210, 30));
+        jPanel3.add(JPasswordField, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 230, 210, 30));
 
         bg.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 80, 320, 380));
 
@@ -278,8 +246,8 @@ jPanel3.add(passwordField, new org.netbeans.lib.awtextra.AbsoluteConstraints(50,
     }//GEN-LAST:event_hdrMousePressed
 
     private void loginbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_loginbtnMouseClicked
-    String email = usernameField.getText();
-        String rawPass = new String(passwordField.getPassword());
+    String email = userTxt.getText();
+        String rawPass = new String(JPasswordField.getPassword());
 
         try {
             Connection conn = config.connectDB();
@@ -397,6 +365,7 @@ jPanel3.add(passwordField, new org.netbeans.lib.awtextra.AbsoluteConstraints(50,
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPasswordField JPasswordField;
     private javax.swing.JPanel bg;
     private javax.swing.JLabel bgpic;
     private javax.swing.JLabel createnewacc;
@@ -404,6 +373,7 @@ jPanel3.add(passwordField, new org.netbeans.lib.awtextra.AbsoluteConstraints(50,
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
@@ -412,9 +382,12 @@ jPanel3.add(passwordField, new org.netbeans.lib.awtextra.AbsoluteConstraints(50,
     private javax.swing.JPanel lgnpnl;
     private javax.swing.JLabel loginbtn;
     private javax.swing.JLabel logo;
+    private javax.swing.JTextField userTxt;
     private javax.swing.JLabel xbtn;
     private javax.swing.JPanel xpn;
     // End of variables declaration//GEN-END:variables
+
+    
 
 
     }

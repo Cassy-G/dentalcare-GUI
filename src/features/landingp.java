@@ -115,18 +115,62 @@ public class landingp extends javax.swing.JFrame {
 
         Home.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         Home.setText("Home");
+        Home.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                HomeMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                HomeMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                HomeMouseExited(evt);
+            }
+        });
         hdr.add(Home, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 0, 60, 50));
 
         about.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         about.setText("About Us");
-        hdr.add(about, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 0, 80, 50));
+        about.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                aboutMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                aboutMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                aboutMouseExited(evt);
+            }
+        });
+        hdr.add(about, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 0, 70, 50));
 
         services.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         services.setText("Services");
+        services.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                servicesMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                servicesMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                servicesMouseExited(evt);
+            }
+        });
         hdr.add(services, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 0, -1, 50));
 
         loc.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         loc.setText("Location");
+        loc.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                locMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                locMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                locMouseExited(evt);
+            }
+        });
         hdr.add(loc, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 0, -1, 50));
 
         lgn.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
@@ -310,6 +354,74 @@ public class landingp extends javax.swing.JFrame {
         yMouse = evt.getY();
     }//GEN-LAST:event_hdrMousePressed
 
+    private void aboutMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_aboutMouseClicked
+        // TODO add your handling code here:
+        aboutUs abouts = new aboutUs();
+        this.dispose();
+        abouts.setVisible(true);
+    }//GEN-LAST:event_aboutMouseClicked
+
+    private void aboutMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_aboutMouseEntered
+        // TODO add your handling code here:
+         about.setForeground(Color.blue);
+    }//GEN-LAST:event_aboutMouseEntered
+
+    private void aboutMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_aboutMouseExited
+        // TODO add your handling code here:
+        about.setBackground(Color. white);
+        about.setForeground(Color.black);
+    }//GEN-LAST:event_aboutMouseExited
+
+    private void HomeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_HomeMouseClicked
+        // TODO add your handling code here:
+        landingp home = new landingp();
+        this.dispose();
+        home.setVisible(true);
+    }//GEN-LAST:event_HomeMouseClicked
+
+    private void HomeMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_HomeMouseEntered
+        // TODO add your handling code here:
+        Home.setForeground(Color.blue);
+    }//GEN-LAST:event_HomeMouseEntered
+
+    private void HomeMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_HomeMouseExited
+        // TODO add your handling code here:
+        Home.setBackground(Color. white);
+        Home.setForeground(Color.black);
+    }//GEN-LAST:event_HomeMouseExited
+
+    private void servicesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_servicesMouseClicked
+        // TODO add your handling code here:
+        
+    }//GEN-LAST:event_servicesMouseClicked
+
+    private void servicesMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_servicesMouseEntered
+        // TODO add your handling code here:
+        services.setForeground(Color.blue);
+    }//GEN-LAST:event_servicesMouseEntered
+
+    private void servicesMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_servicesMouseExited
+        // TODO add your handling code here:
+        services.setBackground(Color. white);
+        services.setForeground(Color.black);
+        
+    }//GEN-LAST:event_servicesMouseExited
+
+    private void locMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_locMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_locMouseClicked
+
+    private void locMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_locMouseEntered
+        // TODO add your handling code here:
+        loc.setForeground(Color.blue);
+    }//GEN-LAST:event_locMouseEntered
+
+    private void locMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_locMouseExited
+        // TODO add your handling code here:
+        loc.setBackground(Color. white);
+        loc.setForeground(Color.black);
+    }//GEN-LAST:event_locMouseExited
+
     /**
      * @param args the command line arguments
      */
@@ -367,4 +479,6 @@ public class landingp extends javax.swing.JFrame {
     private javax.swing.JLabel tagline;
     private javax.swing.JLabel tg2;
     // End of variables declaration//GEN-END:variables
+
+ 
 }
