@@ -5,7 +5,11 @@
  */
 package features;
 
+import config.config;
 import java.awt.Color;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JComboBox;
+import javax.swing.table.TableColumn;
 
 /**
  *
@@ -15,10 +19,15 @@ public class customer extends javax.swing.JFrame {
  int xMouse, yMouse;
     /**
      * Creates new form log
+     * @param name
      */
-    public customer() {
+    public customer(String name) {
         initComponents();
+        user.setText("Welcome, " + name);
+        usertable();
     }
+
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -37,6 +46,7 @@ public class customer extends javax.swing.JFrame {
         schedbtn = new javax.swing.JLabel();
         apppnl = new javax.swing.JPanel();
         appbtn = new javax.swing.JLabel();
+        user = new javax.swing.JLabel();
         patientpnl = new javax.swing.JPanel();
         patientbtn = new javax.swing.JLabel();
         docpnl = new javax.swing.JPanel();
@@ -52,6 +62,8 @@ public class customer extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         dashTb = new javax.swing.JTabbedPane();
         jPanel6 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        table = new javax.swing.JTable();
         jPanel5 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
@@ -146,6 +158,9 @@ public class customer extends javax.swing.JFrame {
         );
 
         dashbox.add(apppnl, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 110, 170, 30));
+
+        user.setBackground(new java.awt.Color(153, 153, 255));
+        dashbox.add(user, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 300, 87, 53));
 
         patientpnl.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -317,15 +332,28 @@ public class customer extends javax.swing.JFrame {
 
         bg.add(hdr, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
 
+        table.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+
+            }
+        ));
+        table.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        jScrollPane1.setViewportView(table);
+
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 635, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 635, Short.MAX_VALUE)
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 490, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                .addGap(0, 88, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         dashTb.addTab("dashboard", jPanel6);
@@ -540,7 +568,33 @@ public class customer extends javax.swing.JFrame {
         this.dispose();
         logo.setVisible(true);
     }//GEN-LAST:event_jLabel1MouseClicked
+    
+      
+    void usertable() {
+     String sql = "SELECT u_id AS Id, usern AS Name, role AS Role, verify AS verify FROM t_users";
+     config conf = new config();
+     conf.displayData(sql,table);
 
+
+     String[] roles = {"staff", "admin", "patient", "dentist"};
+     JComboBox<String> comboRole = new JComboBox<>(roles);
+
+ 
+     TableColumn roleColumn = table.getColumnModel().getColumn(2);
+     roleColumn.setCellEditor(new DefaultCellEditor(comboRole));
+
+     comboRole.addActionListener(e -> {
+         int row = table.getEditingRow(); 
+         if (row >= 0) {
+             String newRole = (String) comboRole.getSelectedItem();
+             int userId = Integer.parseInt(table.getValueAt(row, 0).toString());
+
+
+             String updateSQL = "UPDATE t_users SET role=? WHERE u_id=?";
+             conf.updateRecord(updateSQL, newRole, userId);
+         }
+     });
+ }
     /**
      * @param args the command line arguments
      */
@@ -602,7 +656,7 @@ public class customer extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new customer().setVisible(true);
+               
             }
         });
     }
@@ -629,6 +683,7 @@ public class customer extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel logout;
     private javax.swing.JLabel messbtn;
     private javax.swing.JPanel messpnl;
@@ -636,5 +691,7 @@ public class customer extends javax.swing.JFrame {
     private javax.swing.JPanel patientpnl;
     private javax.swing.JLabel schedbtn;
     private javax.swing.JPanel schedpnl;
+    private javax.swing.JTable table;
+    private javax.swing.JLabel user;
     // End of variables declaration//GEN-END:variables
 }

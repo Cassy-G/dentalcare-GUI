@@ -16,8 +16,9 @@ public class dentst extends javax.swing.JFrame {
     /**
      * Creates new form log
      */
-    public dentst() {
+    public dentst(String name) {
         initComponents();
+        dentist.setText("Welcome, " + name);
     }
 
     /**
@@ -52,6 +53,7 @@ public class dentst extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         dashTb = new javax.swing.JTabbedPane();
         jPanel6 = new javax.swing.JPanel();
+        dentist = new javax.swing.JLabel();
         jPanel5 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
@@ -315,11 +317,17 @@ public class dentst extends javax.swing.JFrame {
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 635, Short.MAX_VALUE)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addGap(254, 254, 254)
+                .addComponent(dentist, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(270, Short.MAX_VALUE))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 490, Short.MAX_VALUE)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addGap(114, 114, 114)
+                .addComponent(dentist, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(234, Short.MAX_VALUE))
         );
 
         dashTb.addTab("dashboard", jPanel6);
@@ -582,7 +590,7 @@ public class dentst extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new dentst().setVisible(true);
+            
             }
         });
     }
@@ -597,6 +605,7 @@ public class dentst extends javax.swing.JFrame {
     private javax.swing.JPanel dashbox;
     private javax.swing.JLabel dashbtn;
     private javax.swing.JPanel dashpnl;
+    private javax.swing.JLabel dentist;
     private javax.swing.JLabel docbtn;
     private javax.swing.JPanel docpnl;
     private javax.swing.JPanel hdr;

@@ -440,8 +440,8 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
                         
                         String hashedPass = config.hashPassword(rawPass);
 
-                        String sql = "INSERT INTO t_users(usern, eml, pass, role) "
-                                   + "VALUES(?,?,?,'customer')";
+                        String sql = "INSERT INTO t_users(usern, eml, pass, verify, role) "
+                                   + "VALUES(?,?,?, 1,'patient')";
 
                         db.addRecord(sql, usern, eml,hashedPass);
 

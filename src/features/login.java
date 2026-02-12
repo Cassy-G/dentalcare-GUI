@@ -347,7 +347,7 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
             String hashedPass = config.hashPassword(rawPass);
 
             // Query user by email and hashed password
-            String sql = "SELECT * FROM tbl_user WHERE u_email=? AND u_password=?";
+            String sql = "SELECT * FROM t_users WHERE eml=? AND pass=?";
             PreparedStatement pst = conn.prepareStatement(sql);
             pst.setString(1, email);
             pst.setString(2, hashedPass);
@@ -356,22 +356,22 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
 
             if (rs.next()) {
                 // Check if email is verified
-                String verified = rs.getString("u_verified");
+                String verified = rs.getString("verify");
                 if (!"1".equals(verified)) {
                     JOptionPane.showMessageDialog(this, "Your account is not verified. Please check your email.");
                     return;
                 }
 
                 // Get role and name
-                String role = rs.getString("u_role");
-                String name = rs.getString("u_name");
+                String role = rs.getString("role");
+                String name = rs.getString("usern");
 
                 // Redirect based on role
                 switch (role.toLowerCase()) {
-                    case "customer":
-                    //                        Customer customerDash = new Customer(name);
-                    //                        this.dispose();
-                    //                        customerDash.setVisible(true);
+                    case "patient":
+                                            customer customerDash = new customer(name);
+                                            this.dispose();
+                                            customerDash.setVisible(true);
                     break;
                     case "staff":
                     //                        Staff staffDash = new Staff(name); // create this JFrame
@@ -383,6 +383,11 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
                     this.dispose();
                     //    adminDash.setVisible(true);
                     break;
+                    case "dentist":
+                     dentst dentist = new dentst(name);
+                     this.dispose();
+                     dentist.setVisible(true);
+                        
                     default:
                     JOptionPane.showMessageDialog(this, "Unknown role: " + role);
                 }
