@@ -9,6 +9,7 @@ import java.awt.Color;
 import static java.lang.System.exit;
 import config.config;
 
+
 /**
  *
  * @author Cassandra Gallera
@@ -249,7 +250,7 @@ public class landingp extends javax.swing.JFrame {
         bookpnel.setLayout(bookpnelLayout);
         bookpnelLayout.setHorizontalGroup(
             bookpnelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(bookbtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE)
+            .addComponent(bookbtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 210, Short.MAX_VALUE)
         );
         bookpnelLayout.setVerticalGroup(
             bookpnelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -258,7 +259,7 @@ public class landingp extends javax.swing.JFrame {
                 .addComponent(bookbtn, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
-        jPanel1.add(bookpnel, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 370, 220, 50));
+        jPanel1.add(bookpnel, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 360, 210, 50));
 
         jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/t.png"))); // NOI18N
         jLabel4.setVerticalAlignment(javax.swing.SwingConstants.TOP);
@@ -318,7 +319,9 @@ public class landingp extends javax.swing.JFrame {
 
     private void bookbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bookbtnMouseClicked
         // TODO add your handling code here:
-        System.exit(0);
+        book booknow = new book();
+        this.dispose();
+        booknow.setVisible(true);
     }//GEN-LAST:event_bookbtnMouseClicked
 
     private void bookbtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bookbtnMouseEntered
@@ -398,37 +401,37 @@ public class landingp extends javax.swing.JFrame {
         Home.setForeground(Color.black);
     }//GEN-LAST:event_HomeMouseExited
 
-    private void servicesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_servicesMouseClicked
+    private void locMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_locMouseExited
         // TODO add your handling code here:
-        
-    }//GEN-LAST:event_servicesMouseClicked
-
-    private void servicesMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_servicesMouseEntered
-        // TODO add your handling code here:
-        services.setForeground(Color.blue);
-    }//GEN-LAST:event_servicesMouseEntered
-
-    private void servicesMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_servicesMouseExited
-        // TODO add your handling code here:
-        services.setBackground(Color. white);
-        services.setForeground(Color.black);
-        
-    }//GEN-LAST:event_servicesMouseExited
-
-    private void locMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_locMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_locMouseClicked
+        loc.setBackground(Color. white);
+        loc.setForeground(Color.black);
+    }//GEN-LAST:event_locMouseExited
 
     private void locMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_locMouseEntered
         // TODO add your handling code here:
         loc.setForeground(Color.blue);
     }//GEN-LAST:event_locMouseEntered
 
-    private void locMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_locMouseExited
+    private void locMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_locMouseClicked
         // TODO add your handling code here:
-        loc.setBackground(Color. white);
-        loc.setForeground(Color.black);
-    }//GEN-LAST:event_locMouseExited
+    }//GEN-LAST:event_locMouseClicked
+
+    private void servicesMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_servicesMouseExited
+        // TODO add your handling code here:
+        services.setBackground(Color. white);
+        services.setForeground(Color.black);
+
+    }//GEN-LAST:event_servicesMouseExited
+
+    private void servicesMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_servicesMouseEntered
+        // TODO add your handling code here:
+        services.setForeground(Color.blue);
+    }//GEN-LAST:event_servicesMouseEntered
+
+    private void servicesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_servicesMouseClicked
+        // TODO add your handling code here:
+
+    }//GEN-LAST:event_servicesMouseClicked
 
     /**
      * @param args the command line arguments

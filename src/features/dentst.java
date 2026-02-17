@@ -40,25 +40,49 @@ public class dentst extends javax.swing.JFrame {
         appbtn = new javax.swing.JLabel();
         patientpnl = new javax.swing.JPanel();
         patientbtn = new javax.swing.JLabel();
-        docpnl = new javax.swing.JPanel();
-        docbtn = new javax.swing.JLabel();
-        messpnl = new javax.swing.JPanel();
-        messbtn = new javax.swing.JLabel();
         logout = new javax.swing.JLabel();
         hdr = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         XPNL = new javax.swing.JPanel();
         XBTN = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         dashTb = new javax.swing.JTabbedPane();
-        jPanel6 = new javax.swing.JPanel();
-        dentist = new javax.swing.JLabel();
-        jPanel5 = new javax.swing.JPanel();
-        jPanel4 = new javax.swing.JPanel();
+        db = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        tp = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
+        completed = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        jLabel14 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
+        jLabel9 = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
+        inProg = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel17 = new javax.swing.JLabel();
+        upcoming = new javax.swing.JLabel();
+        jPanel5 = new javax.swing.JPanel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel16 = new javax.swing.JLabel();
+        jPanel6 = new javax.swing.JPanel();
+        jLabel18 = new javax.swing.JLabel();
+        jLabel19 = new javax.swing.JLabel();
+        jLabel20 = new javax.swing.JLabel();
+        jPanel8 = new javax.swing.JPanel();
+        jLabel21 = new javax.swing.JLabel();
+        jLabel22 = new javax.swing.JLabel();
+        jLabel23 = new javax.swing.JLabel();
+        dentist = new javax.swing.JLabel();
+        sched = new javax.swing.JPanel();
+        patient = new javax.swing.JPanel();
+        treatment = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
@@ -98,7 +122,7 @@ public class dentst extends javax.swing.JFrame {
         schedbtn.setBackground(new java.awt.Color(255, 255, 255));
         schedbtn.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         schedbtn.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        schedbtn.setText("Schedule");
+        schedbtn.setText("My Schedule");
         schedbtn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 schedbtnMouseClicked(evt);
@@ -118,7 +142,7 @@ public class dentst extends javax.swing.JFrame {
 
         appbtn.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         appbtn.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        appbtn.setText("Appointments");
+        appbtn.setText("My Patients");
         appbtn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 appbtnMouseClicked(evt);
@@ -152,7 +176,7 @@ public class dentst extends javax.swing.JFrame {
 
         patientbtn.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         patientbtn.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        patientbtn.setText("Patients");
+        patientbtn.setText("Treatment Plans");
         patientbtn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 patientbtnMouseClicked(evt);
@@ -177,69 +201,6 @@ public class dentst extends javax.swing.JFrame {
         );
 
         dashbox.add(patientpnl, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 150, 170, 30));
-
-        docpnl.setBackground(new java.awt.Color(255, 255, 255));
-
-        docbtn.setBackground(new java.awt.Color(255, 255, 255));
-        docbtn.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        docbtn.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        docbtn.setText("Doctors");
-        docbtn.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                docbtnMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                docbtnMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                docbtnMouseExited(evt);
-            }
-        });
-
-        javax.swing.GroupLayout docpnlLayout = new javax.swing.GroupLayout(docpnl);
-        docpnl.setLayout(docpnlLayout);
-        docpnlLayout.setHorizontalGroup(
-            docpnlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(docbtn, javax.swing.GroupLayout.DEFAULT_SIZE, 170, Short.MAX_VALUE)
-        );
-        docpnlLayout.setVerticalGroup(
-            docpnlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(docbtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
-        );
-
-        dashbox.add(docpnl, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 190, 170, 30));
-
-        messpnl.setBackground(new java.awt.Color(255, 255, 255));
-
-        messbtn.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        messbtn.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        messbtn.setText("Messages");
-        messbtn.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                messbtnMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                messbtnMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                messbtnMouseExited(evt);
-            }
-        });
-
-        javax.swing.GroupLayout messpnlLayout = new javax.swing.GroupLayout(messpnl);
-        messpnl.setLayout(messpnlLayout);
-        messpnlLayout.setHorizontalGroup(
-            messpnlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, messpnlLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(messbtn, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
-        messpnlLayout.setVerticalGroup(
-            messpnlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(messbtn, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
-        );
-
-        dashbox.add(messpnl, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 230, 170, 30));
 
         logout.setFont(new java.awt.Font("Times New Roman", 3, 14)); // NOI18N
         logout.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -303,99 +264,197 @@ public class dentst extends javax.swing.JFrame {
         hdr.add(XPNL, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 10, 40, 30));
 
         jLabel2.setBackground(new java.awt.Color(51, 102, 255));
-        jLabel2.setFont(new java.awt.Font("Yu Gothic Light", 1, 14)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(51, 102, 255));
-        jLabel2.setText("DentalCare");
-        hdr.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(52, 0, 130, 50));
+        jLabel2.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(51, 51, 51));
+        jLabel2.setText("Dentist Portal");
+        jLabel2.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        hdr.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 10, 110, 20));
+
+        jLabel4.setFont(new java.awt.Font("Arial", 0, 13)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(51, 51, 51));
+        jLabel4.setText("Dr.");
+        hdr.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 30, 100, 20));
 
         jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/5046faad4a4c9af72bcf4fe75c8a11d0.jpg"))); // NOI18N
         hdr.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
 
         bg.add(hdr, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
 
-        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
-        jPanel6.setLayout(jPanel6Layout);
-        jPanel6Layout.setHorizontalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createSequentialGroup()
-                .addGap(254, 254, 254)
-                .addComponent(dentist, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(270, Short.MAX_VALUE))
-        );
-        jPanel6Layout.setVerticalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createSequentialGroup()
-                .addGap(114, 114, 114)
-                .addComponent(dentist, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(234, Short.MAX_VALUE))
-        );
+        db.setBackground(new java.awt.Color(204, 255, 255));
+        db.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        dashTb.addTab("dashboard", jPanel6);
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
-        jPanel5.setLayout(jPanel5Layout);
-        jPanel5Layout.setHorizontalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        jLabel8.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        jLabel8.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel8.setText("Today's Patients");
+        jPanel1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 120, 60));
+
+        jLabel11.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-person-55.png"))); // NOI18N
+        jPanel1.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 0, 70, 70));
+
+        tp.setText("jLabel12");
+        jPanel1.add(tp, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 50, -1, -1));
+
+        db.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 180, 90));
+
+        jLabel5.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        jLabel5.setText("Date");
+        db.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 60, 110, -1));
+
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        completed.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        completed.setForeground(new java.awt.Color(102, 102, 102));
+        completed.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        completed.setText("Completed");
+        jPanel2.add(completed, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 130, 60));
+
+        jLabel13.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-checkmark-48.png"))); // NOI18N
+        jPanel2.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 0, 50, 80));
+
+        jLabel14.setText("jLabel14");
+        jPanel2.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 50, -1, -1));
+
+        db.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 90, 180, 90));
+
+        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel9.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        jLabel9.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel9.setText("In progress");
+        jPanel3.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 120, 60));
+
+        jLabel15.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-delivery-time-60.png"))); // NOI18N
+        jPanel3.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 10, 60, 60));
+
+        inProg.setText("jLabel16");
+        jPanel3.add(inProg, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 50, -1, -1));
+
+        db.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 90, 180, 90));
+
+        jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel10.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        jLabel10.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel10.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel10.setText("Upcoming");
+        jPanel4.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 110, 60));
+
+        jLabel17.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-calendar-48.png"))); // NOI18N
+        jPanel4.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 20, 50, 50));
+
+        upcoming.setText("jLabel18");
+        jPanel4.add(upcoming, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 60, -1, -1));
+
+        db.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 210, 180, 90));
+
+        jPanel5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel6.setFont(new java.awt.Font("Times New Roman", 0, 16)); // NOI18N
+        jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel6.setText("View all Patients");
+        jPanel5.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 20, 190, 30));
+
+        jLabel12.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jLabel12.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-person-40.png"))); // NOI18N
+        jLabel12.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
+        jPanel5.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 50, -1));
+
+        jLabel16.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        jLabel16.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel16.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel16.setText("Access patient records");
+        jPanel5.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 50, 190, -1));
+
+        db.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 390, 190, 80));
+
+        jPanel6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel18.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-note-40.png"))); // NOI18N
+        jPanel6.add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 70, 50));
+
+        jLabel19.setFont(new java.awt.Font("Times New Roman", 0, 16)); // NOI18N
+        jLabel19.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel19.setText("Treatment Plans");
+        jPanel6.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 20, 200, 30));
+
+        jLabel20.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        jLabel20.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel20.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel20.setText("Manage active treatments");
+        jPanel6.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 50, 200, -1));
+
+        db.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 390, 200, 80));
+
+        jPanel8.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel21.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-calendar-40.png"))); // NOI18N
+        jPanel8.add(jLabel21, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 50, 50));
+
+        jLabel22.setFont(new java.awt.Font("Times New Roman", 0, 16)); // NOI18N
+        jLabel22.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel22.setText("My schedule");
+        jPanel8.add(jLabel22, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 20, 190, 30));
+
+        jLabel23.setFont(new java.awt.Font("Arial", 0, 15)); // NOI18N
+        jLabel23.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel23.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel23.setText("View full calendar");
+        jPanel8.add(jLabel23, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 150, -1));
+
+        db.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 390, 190, 80));
+
+        dentist.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
+        dentist.setText("dffs");
+        db.add(dentist, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 20, 100, 40));
+
+        dashTb.addTab("dashboard", db);
+
+        javax.swing.GroupLayout schedLayout = new javax.swing.GroupLayout(sched);
+        sched.setLayout(schedLayout);
+        schedLayout.setHorizontalGroup(
+            schedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 635, Short.MAX_VALUE)
         );
-        jPanel5Layout.setVerticalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        schedLayout.setVerticalGroup(
+            schedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 490, Short.MAX_VALUE)
         );
 
-        dashTb.addTab("schedule", jPanel5);
+        dashTb.addTab("schedule", sched);
 
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout patientLayout = new javax.swing.GroupLayout(patient);
+        patient.setLayout(patientLayout);
+        patientLayout.setHorizontalGroup(
+            patientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 635, Short.MAX_VALUE)
         );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        patientLayout.setVerticalGroup(
+            patientLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 490, Short.MAX_VALUE)
         );
 
-        dashTb.addTab("appointments", jPanel4);
+        dashTb.addTab("patients", patient);
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout treatmentLayout = new javax.swing.GroupLayout(treatment);
+        treatment.setLayout(treatmentLayout);
+        treatmentLayout.setHorizontalGroup(
+            treatmentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 635, Short.MAX_VALUE)
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        treatmentLayout.setVerticalGroup(
+            treatmentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 490, Short.MAX_VALUE)
         );
 
-        dashTb.addTab("patients", jPanel1);
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 635, Short.MAX_VALUE)
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 490, Short.MAX_VALUE)
-        );
-
-        dashTb.addTab("doctors", jPanel2);
-
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 635, Short.MAX_VALUE)
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 490, Short.MAX_VALUE)
-        );
-
-        dashTb.addTab("messages", jPanel3);
+        dashTb.addTab("treatmentp", treatment);
 
         bg.add(dashTb, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 0, 640, 520));
 
@@ -473,14 +532,6 @@ public class dentst extends javax.swing.JFrame {
         dashTb.setSelectedIndex(3);
     }//GEN-LAST:event_patientbtnMouseClicked
 
-    private void docbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_docbtnMouseClicked
-       dashTb.setSelectedIndex(4);
-    }//GEN-LAST:event_docbtnMouseClicked
-
-    private void messbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_messbtnMouseClicked
-        dashTb.setSelectedIndex(5);
-    }//GEN-LAST:event_messbtnMouseClicked
-
     private void schedbtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_schedbtnMouseEntered
         schedpnl.setBackground(Color. blue);
         schedbtn.setForeground(Color.white);
@@ -510,26 +561,6 @@ public class dentst extends javax.swing.JFrame {
         patientpnl.setBackground(Color. white);
         patientbtn.setForeground(Color.black);
     }//GEN-LAST:event_patientbtnMouseExited
-
-    private void docbtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_docbtnMouseEntered
-        docpnl.setBackground(Color. blue);
-        docbtn.setForeground(Color.white);
-    }//GEN-LAST:event_docbtnMouseEntered
-
-    private void docbtnMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_docbtnMouseExited
-        docpnl.setBackground(Color. white);
-        docbtn.setForeground(Color.black);
-    }//GEN-LAST:event_docbtnMouseExited
-
-    private void messbtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_messbtnMouseEntered
-        messpnl.setBackground(Color. blue);
-        messbtn.setForeground(Color.white);
-    }//GEN-LAST:event_messbtnMouseEntered
-
-    private void messbtnMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_messbtnMouseExited
-        messpnl.setBackground(Color. white);
-        messbtn.setForeground(Color.black);
-    }//GEN-LAST:event_messbtnMouseExited
 
     private void logoutMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logoutMouseClicked
         landingp home = new landingp();
@@ -601,29 +632,53 @@ public class dentst extends javax.swing.JFrame {
     private javax.swing.JLabel appbtn;
     private javax.swing.JPanel apppnl;
     private javax.swing.JPanel bg;
+    private javax.swing.JLabel completed;
     private javax.swing.JTabbedPane dashTb;
     private javax.swing.JPanel dashbox;
     private javax.swing.JLabel dashbtn;
     private javax.swing.JPanel dashpnl;
+    private javax.swing.JPanel db;
     private javax.swing.JLabel dentist;
-    private javax.swing.JLabel docbtn;
-    private javax.swing.JPanel docpnl;
     private javax.swing.JPanel hdr;
+    private javax.swing.JLabel inProg;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel17;
+    private javax.swing.JLabel jLabel18;
+    private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel20;
+    private javax.swing.JLabel jLabel21;
+    private javax.swing.JLabel jLabel22;
+    private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel8;
     private javax.swing.JLabel logout;
-    private javax.swing.JLabel messbtn;
-    private javax.swing.JPanel messpnl;
+    private javax.swing.JPanel patient;
     private javax.swing.JLabel patientbtn;
     private javax.swing.JPanel patientpnl;
+    private javax.swing.JPanel sched;
     private javax.swing.JLabel schedbtn;
     private javax.swing.JPanel schedpnl;
+    private javax.swing.JLabel tp;
+    private javax.swing.JPanel treatment;
+    private javax.swing.JLabel upcoming;
     // End of variables declaration//GEN-END:variables
 }

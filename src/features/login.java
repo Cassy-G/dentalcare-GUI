@@ -369,7 +369,7 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
                 // Redirect based on role
                 switch (role.toLowerCase()) {
                     case "patient":
-                                            customer customerDash = new customer(name);
+                                            patient customerDash = new patient(name);
                                             this.dispose();
                                             customerDash.setVisible(true);
                     break;

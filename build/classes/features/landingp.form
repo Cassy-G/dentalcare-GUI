@@ -337,14 +337,14 @@
             <Container class="javax.swing.JPanel" name="bookpnel">
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-                  <AbsoluteConstraints x="90" y="370" width="220" height="50"/>
+                  <AbsoluteConstraints x="90" y="360" width="210" height="50"/>
                 </Constraint>
               </Constraints>
 
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="bookbtn" alignment="1" pref="220" max="32767" attributes="0"/>
+                      <Component id="bookbtn" alignment="1" pref="210" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
