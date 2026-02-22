@@ -5,8 +5,17 @@
  */
 package features;
 
+import config.config;
 import java.awt.Color;
-
+import internal.session;
+import java.awt.Image;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import sun.java2d.cmm.Profile;
 /**
  *
  * @author Cassandra Gallera
@@ -18,6 +27,24 @@ public class staff extends javax.swing.JFrame {
      */
     public staff() {
         initComponents();
+        
+    // 🔒 Check if user is logged in
+    if (session.getId() == 0) {
+        JOptionPane.showMessageDialog(this, "Please login first.");
+        new login().setVisible(true);
+        this.dispose();
+        return;
+    }
+
+    // 🔒 Check if role is STAFF
+    if (!session.getRole().equalsIgnoreCase("staff")) {
+        JOptionPane.showMessageDialog(this, "Access Denied. Staff only.");
+        this.dispose();
+        return;
+    }
+
+    // ✅ If authorized
+    staff.setText("Welcome, " + session.getName()); 
     }
 
     /**
@@ -41,14 +68,13 @@ public class staff extends javax.swing.JFrame {
         patientbtn = new javax.swing.JLabel();
         docpnl = new javax.swing.JPanel();
         docbtn = new javax.swing.JLabel();
-        messpnl = new javax.swing.JPanel();
-        messbtn = new javax.swing.JLabel();
         logout = new javax.swing.JLabel();
         hdr = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         XPNL = new javax.swing.JPanel();
         XBTN = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        staff = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         dashTb = new javax.swing.JTabbedPane();
         jPanel6 = new javax.swing.JPanel();
@@ -56,7 +82,39 @@ public class staff extends javax.swing.JFrame {
         jPanel4 = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
-        jPanel3 = new javax.swing.JPanel();
+        mp = new javax.swing.JPanel();
+        jLabel30 = new javax.swing.JLabel();
+        jPanel31 = new javax.swing.JPanel();
+        addpicture = new javax.swing.JPanel();
+        add_pic = new javax.swing.JLabel();
+        jLabel31 = new javax.swing.JLabel();
+        jLabel32 = new javax.swing.JLabel();
+        jLabel33 = new javax.swing.JLabel();
+        jLabel34 = new javax.swing.JLabel();
+        jLabel35 = new javax.swing.JLabel();
+        editprofile = new javax.swing.JLabel();
+        email1 = new javax.swing.JLabel();
+        contact1 = new javax.swing.JLabel();
+        role = new javax.swing.JLabel();
+        name1 = new javax.swing.JLabel();
+        id1 = new javax.swing.JLabel();
+        mp1 = new javax.swing.JPanel();
+        jLabel36 = new javax.swing.JLabel();
+        jPanel19 = new javax.swing.JPanel();
+        addpicture1 = new javax.swing.JPanel();
+        pic = new javax.swing.JLabel();
+        jLabel37 = new javax.swing.JLabel();
+        jLabel38 = new javax.swing.JLabel();
+        jLabel39 = new javax.swing.JLabel();
+        jLabel40 = new javax.swing.JLabel();
+        jLabel41 = new javax.swing.JLabel();
+        editprofile1 = new javax.swing.JLabel();
+        id2 = new javax.swing.JLabel();
+        jTextField3 = new javax.swing.JTextField();
+        jTextField4 = new javax.swing.JTextField();
+        jTextField5 = new javax.swing.JTextField();
+        changephoto = new javax.swing.JLabel();
+        save = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
@@ -96,7 +154,7 @@ public class staff extends javax.swing.JFrame {
         schedbtn.setBackground(new java.awt.Color(255, 255, 255));
         schedbtn.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         schedbtn.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        schedbtn.setText("Schedule");
+        schedbtn.setText("Appointments");
         schedbtn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 schedbtnMouseClicked(evt);
@@ -116,7 +174,7 @@ public class staff extends javax.swing.JFrame {
 
         appbtn.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         appbtn.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        appbtn.setText("Appointments");
+        appbtn.setText("Patients");
         appbtn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 appbtnMouseClicked(evt);
@@ -150,7 +208,7 @@ public class staff extends javax.swing.JFrame {
 
         patientbtn.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         patientbtn.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        patientbtn.setText("Patients");
+        patientbtn.setText("Doctors");
         patientbtn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 patientbtnMouseClicked(evt);
@@ -181,7 +239,7 @@ public class staff extends javax.swing.JFrame {
         docbtn.setBackground(new java.awt.Color(255, 255, 255));
         docbtn.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         docbtn.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        docbtn.setText("Doctors");
+        docbtn.setText("Calls and Messages");
         docbtn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 docbtnMouseClicked(evt);
@@ -206,38 +264,6 @@ public class staff extends javax.swing.JFrame {
         );
 
         dashbox.add(docpnl, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 190, 170, 30));
-
-        messpnl.setBackground(new java.awt.Color(255, 255, 255));
-
-        messbtn.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        messbtn.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        messbtn.setText("Messages");
-        messbtn.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                messbtnMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                messbtnMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                messbtnMouseExited(evt);
-            }
-        });
-
-        javax.swing.GroupLayout messpnlLayout = new javax.swing.GroupLayout(messpnl);
-        messpnl.setLayout(messpnlLayout);
-        messpnlLayout.setHorizontalGroup(
-            messpnlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, messpnlLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(messbtn, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
-        messpnlLayout.setVerticalGroup(
-            messpnlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(messbtn, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
-        );
-
-        dashbox.add(messpnl, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 230, 170, 30));
 
         logout.setFont(new java.awt.Font("Times New Roman", 3, 14)); // NOI18N
         logout.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -306,11 +332,14 @@ public class staff extends javax.swing.JFrame {
 
         hdr.add(XPNL, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 10, 40, 30));
 
-        jLabel2.setBackground(new java.awt.Color(51, 102, 255));
-        jLabel2.setFont(new java.awt.Font("Yu Gothic Light", 1, 14)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(51, 102, 255));
-        jLabel2.setText("DentalCare");
-        hdr.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(52, 0, 80, 50));
+        jLabel2.setBackground(new java.awt.Color(51, 51, 51));
+        jLabel2.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(51, 51, 51));
+        jLabel2.setText("Staff Portal");
+        hdr.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(52, 0, 80, 30));
+
+        staff.setText("jLabel4");
+        hdr.add(staff, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 26, 140, 20));
 
         jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/5046faad4a4c9af72bcf4fe75c8a11d0.jpg"))); // NOI18N
         hdr.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
@@ -382,18 +411,151 @@ public class staff extends javax.swing.JFrame {
 
         dashTb.addTab("doctors", jPanel2);
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 635, Short.MAX_VALUE)
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 490, Short.MAX_VALUE)
-        );
+        mp.setBackground(new java.awt.Color(255, 255, 255));
+        mp.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        dashTb.addTab("messages", jPanel3);
+        jLabel30.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
+        jLabel30.setText("My Profile");
+        mp.add(jLabel30, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 50, -1, -1));
+
+        jPanel31.setBackground(new java.awt.Color(204, 255, 255));
+        jPanel31.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        addpicture.setBackground(new java.awt.Color(204, 204, 204));
+        addpicture.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        add_pic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-add-photo-60.png"))); // NOI18N
+        add_pic.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                add_picMouseClicked(evt);
+            }
+        });
+        addpicture.add(add_pic, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 30, 60, 90));
+
+        jPanel31.add(addpicture, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 180, 160));
+
+        jLabel31.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel31.setText("Name");
+        jPanel31.add(jLabel31, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 70, -1, -1));
+
+        jLabel32.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel32.setText("ID");
+        jPanel31.add(jLabel32, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 30, -1, -1));
+
+        jLabel33.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel33.setText("Email");
+        jPanel31.add(jLabel33, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 110, -1, -1));
+
+        jLabel34.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel34.setText("Contact");
+        jPanel31.add(jLabel34, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 150, -1, -1));
+
+        jLabel35.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel35.setText("Role");
+        jPanel31.add(jLabel35, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 190, 50, -1));
+
+        editprofile.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        editprofile.setForeground(new java.awt.Color(51, 0, 255));
+        editprofile.setText("Edit Profile");
+        editprofile.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                editprofileMouseClicked(evt);
+            }
+        });
+        jPanel31.add(editprofile, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 220, -1, 40));
+
+        email1.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        jPanel31.add(email1, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 100, 230, 40));
+
+        contact1.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        jPanel31.add(contact1, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 150, 180, 30));
+
+        role.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        jPanel31.add(role, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 180, 180, 30));
+
+        name1.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        jPanel31.add(name1, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 70, 180, 30));
+
+        id1.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        jPanel31.add(id1, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 20, 70, 40));
+
+        mp.add(jPanel31, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 100, 530, 260));
+
+        dashTb.addTab("myprofile", mp);
+
+        mp1.setBackground(new java.awt.Color(255, 255, 255));
+        mp1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel36.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
+        jLabel36.setText("My Profile");
+        mp1.add(jLabel36, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 40, -1, 60));
+
+        jPanel19.setBackground(new java.awt.Color(204, 255, 255));
+        jPanel19.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        addpicture1.setBackground(new java.awt.Color(204, 204, 204));
+        addpicture1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        pic.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        pic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-profile-100.png"))); // NOI18N
+        addpicture1.add(pic, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 180, 160));
+
+        jPanel19.add(addpicture1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 180, 160));
+
+        jLabel37.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel37.setText("Name");
+        jPanel19.add(jLabel37, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 70, -1, -1));
+
+        jLabel38.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel38.setText("ID");
+        jPanel19.add(jLabel38, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 30, -1, -1));
+
+        jLabel39.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel39.setText("Email");
+        jPanel19.add(jLabel39, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 110, -1, -1));
+
+        jLabel40.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel40.setText("Contact");
+        jPanel19.add(jLabel40, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 150, -1, -1));
+
+        jLabel41.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel41.setText("Role");
+        jPanel19.add(jLabel41, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 190, 40, -1));
+
+        editprofile1.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        editprofile1.setForeground(new java.awt.Color(51, 0, 255));
+        editprofile1.setText("Edit Profile");
+        jPanel19.add(editprofile1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 220, -1, 40));
+
+        id2.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        jPanel19.add(id2, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 30, 50, 30));
+        jPanel19.add(jTextField3, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 110, 200, 30));
+        jPanel19.add(jTextField4, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 150, 200, 30));
+        jPanel19.add(jTextField5, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 70, 200, 30));
+
+        changephoto.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        changephoto.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        changephoto.setText("Change photo");
+        changephoto.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                changephotoMouseClicked(evt);
+            }
+        });
+        jPanel19.add(changephoto, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 190, 180, -1));
+
+        save.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        save.setForeground(new java.awt.Color(51, 0, 255));
+        save.setText("Save Changes");
+        save.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                saveMouseClicked(evt);
+            }
+        });
+        jPanel19.add(save, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 220, 90, 40));
+
+        mp1.add(jPanel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 100, 530, 260));
+
+        dashTb.addTab("editprofile", mp1);
 
         bg.add(dashTb, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 0, 640, 520));
 
@@ -475,10 +637,6 @@ public class staff extends javax.swing.JFrame {
        dashTb.setSelectedIndex(4);
     }//GEN-LAST:event_docbtnMouseClicked
 
-    private void messbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_messbtnMouseClicked
-        dashTb.setSelectedIndex(5);
-    }//GEN-LAST:event_messbtnMouseClicked
-
     private void schedbtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_schedbtnMouseEntered
         schedpnl.setBackground(Color. blue);
         schedbtn.setForeground(Color.white);
@@ -519,16 +677,6 @@ public class staff extends javax.swing.JFrame {
         docbtn.setForeground(Color.black);
     }//GEN-LAST:event_docbtnMouseExited
 
-    private void messbtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_messbtnMouseEntered
-        messpnl.setBackground(Color. blue);
-        messbtn.setForeground(Color.white);
-    }//GEN-LAST:event_messbtnMouseEntered
-
-    private void messbtnMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_messbtnMouseExited
-        messpnl.setBackground(Color. white);
-        messbtn.setForeground(Color.black);
-    }//GEN-LAST:event_messbtnMouseExited
-
     private void logoutMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logoutMouseClicked
         landingp home = new landingp();
         this.dispose();
@@ -549,6 +697,241 @@ public class staff extends javax.swing.JFrame {
         this.dispose();
         logo.setVisible(true);
     }//GEN-LAST:event_jLabel1MouseClicked
+
+    private void add_picMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_add_picMouseClicked
+
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(
+            new javax.swing.filechooser.FileNameExtensionFilter(
+                "Image files", "jpg", "png", "jpeg", "gif"
+            )
+        );
+
+        int result = chooser.showOpenDialog(this);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+
+            String path = chooser.getSelectedFile().getAbsolutePath();
+
+            try (Connection con = config.connectDB();
+                PreparedStatement pst = con.prepareStatement(
+                    "UPDATE tbl_accounts SET acc_pic = ? WHERE acc_id = ?")) {
+
+                pst.setString(1, path);
+                pst.setInt(2, session.getId());
+
+                pst.executeUpdate();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            // Just reload profile
+            loadprofile();
+        }
+    }//GEN-LAST:event_add_picMouseClicked
+
+    private void editprofileMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editprofileMouseClicked
+        dashTb.setSelectedIndex(6);
+    }//GEN-LAST:event_editprofileMouseClicked
+
+    private void changephotoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_changephotoMouseClicked
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(
+            new javax.swing.filechooser.FileNameExtensionFilter(
+                "Image files", "jpg", "png", "jpeg", "gif"
+            )
+        );
+
+        int result = chooser.showOpenDialog(this);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+
+            String path = chooser.getSelectedFile().getAbsolutePath();
+
+            // Save path to DB
+            try {
+                config db = new config();
+                Connection con = db.connectDB();
+
+                String sql = "UPDATE tbl_accounts SET acc_pic = ? WHERE acc_id = ?";
+                PreparedStatement pst = con.prepareStatement(sql);
+
+                pst.setString(1, path);
+                pst.setInt(2, session.getId());
+
+                pst.executeUpdate();
+
+                pst.close();
+                con.close();
+
+                // Reload picture
+                loadprofile();
+
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Profile picture updated!"
+                );
+
+            } catch (Exception ex) {
+
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Error: " + ex.getMessage()
+                );
+
+                ex.printStackTrace();
+            }
+
+        }
+    }//GEN-LAST:event_changephotoMouseClicked
+
+    private void saveMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveMouseClicked
+        //String newName = name.getText().trim();
+
+       // String newEmail = email.getText().trim();
+       // String newContact = contact.getText().trim();
+
+        //String newPass = new String(password.getPassword()).trim();
+        // String confirmPass = new String(cpass.getPassword()).trim();
+
+        int fieldCount = 0;
+
+        if (!newName.isEmpty()) {
+            fieldCount++;
+        }
+
+        if (!newEmail.isEmpty()) {
+            fieldCount++;
+        }
+        if (!newContact.isEmpty()) {
+            fieldCount++;
+        }
+
+        //        if (!newPass.isEmpty()) {
+            //            fieldCount++;
+            //        }
+
+        if (fieldCount == 0) {
+            JOptionPane.showMessageDialog(this, "No fields to update!");
+            return;
+        }
+
+        //        if (!newPass.isEmpty() && !newPass.equals(confirmPass)) {
+            //            JOptionPane.showMessageDialog(this, "Password and Confirm Password do not match");
+            //            return;
+            //        }
+
+        StringBuilder sql = new StringBuilder("UPDATE tbl_accounts SET ");
+
+        if (!newName.isEmpty()) {
+            sql.append("acc_name=?, ");
+        }
+
+        if (!newEmail.isEmpty()) {
+            sql.append("acc_email=?, ");
+        }
+        if (!newContact.isEmpty()) {
+            sql.append("acc_contact=?, ");
+        }
+
+        //        if (!newPass.isEmpty()) {
+            //            sql.append("acc_pass=?, ");
+            //        }
+
+        sql.setLength(sql.length() - 2); // Remove last comma and space
+        sql.append(" WHERE acc_id=?");
+
+        Object[] params = new Object[fieldCount + 1];
+        int index = 0;
+
+        if (!newName.isEmpty()) {
+            params[index++] = newName;
+        }
+
+        if (!newEmail.isEmpty()) {
+            params[index++] = newEmail;
+        }
+        if (!newContact.isEmpty()) {
+            params[index++] = newContact;
+        }
+
+        //        if (!newPass.isEmpty()) {
+            //            params[index++] = config.hashPassword(newPass);
+            //        }
+
+        params[index] = session.getId();
+
+        // ===== UPDATE SAFELY =====
+        try (Connection con = config.connectDB();
+            PreparedStatement pst = con.prepareStatement(sql.toString())) {
+
+            for (int i = 0; i < params.length; i++) {
+                pst.setObject(i + 1, params[i]);
+            }
+
+            int updated = pst.executeUpdate();
+
+            if (updated > 0) {
+                con.close();
+                JOptionPane.showMessageDialog(this, "Profile updated successfully!");
+                loadprofile(); // Refresh labels
+            } else {
+                JOptionPane.showMessageDialog(this, "No changes were made.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error updating profile: " + e.getMessage());
+        }
+    }//GEN-LAST:event_saveMouseClicked
+private void loadprofile() {
+
+    String sql = "SELECT acc_id, acc_name, acc_email,acc_contact, acc_role, acc_pic FROM tbl_accounts WHERE acc_id = ?";
+
+    try (Connection con = new config().connectDB();
+         PreparedStatement pst = con.prepareStatement(sql)) {
+
+        // Set the logged-in user's ID
+        pst.setInt(1, session.getId());
+
+        try (ResultSet rs = pst.executeQuery()) {
+
+            if (rs.next()) {
+
+                String fullName = rs.getString("acc_name");
+                name.setText(fullName);
+                role.setText(rs.getString("acc_role"));
+                email.setText(rs.getString("acc_email"));
+                contact.setText(rs.getString("acc_contact"));
+                id.setText(String.valueOf(rs.getInt("acc_id")));
+                
+                
+                String path = rs.getString("acc_pic");
+                if (path != null && !path.isEmpty()){
+                    ImageIcon icon = new ImageIcon(path);
+                    Image original = icon.getImage();
+                    
+                    Image imgl = original.getScaledInstance(
+                            pic.getWidth(),
+                            pic.getHeight(),
+                            Image.SCALE_SMOOTH
+                    );
+                    pic.setIcon(new ImageIcon(imgl));
+                }
+
+            }
+            
+
+        }
+        pst.close();
+            con.close();
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error loading profile: " + e.getMessage());
+        e.printStackTrace();
+    }
+    
+}
 
     /**
      * @param args the command line arguments
@@ -595,31 +978,62 @@ public class staff extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel XBTN;
     private javax.swing.JPanel XPNL;
+    private javax.swing.JLabel add_pic;
+    private javax.swing.JPanel addpicture;
+    private javax.swing.JPanel addpicture1;
     private javax.swing.JLabel appbtn;
     private javax.swing.JPanel apppnl;
     private javax.swing.JPanel bg;
+    private javax.swing.JLabel changephoto;
+    private javax.swing.JLabel contact1;
     private javax.swing.JTabbedPane dashTb;
     private javax.swing.JPanel dashbox;
     private javax.swing.JLabel dashbtn;
     private javax.swing.JPanel dashpnl;
     private javax.swing.JLabel docbtn;
     private javax.swing.JPanel docpnl;
+    private javax.swing.JLabel editprofile;
+    private javax.swing.JLabel editprofile1;
+    private javax.swing.JLabel email1;
     private javax.swing.JPanel hdr;
+    private javax.swing.JLabel id1;
+    private javax.swing.JLabel id2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel30;
+    private javax.swing.JLabel jLabel31;
+    private javax.swing.JLabel jLabel32;
+    private javax.swing.JLabel jLabel33;
+    private javax.swing.JLabel jLabel34;
+    private javax.swing.JLabel jLabel35;
+    private javax.swing.JLabel jLabel36;
+    private javax.swing.JLabel jLabel37;
+    private javax.swing.JLabel jLabel38;
+    private javax.swing.JLabel jLabel39;
+    private javax.swing.JLabel jLabel40;
+    private javax.swing.JLabel jLabel41;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel19;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel31;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
+    private javax.swing.JTextField jTextField3;
+    private javax.swing.JTextField jTextField4;
+    private javax.swing.JTextField jTextField5;
     private javax.swing.JLabel logout;
-    private javax.swing.JLabel messbtn;
-    private javax.swing.JPanel messpnl;
+    private javax.swing.JPanel mp;
+    private javax.swing.JPanel mp1;
+    private javax.swing.JLabel name1;
     private javax.swing.JLabel patientbtn;
     private javax.swing.JPanel patientpnl;
+    private javax.swing.JLabel pic;
+    private javax.swing.JLabel role;
+    private javax.swing.JLabel save;
     private javax.swing.JLabel schedbtn;
     private javax.swing.JPanel schedpnl;
+    private javax.swing.JLabel staff;
     // End of variables declaration//GEN-END:variables
 }

@@ -2,6 +2,7 @@
 package features;
 
 import config.config;
+import internal.session;
 import java.awt.Color;
 import static java.lang.Math.log;
 import java.sql.Connection;
@@ -253,6 +254,7 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
         jLabel7.setText("Enter your details below.");
         jPanel3.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 100, -1, -1));
 
+        userTxt.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 255)));
         userTxt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 userTxtActionPerformed(evt);
@@ -260,6 +262,7 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
         });
         jPanel3.add(userTxt, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 180, 210, 30));
 
+        JPasswordField.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 255)));
         JPasswordField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 JPasswordFieldActionPerformed(evt);
@@ -337,68 +340,77 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
     }//GEN-LAST:event_loginbtnMouseEntered
 
     private void loginbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_loginbtnMouseClicked
-        String email = userTxt.getText();
-        String rawPass = new String(JPasswordField.getPassword());
+      String email = userTxt.getText();
+    String rawPass = new String(JPasswordField.getPassword());
 
-        try {
-            Connection conn = config.connectDB();
+    try {
+        Connection conn = config.connectDB();
 
-            // Hash the entered password
-            String hashedPass = config.hashPassword(rawPass);
+        // Hash the entered password
+        String hashedPass = config.hashPassword(rawPass);
 
-            // Query user by email and hashed password
-            String sql = "SELECT * FROM t_users WHERE eml=? AND pass=?";
-            PreparedStatement pst = conn.prepareStatement(sql);
-            pst.setString(1, email);
-            pst.setString(2, hashedPass);
+        // Query user by email and hashed password
+        String sql = "SELECT * FROM tbl_accounts WHERE acc_email=? AND acc_pass=?";
+        PreparedStatement pst = conn.prepareStatement(sql);
+        pst.setString(1, email);
+        pst.setString(2, hashedPass);
 
-            ResultSet rs = pst.executeQuery();
+        ResultSet rs = pst.executeQuery();
 
-            if (rs.next()) {
-                // Check if email is verified
-                String verified = rs.getString("verify");
-                if (!"1".equals(verified)) {
-                    JOptionPane.showMessageDialog(this, "Your account is not verified. Please check your email.");
-                    return;
-                }
+        if (rs.next()) {
 
-                // Get role and name
-                String role = rs.getString("role");
-                String name = rs.getString("usern");
-
-                // Redirect based on role
-                switch (role.toLowerCase()) {
-                    case "patient":
-                                            patient customerDash = new patient(name);
-                                            this.dispose();
-                                            customerDash.setVisible(true);
-                    break;
-                    case "staff":
-                    //                        Staff staffDash = new Staff(name); // create this JFrame
-                    //                        this.dispose();
-                    //                        staffDash.setVisible(true);
-                    break;
-                    case "admin":
-                    //                        admin adminDash = new admin(name);
-                    this.dispose();
-                    //    adminDash.setVisible(true);
-                    break;
-                    case "dentist":
-                     dentst dentist = new dentst(name);
-                     this.dispose();
-                     dentist.setVisible(true);
-                        
-                    default:
-                    JOptionPane.showMessageDialog(this, "Unknown role: " + role);
-                }
-
-            } else {
-                JOptionPane.showMessageDialog(this, "Invalid Email or Password");
+            // Check if email is verified
+            String verified = rs.getString("acc_status");
+            if (!"1".equals(verified)) {
+                JOptionPane.showMessageDialog(this, "Your account is not verified. Please check your email.");
+                return;
             }
 
-        } catch (Exception e) {
-            System.out.println("Login Error: " + e.getMessage());
+            // Get role and name
+            String role = rs.getString("acc_role");
+            String name = rs.getString("acc_name");
+
+            // ✅ ADD SESSION HERE
+            int id = rs.getInt("acc_id"); // make sure column name matches your table
+            session.setSession(id, name, email, role);
+
+            // Redirect based on role
+            switch (role.toLowerCase()) {
+                case "patient":
+                    patient patientDash = new patient();
+                    this.dispose();
+                    patientDash.setVisible(true);
+                    break;
+
+                case "staff":
+                    // Staff staffDash = new Staff(name);
+                    // this.dispose();
+                    // staffDash.setVisible(true);
+                    break;
+
+                case "admin":
+                     admin adminDash = new admin();
+                    this.dispose();
+                     adminDash.setVisible(true);
+                    break;
+
+                case "dentist":
+                    dentst dentist = new dentst(name);
+                    this.dispose();
+                    dentist.setVisible(true);
+                    break;
+
+                default:
+                    JOptionPane.showMessageDialog(this, "Unknown role: " + role);
+            }
+
+        } else {
+            JOptionPane.showMessageDialog(this, "Invalid Email or Password");
         }
+
+    } catch (Exception e) {
+        System.out.println("Login Error: " + e.getMessage());
+    }
     }//GEN-LAST:event_loginbtnMouseClicked
 
     private void userTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_userTxtActionPerformed

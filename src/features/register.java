@@ -34,8 +34,10 @@ private void initPlaceholder() {
     username.setText("Enter Username");
     username.setForeground(Color.GRAY);
 
-    email.setText("Enter Email");
-    email.setForeground(Color.GRAY);
+    contact.setText("Enter Email");
+    contact.setForeground(Color.GRAY);
+    
+    
 
     pass.setText("Enter Password");
     pass.setForeground(Color.GRAY);
@@ -48,7 +50,7 @@ private void initPlaceholder() {
 private void setupPlaceholderEvents() {
 
     setupTextPlaceholder(username, "Enter Username");
-    setupTextPlaceholder(email, "Enter Email");
+    setupTextPlaceholder(contact, "Enter Email");
 
     setupPasswordPlaceholder(pass, "Enter Password");
     setupPasswordPlaceholder(cpass, "Confirm Password");
@@ -114,7 +116,7 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
         jLabel3 = new javax.swing.JLabel();
         username = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
-        email = new javax.swing.JTextField();
+        contact = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         createaccpnl = new javax.swing.JPanel();
@@ -124,6 +126,8 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
         jCheckBox1 = new javax.swing.JCheckBox();
         cpass = new javax.swing.JPasswordField();
         pass = new javax.swing.JPasswordField();
+        jLabel11 = new javax.swing.JLabel();
+        email = new javax.swing.JTextField();
         jPanel3 = new javax.swing.JPanel();
         jLabel12 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
@@ -201,33 +205,35 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
         createacc.setFont(new java.awt.Font("Times New Roman", 2, 21)); // NOI18N
         createacc.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         createacc.setText("Create your Account.");
-        jPanel2.add(createacc, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 5, 370, 40));
+        jPanel2.add(createacc, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -10, 370, 40));
 
-        jLabel3.setText("Username");
-        jPanel2.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 80, -1, -1));
+        jLabel3.setText("Full Name");
+        jPanel2.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 50, -1, -1));
 
+        username.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 255)));
         username.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 usernameActionPerformed(evt);
             }
         });
-        jPanel2.add(username, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 100, 220, 30));
+        jPanel2.add(username, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 70, 220, 30));
 
-        jLabel4.setText("E-mail");
-        jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 140, -1, -1));
+        jLabel4.setText("Contact");
+        jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 170, -1, -1));
 
-        email.addActionListener(new java.awt.event.ActionListener() {
+        contact.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(102, 153, 255)));
+        contact.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                emailActionPerformed(evt);
+                contactActionPerformed(evt);
             }
         });
-        jPanel2.add(email, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 160, 220, 30));
+        jPanel2.add(contact, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 190, 220, 30));
 
         jLabel5.setText("Password");
-        jPanel2.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 200, -1, -1));
+        jPanel2.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 230, -1, -1));
 
         jLabel6.setText("Confirm Password");
-        jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 260, -1, -1));
+        jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 290, -1, -1));
 
         createaccpnl.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -252,12 +258,12 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
                 createaccbtnMouseExited(evt);
             }
         });
-        createaccpnl.add(createaccbtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 130, 30));
+        createaccpnl.add(createaccbtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 120, 30));
 
-        jPanel2.add(createaccpnl, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 370, 130, 30));
+        jPanel2.add(createaccpnl, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 390, 120, 30));
 
         jLabel8.setText("Already have an account?");
-        jPanel2.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 420, -1, 20));
+        jPanel2.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 430, -1, 20));
 
         signIN.setForeground(new java.awt.Color(51, 102, 255));
         signIN.setText("Sign in");
@@ -266,31 +272,44 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
                 signINMouseClicked(evt);
             }
         });
-        jPanel2.add(signIN, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 420, 70, 20));
+        jPanel2.add(signIN, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 430, 70, 20));
 
         jCheckBox1.setBackground(new java.awt.Color(255, 255, 255));
-        jCheckBox1.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jCheckBox1.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
         jCheckBox1.setText(" Accept the terms and policies");
         jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jCheckBox1ActionPerformed(evt);
             }
         });
-        jPanel2.add(jCheckBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 330, 210, 30));
+        jPanel2.add(jCheckBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 350, 180, 30));
 
+        cpass.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(102, 153, 255)));
         cpass.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cpassActionPerformed(evt);
             }
         });
-        jPanel2.add(cpass, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 280, 220, 30));
+        jPanel2.add(cpass, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 310, 220, 30));
 
+        pass.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(102, 153, 255)));
         pass.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 passActionPerformed(evt);
             }
         });
-        jPanel2.add(pass, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 220, 220, 30));
+        jPanel2.add(pass, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 250, 220, 30));
+
+        jLabel11.setText("E-mail");
+        jPanel2.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 110, -1, -1));
+
+        email.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(102, 153, 255)));
+        email.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                emailActionPerformed(evt);
+            }
+        });
+        jPanel2.add(email, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 130, 220, 30));
 
         jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 0, 370, 470));
 
@@ -358,9 +377,9 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
         yMouse = evt.getY();
     }//GEN-LAST:event_hdrMousePressed
 
-    private void emailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_emailActionPerformed
+    private void contactActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_contactActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_emailActionPerformed
+    }//GEN-LAST:event_contactActionPerformed
 
     private void usernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usernameActionPerformed
         // TODO add your handling code here:
@@ -382,11 +401,12 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
 
     String usern = username.getText();
     String eml = email.getText();
+    String ctct = contact.getText();
     String rawPass = new String(pass.getPassword());
     String confirmRaw = new String(cpass.getPassword());
 
 
-    if (usern.isEmpty() || eml.isEmpty() || rawPass.isEmpty() || confirmRaw.isEmpty()) {
+    if (usern.isEmpty() ||ctct.isEmpty() || eml.isEmpty() || rawPass.isEmpty() || confirmRaw.isEmpty()) {
         JOptionPane.showMessageDialog(this, "Please fill in all fields");
         return;
     }
@@ -399,7 +419,7 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
     try {
         config db = new config();
 
-        String checkSql = "SELECT COUNT(*) FROM t_users WHERE eml=?";
+        String checkSql = "SELECT COUNT(*) FROM tbl_accounts WHERE acc_email=?";
         double count = db.getSingleValue(checkSql, eml);
 
         if (count > 0) {
@@ -439,11 +459,9 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
                     if (inputOtp != null && inputOtp.equals(otp)) {
                         
                         String hashedPass = config.hashPassword(rawPass);
-
-                        String sql = "INSERT INTO t_users(usern, eml, pass, verify, role) "
-                                   + "VALUES(?,?,?, 1,'patient')";
-
-                        db.addRecord(sql, usern, eml,hashedPass);
+                        String sql = "INSERT INTO tbl_accounts (acc_name, acc_email, acc_contact, acc_pass, acc_role, acc_status) "
+                        + "VALUES (?, ?, ?, ?, ?, ?)";
+                        db.addRecord(sql, usern, eml, ctct, hashedPass, "patient", 1); 
 
                         JOptionPane.showMessageDialog(null, "Sign Up Successful! Your account is verified.");
                         dispose();
@@ -501,6 +519,10 @@ landingp logo = new landingp();
         logo.setVisible(true);       
     }//GEN-LAST:event_jLabel7MouseClicked
 
+    private void emailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_emailActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_emailActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -537,6 +559,7 @@ landingp logo = new landingp();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField contact;
     private javax.swing.JPasswordField cpass;
     private javax.swing.JLabel createacc;
     private javax.swing.JLabel createaccbtn;
@@ -546,6 +569,7 @@ landingp logo = new landingp();
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

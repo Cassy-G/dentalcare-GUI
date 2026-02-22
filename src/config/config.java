@@ -14,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 import java.util.Random;
 import net.proteanit.sql.DbUtils;
@@ -22,17 +23,23 @@ import net.proteanit.sql.DbUtils;
 public class config {
     //Connection Method to SQLITE
 public static Connection connectDB() {
-        Connection con = null;
-        try {
-            Class.forName("org.sqlite.JDBC"); // Load the SQLite JDBC driver
-            con = DriverManager.getConnection("jdbc:sqlite:dental.db"); // Establish connection
-            System.out.println("Connection Successful");
-        } catch (Exception e) {
-            System.out.println("Connection Failed: " + e);
-        }
-        return con;
-    }
+    try {
+        Class.forName("org.sqlite.JDBC");
+        Connection con = DriverManager.getConnection("jdbc:sqlite:dentalcare.db");
 
+        try (Statement stmt = con.createStatement()) {
+            stmt.execute("PRAGMA journal_mode=WAL;");
+            stmt.execute("PRAGMA synchronous=NORMAL;");
+            stmt.execute("PRAGMA busy_timeout=10000;");
+        }
+
+        return con;
+
+    } catch (Exception e) {
+        System.out.println("Connection Failed: " + e.getMessage());
+        return null;
+    }
+}
     public void addRecord(String sql, Object... values) {
     try (Connection conn = this.connectDB(); // Use the connectDB method
          PreparedStatement pstmt = conn.prepareStatement(sql)) {
