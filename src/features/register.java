@@ -398,91 +398,112 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
 
     private void createaccbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_createaccbtnMouseClicked
 
+String usern = username.getText();
+String eml = email.getText();
+String ctct = contact.getText();
+String rawPass = new String(pass.getPassword());
+String confirmRaw = new String(cpass.getPassword());
 
-    String usern = username.getText();
-    String eml = email.getText();
-    String ctct = contact.getText();
-    String rawPass = new String(pass.getPassword());
-    String confirmRaw = new String(cpass.getPassword());
 
+// ================= VALIDATION =================
+if (usern.isEmpty() || ctct.isEmpty() || eml.isEmpty() || rawPass.isEmpty() || confirmRaw.isEmpty()) {
+    JOptionPane.showMessageDialog(this, "Please fill in all fields");
+    return;
+}
 
-    if (usern.isEmpty() ||ctct.isEmpty() || eml.isEmpty() || rawPass.isEmpty() || confirmRaw.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Please fill in all fields");
+if (!rawPass.equals(confirmRaw)) {
+    JOptionPane.showMessageDialog(this, "Passwords do not match");
+    return;
+}
+
+try {
+    config db = new config();
+
+    // ================= CHECK EMAIL =================
+    String checkSql = "SELECT COUNT(*) FROM tbl_accounts WHERE acc_email=?";
+    double count = db.getSingleValue(checkSql, eml);
+
+    if (count > 0) {
+        JOptionPane.showMessageDialog(this, "Email is already in use. Please use another email.");
         return;
     }
 
-    if (!rawPass.equals(confirmRaw)) {
-        JOptionPane.showMessageDialog(this, "Passwords do not match");
-        return;
-    }
 
-    try {
-        config db = new config();
+    /*
+    ======================================================
+                    OTP SYSTEM (DISABLED)
+    ======================================================
 
-        String checkSql = "SELECT COUNT(*) FROM tbl_accounts WHERE acc_email=?";
-        double count = db.getSingleValue(checkSql, eml);
+    final JDialog loading = new JDialog(this, "Sending OTP...", true);
+    JLabel lbl = new JLabel("Please wait, sending OTP to your email...");
+    lbl.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    loading.add(lbl);
+    loading.pack();
+    loading.setLocationRelativeTo(this);
 
-        if (count > 0) {
-            JOptionPane.showMessageDialog(this, "Email is already in use. Please use another email.");
-            return;
+    SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+        String otp = config.generateOtp();
+
+        @Override
+        protected Boolean doInBackground() {
+            return config.sendOtpEmail(eml, otp);
         }
 
-        final JDialog loading = new JDialog(this, "Sending OTP...", true);
-        JLabel lbl = new JLabel("Please wait, sending OTP to your email...");
-        lbl.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        loading.add(lbl);
-        loading.pack();
-        loading.setLocationRelativeTo(this);
-
-
-        SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
-            String otp = config.generateOtp();
-
-            @Override
-            protected Boolean doInBackground() {
-                return config.sendOtpEmail(eml, otp);
-            }
-
-            @Override
-            protected void done() {
-                loading.dispose(); 
-                try {
-                    boolean sent = get();
-                    if (!sent) {
-                        JOptionPane.showMessageDialog(null, "Failed to send OTP. Please try again later.");
-                        return;
-                    }
-
-                    
-                    String inputOtp = JOptionPane.showInputDialog(null, "Enter the OTP sent to your email:");
-
-                    if (inputOtp != null && inputOtp.equals(otp)) {
-                        
-                        String hashedPass = config.hashPassword(rawPass);
-                        String sql = "INSERT INTO tbl_accounts (acc_name, acc_email, acc_contact, acc_pass, acc_role, acc_status) "
-                        + "VALUES (?, ?, ?, ?, ?, ?)";
-                        db.addRecord(sql, usern, eml, ctct, hashedPass, "patient", 1); 
-
-                        JOptionPane.showMessageDialog(null, "Sign Up Successful! Your account is verified.");
-                        dispose();
-                        new login().setVisible(true);
-
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Incorrect OTP. Account creation failed.");
-                    }
-
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
+        @Override
+        protected void done() {
+            loading.dispose();
+            try {
+                boolean sent = get();
+                if (!sent) {
+                    JOptionPane.showMessageDialog(null, "Failed to send OTP.");
+                    return;
                 }
+
+                String inputOtp = JOptionPane.showInputDialog(null,
+                        "Enter the OTP sent to your email:");
+
+                if (inputOtp != null && inputOtp.equals(otp)) {
+    */
+
+    // ================= DIRECT ACCOUNT CREATION =================
+
+    String hashedPass = config.hashPassword(rawPass);
+
+    String sql = "INSERT INTO tbl_accounts "
+            + "(acc_name, acc_email, acc_contact, acc_pass, acc_role, acc_status) "
+            + "VALUES (?, ?, ?, ?, ?, ?)";
+
+    db.addRecord(sql, usern, eml, ctct, hashedPass, "patient", 1);
+
+    JOptionPane.showMessageDialog(null, "Sign Up Successful!");
+    dispose();
+    new login().setVisible(true);
+
+    /*
+                } else {
+                    JOptionPane.showMessageDialog(null,
+                        "Incorrect OTP. Account creation failed.");
+                }
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null,
+                        "Error: " + ex.getMessage());
             }
-        };
+        }
+    };
 
-        worker.execute();
-        loading.setVisible(true);
+    worker.execute();
+    loading.setVisible(true);
 
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
-    }
+    ======================================================
+    END OTP BLOCK
+    ======================================================
+    */
+
+} catch (Exception e) {
+    JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+}
+
     }//GEN-LAST:event_createaccbtnMouseClicked
 
     private void cpassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cpassActionPerformed

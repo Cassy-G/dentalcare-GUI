@@ -975,9 +975,25 @@ public class admin extends javax.swing.JFrame {
     }//GEN-LAST:event_system_logsbtnMouseExited
 
     private void logoutMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logoutMouseClicked
+               
+        
+           int confirm = JOptionPane.showConfirmDialog(
+            this,
+            "Are you sure you want to logout?",
+            "Logout",
+            JOptionPane.YES_NO_OPTION
+    );
+
+    if (confirm == JOptionPane.YES_OPTION) {
+
+        // ✅ CLEAR SESSION
+        session.clear();
+
+        // Go back to login page
         landingp home = new landingp();
         this.dispose();
         home.setVisible(true);
+    }
     }//GEN-LAST:event_logoutMouseClicked
 
     private void logoutMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logoutMouseEntered

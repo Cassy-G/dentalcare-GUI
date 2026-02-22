@@ -15,7 +15,7 @@ import java.sql.ResultSet;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import sun.java2d.cmm.Profile;
+
 
 /**
  *
@@ -26,7 +26,7 @@ public class dentst extends javax.swing.JFrame {
     /**
      * Creates new form log
      */
-    public dentst(String name) {
+    public dentst() {
         initComponents();
         loadprofile();
      // 🔒 Check if user is logged in
@@ -1207,9 +1207,25 @@ public class dentst extends javax.swing.JFrame {
     }//GEN-LAST:event_patientbtnMouseExited
 
     private void logoutMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logoutMouseClicked
+               
+        
+           int confirm = JOptionPane.showConfirmDialog(
+            this,
+            "Are you sure you want to logout?",
+            "Logout",
+            JOptionPane.YES_NO_OPTION
+    );
+
+    if (confirm == JOptionPane.YES_OPTION) {
+
+        // ✅ CLEAR SESSION
+        session.clear();
+
+        // Go back to login page
         landingp home = new landingp();
         this.dispose();
         home.setVisible(true);
+    }
     }//GEN-LAST:event_logoutMouseClicked
 
     private void logoutMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logoutMouseEntered

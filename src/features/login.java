@@ -341,7 +341,7 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
 
     private void loginbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_loginbtnMouseClicked
       String email = userTxt.getText();
-    String rawPass = new String(JPasswordField.getPassword());
+      String rawPass = new String(JPasswordField.getPassword());
 
     try {
         Connection conn = config.connectDB();
@@ -383,9 +383,9 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
                     break;
 
                 case "staff":
-                    // Staff staffDash = new Staff(name);
-                    // this.dispose();
-                    // staffDash.setVisible(true);
+                     staff staffDash = new staff();
+                     this.dispose();
+                     staffDash.setVisible(true);
                     break;
 
                 case "admin":
@@ -395,7 +395,7 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
                     break;
 
                 case "dentist":
-                    dentst dentist = new dentst(name);
+                    dentst dentist = new dentst();
                     this.dispose();
                     dentist.setVisible(true);
                     break;
