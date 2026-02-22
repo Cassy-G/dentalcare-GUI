@@ -711,7 +711,7 @@ public class admin extends javax.swing.JFrame {
 
         jLabel25.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
         jLabel25.setText("My Profile");
-        mp.add(jLabel25, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 50, -1, -1));
+        mp.add(jLabel25, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 30, -1, 60));
 
         jPanel18.setBackground(new java.awt.Color(204, 255, 255));
         jPanel18.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -774,20 +774,20 @@ public class admin extends javax.swing.JFrame {
         id.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
         jPanel18.add(id, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 20, 70, 40));
 
-        mp.add(jPanel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 100, 530, 260));
+        mp.add(jPanel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 110, 530, 260));
 
         myprofile.add(mp, new org.netbeans.lib.awtextra.AbsoluteConstraints(2, -1, 650, 470));
 
         Profile.addTab("profile", myprofile);
 
-        mp1.setBackground(new java.awt.Color(153, 204, 255));
+        mp1.setBackground(new java.awt.Color(255, 255, 255));
         mp1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel31.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
         jLabel31.setText("My Profile");
-        mp1.add(jLabel31, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 40, -1, -1));
+        mp1.add(jLabel31, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 30, 120, 60));
 
-        jPanel19.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel19.setBackground(new java.awt.Color(204, 255, 255));
         jPanel19.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         addpicture1.setBackground(new java.awt.Color(204, 204, 204));
@@ -850,7 +850,7 @@ public class admin extends javax.swing.JFrame {
         });
         jPanel19.add(save, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 220, 90, 40));
 
-        mp1.add(jPanel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 100, 530, 260));
+        mp1.add(jPanel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 110, 530, 260));
 
         Profile.addTab("editprofile", mp1);
 
