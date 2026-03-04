@@ -40,7 +40,6 @@ public class landingp extends javax.swing.JFrame {
         Home = new javax.swing.JLabel();
         about = new javax.swing.JLabel();
         services = new javax.swing.JLabel();
-        loc = new javax.swing.JLabel();
         lgn = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         backg = new javax.swing.JLabel();
@@ -129,7 +128,7 @@ public class landingp extends javax.swing.JFrame {
                 HomeMouseExited(evt);
             }
         });
-        hdr.add(Home, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 0, 60, 50));
+        hdr.add(Home, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 0, 60, 50));
 
         about.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         about.setText("About Us");
@@ -144,7 +143,7 @@ public class landingp extends javax.swing.JFrame {
                 aboutMouseExited(evt);
             }
         });
-        hdr.add(about, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 0, 70, 50));
+        hdr.add(about, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 0, 70, 50));
 
         services.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         services.setText("Services");
@@ -159,22 +158,7 @@ public class landingp extends javax.swing.JFrame {
                 servicesMouseExited(evt);
             }
         });
-        hdr.add(services, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 0, -1, 50));
-
-        loc.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        loc.setText("Location");
-        loc.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                locMouseClicked(evt);
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                locMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                locMouseExited(evt);
-            }
-        });
-        hdr.add(loc, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 0, -1, 50));
+        hdr.add(services, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 0, -1, 50));
 
         lgn.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         lgn.setText("Login");
@@ -192,16 +176,17 @@ public class landingp extends javax.swing.JFrame {
                 lgnMousePressed(evt);
             }
         });
-        hdr.add(lgn, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 0, 60, 50));
+        hdr.add(lgn, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 0, 60, 50));
 
         jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/5046faad4a4c9af72bcf4fe75c8a11d0.jpg"))); // NOI18N
         hdr.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
 
         bg.add(hdr, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
 
-        backg.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        backg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/854ef6d90168cb71e8ea1a301050288a.jpg"))); // NOI18N
-        bg.add(backg, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 50, 420, 470));
+        backg.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        backg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/132 (7).jpg"))); // NOI18N
+        backg.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        bg.add(backg, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 0, 420, 520));
 
         jPanel1.setBackground(new java.awt.Color(153, 204, 255));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -266,7 +251,7 @@ public class landingp extends javax.swing.JFrame {
         jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 140, 190, 150));
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/77.jpg"))); // NOI18N
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -50, 390, 520));
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -50, 410, 520));
 
         bg.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 50, 390, 470));
 
@@ -401,21 +386,6 @@ public class landingp extends javax.swing.JFrame {
         Home.setForeground(Color.black);
     }//GEN-LAST:event_HomeMouseExited
 
-    private void locMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_locMouseExited
-        // TODO add your handling code here:
-        loc.setBackground(Color. white);
-        loc.setForeground(Color.black);
-    }//GEN-LAST:event_locMouseExited
-
-    private void locMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_locMouseEntered
-        // TODO add your handling code here:
-        loc.setForeground(Color.blue);
-    }//GEN-LAST:event_locMouseEntered
-
-    private void locMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_locMouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_locMouseClicked
-
     private void servicesMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_servicesMouseExited
         // TODO add your handling code here:
         services.setBackground(Color. white);
@@ -429,7 +399,9 @@ public class landingp extends javax.swing.JFrame {
     }//GEN-LAST:event_servicesMouseEntered
 
     private void servicesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_servicesMouseClicked
-        // TODO add your handling code here:
+        services consultation = new services();
+        this.dispose();
+        consultation.setVisible(true);
 
     }//GEN-LAST:event_servicesMouseClicked
 
@@ -485,7 +457,6 @@ public class landingp extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel lgn;
-    private javax.swing.JLabel loc;
     private javax.swing.JLabel logo;
     private javax.swing.JLabel services;
     private javax.swing.JLabel smile;

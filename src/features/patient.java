@@ -112,12 +112,10 @@ public class patient extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         date_next_app = new javax.swing.JLabel();
-        next_appointment = new javax.swing.JLabel();
         jLabel14 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
         total_visit = new javax.swing.JLabel();
-        total_visits = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
         user = new javax.swing.JLabel();
         appoint = new javax.swing.JPanel();
@@ -143,19 +141,22 @@ public class patient extends javax.swing.JFrame {
         jScrollPane3 = new javax.swing.JScrollPane();
         jTable3 = new javax.swing.JTable();
         mp1 = new javax.swing.JPanel();
-        jLabel36 = new javax.swing.JLabel();
         jPanel19 = new javax.swing.JPanel();
-        jLabel37 = new javax.swing.JLabel();
-        jLabel38 = new javax.swing.JLabel();
-        jLabel39 = new javax.swing.JLabel();
-        jLabel40 = new javax.swing.JLabel();
-        jLabel41 = new javax.swing.JLabel();
-        id2 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
-        jTextField4 = new javax.swing.JTextField();
-        jTextField5 = new javax.swing.JTextField();
         save = new javax.swing.JLabel();
-        password = new javax.swing.JPasswordField();
+        Back = new javax.swing.JLabel();
+        jLabel36 = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
+        jLabel38 = new javax.swing.JLabel();
+        id2 = new javax.swing.JLabel();
+        jLabel37 = new javax.swing.JLabel();
+        nam = new javax.swing.JTextField();
+        jLabel39 = new javax.swing.JLabel();
+        ema = new javax.swing.JTextField();
+        jLabel40 = new javax.swing.JLabel();
+        cont = new javax.swing.JTextField();
+        jLabel41 = new javax.swing.JLabel();
+        pas = new javax.swing.JPasswordField();
+        jLabel13 = new javax.swing.JLabel();
         taab = new javax.swing.JTabbedPane();
         bg1 = new javax.swing.JPanel();
         jPanel9 = new javax.swing.JPanel();
@@ -456,10 +457,6 @@ public class patient extends javax.swing.JFrame {
         date_next_app.setFont(new java.awt.Font("Sylfaen", 1, 16)); // NOI18N
         jPanel1.add(date_next_app, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 30, 200, 30));
 
-        next_appointment.setForeground(new java.awt.Color(102, 102, 102));
-        next_appointment.setText("next_app");
-        jPanel1.add(next_appointment, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, 100, 20));
-
         jLabel14.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-calendar-48 (1).png"))); // NOI18N
         jPanel1.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 20, 50, 50));
 
@@ -476,12 +473,8 @@ public class patient extends javax.swing.JFrame {
         total_visit.setFont(new java.awt.Font("Sylfaen", 1, 16)); // NOI18N
         jPanel2.add(total_visit, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 30, 110, 40));
 
-        total_visits.setForeground(new java.awt.Color(102, 102, 102));
-        total_visits.setText("totalvisits");
-        jPanel2.add(total_visits, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 60, 100, 20));
-
         jLabel15.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-note-40.png"))); // NOI18N
-        jPanel2.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 20, 60, 50));
+        jPanel2.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 20, 40, 50));
 
         ovtab.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 110, 280, 90));
 
@@ -596,7 +589,7 @@ public class patient extends javax.swing.JFrame {
                 searchappKeyTyped(evt);
             }
         });
-        app_tab.add(searchapp, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 90, 160, -1));
+        app_tab.add(searchapp, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 82, 160, 30));
 
         tab.addTab("app", app_tab);
 
@@ -612,45 +605,15 @@ public class patient extends javax.swing.JFrame {
         ));
         jScrollPane3.setViewportView(jTable3);
 
-        bill_tab.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 190, 620, 290));
+        bill_tab.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 150, 610, 290));
 
         tab.addTab("billing", bill_tab);
 
         mp1.setBackground(new java.awt.Color(255, 255, 255));
         mp1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel36.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
-        jLabel36.setText("My Profile");
-        mp1.add(jLabel36, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 40, -1, 60));
-
         jPanel19.setBackground(new java.awt.Color(204, 255, 255));
         jPanel19.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jLabel37.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        jLabel37.setText("Name");
-        jPanel19.add(jLabel37, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 70, -1, -1));
-
-        jLabel38.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        jLabel38.setText("ID");
-        jPanel19.add(jLabel38, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 30, -1, -1));
-
-        jLabel39.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        jLabel39.setText("Email");
-        jPanel19.add(jLabel39, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 110, -1, -1));
-
-        jLabel40.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        jLabel40.setText("Contact");
-        jPanel19.add(jLabel40, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 150, -1, -1));
-
-        jLabel41.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        jLabel41.setText("Password");
-        jPanel19.add(jLabel41, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 190, 80, -1));
-
-        id2.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
-        jPanel19.add(id2, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 30, 50, 30));
-        jPanel19.add(jTextField3, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 110, 200, 30));
-        jPanel19.add(jTextField4, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 150, 200, 30));
-        jPanel19.add(jTextField5, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 70, 200, 30));
 
         save.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
         save.setForeground(new java.awt.Color(51, 0, 255));
@@ -660,10 +623,59 @@ public class patient extends javax.swing.JFrame {
                 saveMouseClicked(evt);
             }
         });
-        jPanel19.add(save, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 220, 90, 40));
-        jPanel19.add(password, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 190, 200, 30));
+        jPanel19.add(save, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 370, 90, 40));
 
-        mp1.add(jPanel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 100, 530, 260));
+        Back.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        Back.setForeground(new java.awt.Color(51, 0, 255));
+        Back.setText("Back to dashboard");
+        Back.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                BackMouseClicked(evt);
+            }
+        });
+        jPanel19.add(Back, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 370, 160, 40));
+
+        jLabel36.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
+        jLabel36.setForeground(new java.awt.Color(0, 51, 255));
+        jLabel36.setText("My Profile");
+        jPanel19.add(jLabel36, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 10, -1, 60));
+
+        jPanel4.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel38.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel38.setText("ID");
+        jPanel4.add(jLabel38, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 50, -1, -1));
+
+        id2.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        jPanel4.add(id2, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 40, 50, 30));
+
+        jLabel37.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel37.setText("Name");
+        jPanel4.add(jLabel37, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 90, -1, 30));
+        jPanel4.add(nam, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 90, 200, 30));
+
+        jLabel39.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel39.setText("Email");
+        jPanel4.add(jLabel39, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 120, 50, 50));
+        jPanel4.add(ema, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 130, 200, 30));
+
+        jLabel40.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel40.setText("Contact");
+        jPanel4.add(jLabel40, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 160, -1, 50));
+        jPanel4.add(cont, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 170, 200, 30));
+
+        jLabel41.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel41.setText("Password");
+        jPanel4.add(jLabel41, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 210, 80, 30));
+        jPanel4.add(pas, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 210, 200, 30));
+
+        jPanel19.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 70, 440, 290));
+
+        jLabel13.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/output-onlinepngtools__3_-removebg-preview.png"))); // NOI18N
+        jPanel19.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 60, 80));
+
+        mp1.add(jPanel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 30, 570, 410));
 
         tab.addTab("editprofile", mp1);
 
@@ -1211,12 +1223,12 @@ public class patient extends javax.swing.JFrame {
         jPanel16.add(prevpane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 300, 100, 30));
 
         appointment_date.setText("Select Appointment Date & Time");
-        jPanel16.add(appointment_date, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 160, -1));
+        jPanel16.add(appointment_date, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 210, -1));
 
         jLabel101.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel101.setForeground(new java.awt.Color(255, 0, 0));
         jLabel101.setText("*");
-        jPanel16.add(jLabel101, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 0, 40, 30));
+        jPanel16.add(jLabel101, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 0, 40, 30));
         jPanel16.add(Jpanel_date_time, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 60, 410, 180));
 
         bg4.add(jPanel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 110, 550, 340));
@@ -1490,89 +1502,146 @@ public class patient extends javax.swing.JFrame {
     }//GEN-LAST:event_overviewMouseClicked
 
     private void saveMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveMouseClicked
-        String newName = name.getText().trim();
-        String newEmail = email.getText().trim();
-        String newContact = contact.getText().trim();
-        String newPass = new String(password.getPassword()).trim();
+        
+    String newName = nam.getText().trim();
+    String newEmail = ema.getText().trim();
+    String newContact = cont.getText().trim();
+    String newPass = new String(pas.getPassword()).trim();
 
-        int fieldCount = 0;
+    // ===== CHECK IF ALL FIELDS EMPTY =====
+    if (newName.isEmpty() && newEmail.isEmpty() &&
+        newContact.isEmpty() && newPass.isEmpty()) {
 
-        if (!newName.isEmpty()) fieldCount++;
-        if (!newEmail.isEmpty()) fieldCount++;
-        if (!newContact.isEmpty()) fieldCount++;
-        if (!newPass.isEmpty()) fieldCount++;
+        JOptionPane.showMessageDialog(this,
+                "Please enter at least one field to update!");
+        return;
+    }
 
-        if (fieldCount == 0) {
-            JOptionPane.showMessageDialog(this, "No fields to update!");
-            return;
+    // ===== VALIDATIONS =====
+    if (!newEmail.isEmpty() &&
+        !newEmail.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+
+        JOptionPane.showMessageDialog(this,
+                "Invalid email format!");
+        return;
+    }
+
+    if (!newContact.isEmpty() &&
+        !newContact.matches("\\d+")) {
+
+        JOptionPane.showMessageDialog(this,
+                "Contact must contain numbers only!");
+        return;
+    }
+
+    if (!newPass.isEmpty() && newPass.length() < 6) {
+
+        JOptionPane.showMessageDialog(this,
+                "Password must be at least 6 characters!");
+        return;
+    }
+
+    // ===== CHECK IF THERE IS ACTUAL CHANGE =====
+    boolean hasChange = false;
+
+    if (!newName.isEmpty() && !newName.equals(session.getName())) {
+        hasChange = true;
+    }
+
+    if (!newEmail.isEmpty() && !newEmail.equals(session.getEmail())) {
+        hasChange = true;
+    }
+
+    if (!newContact.isEmpty() && !newContact.equals(session.getContact())) {
+        hasChange = true;
+    }
+
+    if (!newPass.isEmpty()) {
+        hasChange = true;
+    }
+
+    if (!hasChange) {
+        JOptionPane.showMessageDialog(this,
+                "No new or changed data detected!");
+        return;
+    }
+
+    // ===== BUILD SQL DYNAMICALLY =====
+    StringBuilder sql = new StringBuilder("UPDATE tbl_accounts SET ");
+
+    if (!newName.isEmpty() && !newName.equals(session.getName())) {
+        sql.append("acc_name=?, ");
+    }
+
+    if (!newEmail.isEmpty() && !newEmail.equals(session.getEmail())) {
+        sql.append("acc_email=?, ");
+    }
+
+    if (!newContact.isEmpty() && !newContact.equals(session.getContact())) {
+        sql.append("acc_contact=?, ");
+    }
+
+    if (!newPass.isEmpty()) {
+        sql.append("acc_pass=?, ");
+    }
+
+    // remove last comma
+    sql.setLength(sql.length() - 2);
+    sql.append(" WHERE acc_id=?");
+
+    // ===== EXECUTE UPDATE =====
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(sql.toString())) {
+
+        int index = 1;
+
+        if (!newName.isEmpty() && !newName.equals(session.getName())) {
+            pst.setString(index++, newName);
         }
 
-        // ===== BUILD SQL DYNAMICALLY =====
-        StringBuilder sql = new StringBuilder("UPDATE tbl_accounts SET ");
-
-        if (!newName.isEmpty()) {
-            sql.append("acc_name=?, ");
+        if (!newEmail.isEmpty() && !newEmail.equals(session.getEmail())) {
+            pst.setString(index++, newEmail);
         }
 
-        if (!newEmail.isEmpty()) {
-            sql.append("acc_email=?, ");
-        }
-
-        if (!newContact.isEmpty()) {
-            sql.append("acc_contact=?, ");
+        if (!newContact.isEmpty() && !newContact.equals(session.getContact())) {
+            pst.setString(index++, newContact);
         }
 
         if (!newPass.isEmpty()) {
-            sql.append("acc_pass=?, ");
+            pst.setString(index++, config.hashPassword(newPass));
         }
 
-        // remove last ", "
-        sql.setLength(sql.length() - 2);
-        sql.append(" WHERE acc_id=?");
+        pst.setInt(index, session.getId());
 
-        // ===== PARAMETERS =====
-        Object[] params = new Object[fieldCount + 1];
-        int index = 0;
+        int updated = pst.executeUpdate();
 
-        if (!newName.isEmpty()) {
-            params[index++] = newName;
+        if (updated > 0) {
+
+            JOptionPane.showMessageDialog(this,
+                    "Profile updated successfully!");
+
+            // Update session values
+            if (!newName.isEmpty()) session.setName(newName);
+            if (!newEmail.isEmpty()) session.setEmail(newEmail);
+            if (!newContact.isEmpty()) session.setContact(newContact);
+
+loadprofile();
+
+nam.setText("");
+ema.setText("");
+cont.setText("");
+pas.setText("");
+
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "No changes were made.");
         }
 
-        if (!newEmail.isEmpty()) {
-            params[index++] = newEmail;
-        }
-
-        if (!newContact.isEmpty()) {
-            params[index++] = newContact;
-        }
-
-        if (!newPass.isEmpty()) {
-            params[index++] = config.hashPassword(newPass);
-        }
-
-        params[index] = session.getId();
-
-        // ===== EXECUTE UPDATE =====
-        try (Connection con = config.connectDB();
-            PreparedStatement pst = con.prepareStatement(sql.toString())) {
-
-            for (int i = 0; i < params.length; i++) {
-                pst.setObject(i + 1, params[i]);
-            }
-
-            int updated = pst.executeUpdate();
-
-            if (updated > 0) {
-                JOptionPane.showMessageDialog(this, "Profile updated successfully!");
-                loadprofile(); // refresh UI
-            } else {
-                JOptionPane.showMessageDialog(this, "No changes were made.");
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error updating profile: " + e.getMessage());
-        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this,
+                "Error updating profile: " + e.getMessage());
+    }
     }//GEN-LAST:event_saveMouseClicked
 
     private void appointbtnMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_appointbtnMouseExited
@@ -1587,7 +1656,7 @@ public class patient extends javax.swing.JFrame {
     }//GEN-LAST:event_appointbtnMouseEntered
 
     private void appointbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_appointbtnMouseClicked
-        tab.setSelectedIndex(6);
+        tab.setSelectedIndex(4);
     }//GEN-LAST:event_appointbtnMouseClicked
 
     private void prevpane4MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_prevpane4MouseEntered
@@ -1942,8 +2011,12 @@ public class patient extends javax.swing.JFrame {
     }//GEN-LAST:event_searchappKeyTyped
 
     private void jLabel20MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel20MouseClicked
-        tab.setSelectedIndex(5);
+        tab.setSelectedIndex(3);
     }//GEN-LAST:event_jLabel20MouseClicked
+
+    private void BackMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_BackMouseClicked
+        tab.setSelectedIndex(0); 
+    }//GEN-LAST:event_BackMouseClicked
     
 
 private void loadprofile() {
@@ -2660,6 +2733,7 @@ private void searchAppointments() {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel Back;
     private javax.swing.JPanel Jpanel_date_time;
     private javax.swing.JLabel XBTN;
     private javax.swing.JPanel XPNL;
@@ -2680,6 +2754,7 @@ private void searchAppointments() {
     private javax.swing.JLabel billing;
     private javax.swing.JPanel billingpane;
     private javax.swing.JLabel braceconsultation;
+    private javax.swing.JTextField cont;
     private javax.swing.JLabel contact;
     private javax.swing.JPanel dashbox;
     private javax.swing.JLabel date_next_app;
@@ -2690,6 +2765,7 @@ private void searchAppointments() {
     private javax.swing.JLabel dentalcrown;
     private javax.swing.JLabel dentalfilling;
     private javax.swing.JPanel df;
+    private javax.swing.JTextField ema;
     private javax.swing.JLabel email;
     private javax.swing.JPanel gc;
     private javax.swing.JPanel hdr;
@@ -2709,6 +2785,7 @@ private void searchAppointments() {
     private javax.swing.JLabel jLabel111;
     private javax.swing.JLabel jLabel112;
     private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
@@ -2780,6 +2857,7 @@ private void searchAppointments() {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel20;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel9;
@@ -2787,17 +2865,14 @@ private void searchAppointments() {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JTable jTable3;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
     private javax.swing.JLabel lblDateTime;
     private javax.swing.JLabel lblDentist;
     private javax.swing.JLabel lblEstimatedFee;
     private javax.swing.JLabel lblService;
     private javax.swing.JLabel logout;
     private javax.swing.JPanel mp1;
+    private javax.swing.JTextField nam;
     private javax.swing.JLabel name;
-    private javax.swing.JLabel next_appointment;
     private javax.swing.JLabel nextbtn2;
     private javax.swing.JLabel nextbtn3;
     private javax.swing.JLabel nextbtn4;
@@ -2811,7 +2886,7 @@ private void searchAppointments() {
     private javax.swing.JLabel ov;
     private javax.swing.JPanel overview;
     private javax.swing.JPanel ovtab;
-    private javax.swing.JPasswordField password;
+    private javax.swing.JPasswordField pas;
     private javax.swing.JComboBox<String> paymentComboBox;
     private javax.swing.JLabel prevbtn2;
     private javax.swing.JLabel prevbtn3;
@@ -2830,7 +2905,6 @@ private void searchAppointments() {
     private javax.swing.JLabel teethwhitening;
     private javax.swing.JLabel toothextraction;
     private javax.swing.JLabel total_visit;
-    private javax.swing.JLabel total_visits;
     private javax.swing.JPanel tw;
     private javax.swing.JLabel user;
     // End of variables declaration//GEN-END:variables

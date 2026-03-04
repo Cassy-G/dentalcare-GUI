@@ -35,7 +35,6 @@ public class aboutUs extends javax.swing.JFrame {
         xpnl = new javax.swing.JPanel();
         xbtn = new javax.swing.JLabel();
         logo = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         det1 = new javax.swing.JLabel();
         picPnl = new javax.swing.JPanel();
@@ -49,7 +48,19 @@ public class aboutUs extends javax.swing.JFrame {
         det4 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
         det5 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        jLabel14 = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
         bgpic = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
 
@@ -111,20 +122,16 @@ public class aboutUs extends javax.swing.JFrame {
         });
         header.add(logo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, 50));
 
-        jLabel2.setFont(new java.awt.Font("Yu Gothic Light", 1, 14)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(51, 102, 255));
-        jLabel2.setText("DentalCare");
-        header.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 0, 90, 50));
-
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/5046faad4a4c9af72bcf4fe75c8a11d0.jpg"))); // NOI18N
         header.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
 
         bg.add(header, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
 
         det1.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        det1.setForeground(new java.awt.Color(51, 51, 51));
         det1.setText("Our DentalCare Appointment System delivers a secure, efficient,");
         det1.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-        bg.add(det1, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 200, 420, 20));
+        bg.add(det1, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 170, 420, 20));
 
         picPnl.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -149,55 +156,107 @@ public class aboutUs extends javax.swing.JFrame {
         modern.setFont(new java.awt.Font("Times New Roman", 1, 20)); // NOI18N
         modern.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         modern.setText("Modern dentistry with gentle care");
-        bg.add(modern, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 150, 300, 30));
+        bg.add(modern, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 130, 300, 30));
 
         who.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
         who.setForeground(new java.awt.Color(0, 51, 255));
         who.setText("Who we are");
-        bg.add(who, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 130, -1, -1));
+        bg.add(who, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 110, -1, -1));
 
         det2.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        det2.setForeground(new java.awt.Color(51, 51, 51));
         det2.setText("and patient-centered experience for scheduling and managing dental visits.");
         det2.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-        bg.add(det2, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 220, 440, 20));
+        bg.add(det2, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 190, 440, 20));
 
         det3.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        det3.setForeground(new java.awt.Color(51, 51, 51));
         det3.setText("Designed with precision and reliability in mind, it ensures seamless");
         det3.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-        bg.add(det3, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 240, -1, 20));
+        bg.add(det3, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 210, -1, 20));
 
         abtUs.setBackground(new java.awt.Color(165, 215, 240));
         abtUs.setFont(new java.awt.Font("Times New Roman", 0, 24)); // NOI18N
         abtUs.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         abtUs.setText("About Us");
-        bg.add(abtUs, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 60, 180, 50));
+        bg.add(abtUs, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, 340, 50));
 
         det4.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        det4.setForeground(new java.awt.Color(51, 51, 51));
         det4.setText("coordination between patients and dental professionals for");
         det4.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-        bg.add(det4, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 260, -1, 20));
+        bg.add(det4, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 230, -1, 20));
 
-        jLabel4.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
-        jLabel4.setText("Clinic that prioritizes your satisfaction ");
-        bg.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 310, 420, 30));
+        jLabel4.setFont(new java.awt.Font("Times New Roman", 1, 20)); // NOI18N
+        jLabel4.setText("Why Choose dentalcare?");
+        bg.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 280, 410, 40));
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 180, Short.MAX_VALUE)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 50, Short.MAX_VALUE)
-        );
+        jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 51, 255), 2));
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        bg.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 60, 180, 50));
+        jLabel2.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(51, 102, 255));
+        jLabel2.setText("Learn More");
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, 80, 30));
+
+        bg.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 70, 180, 30));
 
         det5.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        det5.setForeground(new java.awt.Color(51, 51, 51));
         det5.setText("exceptional care.");
         det5.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-        bg.add(det5, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 280, 100, 20));
+        bg.add(det5, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 250, 100, 20));
+
+        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-check-mark-40.png"))); // NOI18N
+        bg.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 320, -1, 40));
+
+        jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-check-mark-40.png"))); // NOI18N
+        bg.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 380, 40, 40));
+
+        jLabel7.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        jLabel7.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-check-mark-40.png"))); // NOI18N
+        bg.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 440, 50, 50));
+
+        jLabel8.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        jLabel8.setText("Modern Technology");
+        bg.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 310, 120, 30));
+
+        jLabel9.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        jLabel9.setText("Flexible Hours");
+        bg.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 370, 110, 40));
+
+        jLabel10.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        jLabel10.setText("Affordable Care");
+        bg.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 440, -1, 40));
+
+        jLabel11.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        jLabel11.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel11.setText("State-of-the-art equipment ensuring painless and efficient treatments.");
+        bg.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 330, 390, 30));
+
+        jLabel12.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        jLabel12.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel12.setText("Open 6 days a week with morning-to-day appointments available for ");
+        bg.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 390, -1, 40));
+
+        jLabel13.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        jLabel13.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel13.setText("your convenience.");
+        bg.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 420, -1, -1));
+
+        jLabel14.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        jLabel14.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel14.setText("Competitive pricing and flexible payment plans to suit your budget.");
+        bg.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 470, 390, -1));
+
+        jLabel15.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-back-32.png"))); // NOI18N
+        jLabel15.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel15MouseClicked(evt);
+            }
+        });
+        bg.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 460, 60, 70));
 
         bgpic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/p.jpg"))); // NOI18N
         bg.add(bgpic, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 530));
@@ -267,6 +326,12 @@ public class aboutUs extends javax.swing.JFrame {
         logo.setVisible(true);
     }//GEN-LAST:event_logoMouseClicked
 
+    private void jLabel15MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel15MouseClicked
+           landingp back = new landingp();
+           this.dispose();
+           back.setVisible(true);
+    }//GEN-LAST:event_jLabel15MouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -313,9 +378,20 @@ public class aboutUs extends javax.swing.JFrame {
     private javax.swing.JLabel det5;
     private javax.swing.JPanel header;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;

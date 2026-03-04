@@ -370,9 +370,10 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
             String role = rs.getString("acc_role");
             String name = rs.getString("acc_name");
 
-            // ✅ ADD SESSION HERE
-            int id = rs.getInt("acc_id"); // make sure column name matches your table
-            session.setSession(id, name, email, role);
+        int id = rs.getInt("acc_id");
+String contact = rs.getString("acc_contact"); // GET CONTACT FROM DB
+
+session.setSession(id, name, email, contact, role);
 
             // Redirect based on role
             switch (role.toLowerCase()) {

@@ -1087,14 +1087,15 @@ int xMouse, yMouse;
 
         jPanel8.add(prevpane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 300, 100, 30));
 
+        appointment_date.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         appointment_date.setText("Select Appointment Date & Time");
-        jPanel8.add(appointment_date, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 160, -1));
+        jPanel8.add(appointment_date, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 200, -1));
 
         jLabel72.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel72.setForeground(new java.awt.Color(255, 0, 0));
         jLabel72.setText("*");
-        jPanel8.add(jLabel72, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 0, 40, 30));
-        jPanel8.add(Jpanel_date_time, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 60, 410, 130));
+        jPanel8.add(jLabel72, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 0, 40, 30));
+        jPanel8.add(Jpanel_date_time, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 60, 410, 140));
 
         bg3.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 110, 550, 340));
 

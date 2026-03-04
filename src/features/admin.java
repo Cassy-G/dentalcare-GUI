@@ -4,7 +4,9 @@ package features;
 import config.config;
 import java.awt.Color;
 import internal.session;
+import java.awt.Dimension;
 import java.awt.Image;
+import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,6 +27,7 @@ public class admin extends javax.swing.JFrame {
     public admin() {
         initComponents();
        acctable();
+       pic.setPreferredSize(new Dimension(150, 150));
        loadprofile();
     // 🔒 Check if user is logged in
     if (session.getId() == 0) {
@@ -78,7 +81,7 @@ public class admin extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         admin_name = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
-        Profile = new javax.swing.JTabbedPane();
+        tabbed = new javax.swing.JTabbedPane();
         db = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
@@ -112,18 +115,19 @@ public class admin extends javax.swing.JFrame {
         search = new javax.swing.JTextField();
         jPanel4 = new javax.swing.JPanel();
         jLabel37 = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
         staffmanage = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
+        stafftbl = new javax.swing.JTable();
         jPanel5 = new javax.swing.JPanel();
-        jLabel19 = new javax.swing.JLabel();
+        editstaff = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
         jPanel6 = new javax.swing.JPanel();
-        jLabel18 = new javax.swing.JLabel();
+        addstaff = new javax.swing.JLabel();
         jPanel11 = new javax.swing.JPanel();
-        jLabel20 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
+        deletestaff = new javax.swing.JLabel();
+        srch = new javax.swing.JTextField();
         jLabel21 = new javax.swing.JLabel();
         jPanel15 = new javax.swing.JPanel();
         analytics = new javax.swing.JPanel();
@@ -134,38 +138,58 @@ public class admin extends javax.swing.JFrame {
         jLabel14 = new javax.swing.JLabel();
         myprofile = new javax.swing.JPanel();
         mp = new javax.swing.JPanel();
-        jLabel25 = new javax.swing.JLabel();
         jPanel18 = new javax.swing.JPanel();
         addpicture = new javax.swing.JPanel();
-        add_pic = new javax.swing.JLabel();
-        jLabel26 = new javax.swing.JLabel();
+        addpic_here = new javax.swing.JLabel();
+        editprofile = new javax.swing.JLabel();
+        jLabel25 = new javax.swing.JLabel();
+        jPanel17 = new javax.swing.JPanel();
         jLabel27 = new javax.swing.JLabel();
+        id = new javax.swing.JLabel();
+        jLabel26 = new javax.swing.JLabel();
         jLabel28 = new javax.swing.JLabel();
         jLabel29 = new javax.swing.JLabel();
-        jLabel30 = new javax.swing.JLabel();
-        editprofile = new javax.swing.JLabel();
-        email = new javax.swing.JLabel();
         contact = new javax.swing.JLabel();
+        jLabel30 = new javax.swing.JLabel();
         role = new javax.swing.JLabel();
         name = new javax.swing.JLabel();
-        id = new javax.swing.JLabel();
+        email = new javax.swing.JLabel();
+        jLabel18 = new javax.swing.JLabel();
         mp1 = new javax.swing.JPanel();
-        jLabel31 = new javax.swing.JLabel();
         jPanel19 = new javax.swing.JPanel();
         addpicture1 = new javax.swing.JPanel();
         pic = new javax.swing.JLabel();
-        jLabel32 = new javax.swing.JLabel();
-        jLabel33 = new javax.swing.JLabel();
-        jLabel34 = new javax.swing.JLabel();
-        jLabel35 = new javax.swing.JLabel();
-        jLabel36 = new javax.swing.JLabel();
         editprofile1 = new javax.swing.JLabel();
         id1 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
-        jTextField4 = new javax.swing.JTextField();
-        jTextField5 = new javax.swing.JTextField();
         changephoto = new javax.swing.JLabel();
         save = new javax.swing.JLabel();
+        jLabel31 = new javax.swing.JLabel();
+        jPanel16 = new javax.swing.JPanel();
+        jLabel33 = new javax.swing.JLabel();
+        ID = new javax.swing.JLabel();
+        ROLE = new javax.swing.JLabel();
+        jLabel36 = new javax.swing.JLabel();
+        jLabel32 = new javax.swing.JLabel();
+        jTextField5 = new javax.swing.JTextField();
+        jTextField3 = new javax.swing.JTextField();
+        jLabel34 = new javax.swing.JLabel();
+        jLabel35 = new javax.swing.JLabel();
+        jTextField4 = new javax.swing.JTextField();
+        jPanel20 = new javax.swing.JPanel();
+        jPanel21 = new javax.swing.JPanel();
+        jPanel22 = new javax.swing.JPanel();
+        jLabel19 = new javax.swing.JLabel();
+        jLabel20 = new javax.swing.JLabel();
+        jPanel23 = new javax.swing.JPanel();
+        jLabel38 = new javax.swing.JLabel();
+        jLabel40 = new javax.swing.JLabel();
+        jLabel39 = new javax.swing.JLabel();
+        jLabel43 = new javax.swing.JLabel();
+        jLabel42 = new javax.swing.JLabel();
+        jLabel41 = new javax.swing.JLabel();
+        jLabel44 = new javax.swing.JLabel();
+        jLabel45 = new javax.swing.JLabel();
+        jLabel46 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
@@ -495,7 +519,7 @@ public class admin extends javax.swing.JFrame {
 
         jLabel23.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         jLabel23.setText("View Analytics");
-        jPanel13.add(jLabel23, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 20, -1, -1));
+        jPanel13.add(jLabel23, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 0, -1, 60));
 
         db.add(jPanel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 400, 200, 60));
 
@@ -505,11 +529,11 @@ public class admin extends javax.swing.JFrame {
 
         jLabel24.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         jLabel24.setText("My Profile");
-        jPanel14.add(jLabel24, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 20, -1, -1));
+        jPanel14.add(jLabel24, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 0, -1, 60));
 
         db.add(jPanel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 400, 180, 60));
 
-        Profile.addTab("dashboard", db);
+        tabbed.addTab("dashboard", db);
 
         users.setBackground(new java.awt.Color(255, 255, 255));
         users.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -524,21 +548,26 @@ public class admin extends javax.swing.JFrame {
         ));
         jScrollPane1.setViewportView(tbl);
 
-        users.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 610, 350));
+        users.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 150, 610, 310));
 
         jPanel1.setBackground(new java.awt.Color(51, 153, 255));
-        jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 255, 255), 4));
+        jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 255, 255), 2));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         add.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
         add.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         add.setText("Add");
+        add.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                addMouseClicked(evt);
+            }
+        });
         jPanel1.add(add, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 40));
 
-        users.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 90, 40));
+        users.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 90, 40));
 
         jPanel2.setBackground(new java.awt.Color(51, 153, 255));
-        jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 255, 255), 4));
+        jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 255, 255), 2));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         edit.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
@@ -546,10 +575,10 @@ public class admin extends javax.swing.JFrame {
         edit.setText("Edit");
         jPanel2.add(edit, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 40));
 
-        users.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 50, 90, 40));
+        users.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 90, 90, 40));
 
         jPanel3.setBackground(new java.awt.Color(51, 153, 255));
-        jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 255, 255), 4));
+        jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 255, 255), 2));
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         delete.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
@@ -557,17 +586,17 @@ public class admin extends javax.swing.JFrame {
         delete.setText("Delete");
         jPanel3.add(delete, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -1, 90, 40));
 
-        users.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 50, 90, 40));
+        users.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 90, 90, 40));
 
         search.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 searchKeyTyped(evt);
             }
         });
-        users.add(search, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 50, 140, 40));
+        users.add(search, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 90, 140, 40));
 
         jPanel4.setBackground(new java.awt.Color(51, 153, 255));
-        jPanel4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 255, 255), 4));
+        jPanel4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 255, 255), 2));
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel37.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
@@ -575,15 +604,20 @@ public class admin extends javax.swing.JFrame {
         jLabel37.setText("Search");
         jPanel4.add(jLabel37, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 70, 40));
 
-        users.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 50, 70, 40));
+        users.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 90, 70, 40));
 
-        Profile.addTab("users", users);
+        jLabel15.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
+        jLabel15.setText("Users Management");
+        users.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 20, -1, -1));
 
-        staffmanage.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 255, 255), 3));
+        tabbed.addTab("users", users);
+
+        staffmanage.setBackground(new java.awt.Color(255, 255, 255));
+        staffmanage.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 255, 255), 0));
         staffmanage.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jTable2.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+        stafftbl.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        stafftbl.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -591,18 +625,18 @@ public class admin extends javax.swing.JFrame {
 
             }
         ));
-        jScrollPane2.setViewportView(jTable2);
+        jScrollPane2.setViewportView(stafftbl);
 
-        staffmanage.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 150, 630, 320));
+        staffmanage.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 160, 630, 300));
 
         jPanel5.setBackground(new java.awt.Color(51, 153, 255));
-        jPanel5.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 255, 255), 4));
+        jPanel5.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 255, 255), 2));
         jPanel5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel19.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
-        jLabel19.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel19.setText("Edit");
-        jPanel5.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 40));
+        editstaff.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
+        editstaff.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        editstaff.setText("Edit");
+        jPanel5.add(editstaff, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 40));
 
         staffmanage.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 100, 90, 40));
 
@@ -616,30 +650,35 @@ public class admin extends javax.swing.JFrame {
         staffmanage.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, -1, 30));
 
         jPanel6.setBackground(new java.awt.Color(51, 153, 255));
-        jPanel6.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 255, 255), 4));
+        jPanel6.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 255, 255), 2));
         jPanel6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel18.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
-        jLabel18.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel18.setText("Add");
-        jPanel6.add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 40));
+        addstaff.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
+        addstaff.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        addstaff.setText("Add");
+        addstaff.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                addstaffMouseClicked(evt);
+            }
+        });
+        jPanel6.add(addstaff, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 40));
 
         staffmanage.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 100, 90, 40));
 
         jPanel11.setBackground(new java.awt.Color(51, 153, 255));
-        jPanel11.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 255, 255), 4));
+        jPanel11.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 255, 255), 2));
         jPanel11.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel20.setBackground(new java.awt.Color(51, 153, 255));
-        jLabel20.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
-        jLabel20.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel20.setText("Delete");
-        jPanel11.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 40));
+        deletestaff.setBackground(new java.awt.Color(51, 153, 255));
+        deletestaff.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
+        deletestaff.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        deletestaff.setText("Delete");
+        jPanel11.add(deletestaff, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 40));
 
         staffmanage.add(jPanel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 100, 90, 40));
 
-        jTextField2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 255, 255), 2));
-        staffmanage.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 100, 130, 40));
+        srch.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 255, 255), 0));
+        staffmanage.add(srch, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 100, 130, 40));
 
         jLabel21.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel21.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -647,22 +686,22 @@ public class admin extends javax.swing.JFrame {
         staffmanage.add(jLabel21, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 100, 70, 40));
 
         jPanel15.setBackground(new java.awt.Color(51, 153, 255));
-        jPanel15.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 255, 255), 4));
+        jPanel15.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 255, 255), 2));
 
         javax.swing.GroupLayout jPanel15Layout = new javax.swing.GroupLayout(jPanel15);
         jPanel15.setLayout(jPanel15Layout);
         jPanel15Layout.setHorizontalGroup(
             jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 62, Short.MAX_VALUE)
+            .addGap(0, 66, Short.MAX_VALUE)
         );
         jPanel15Layout.setVerticalGroup(
             jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 32, Short.MAX_VALUE)
+            .addGap(0, 36, Short.MAX_VALUE)
         );
 
         staffmanage.add(jPanel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 100, 70, 40));
 
-        Profile.addTab("staff_M", staffmanage);
+        tabbed.addTab("staff_M", staffmanage);
 
         javax.swing.GroupLayout analyticsLayout = new javax.swing.GroupLayout(analytics);
         analytics.setLayout(analyticsLayout);
@@ -675,7 +714,7 @@ public class admin extends javax.swing.JFrame {
             .addGap(0, 470, Short.MAX_VALUE)
         );
 
-        Profile.addTab("analytics", analytics);
+        tabbed.addTab("analytics", analytics);
 
         systemlogs.setBackground(new java.awt.Color(255, 255, 255));
         systemlogs.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -702,52 +741,29 @@ public class admin extends javax.swing.JFrame {
         jLabel14.setText("Monitor all system activities and user actions");
         systemlogs.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, -1, -1));
 
-        Profile.addTab("logs", systemlogs);
+        tabbed.addTab("logs", systemlogs);
 
         myprofile.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         mp.setBackground(new java.awt.Color(255, 255, 255));
         mp.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel25.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
-        jLabel25.setText("My Profile");
-        mp.add(jLabel25, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 30, -1, 60));
-
         jPanel18.setBackground(new java.awt.Color(204, 255, 255));
         jPanel18.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        addpicture.setBackground(new java.awt.Color(204, 204, 204));
+        addpicture.setBackground(new java.awt.Color(255, 255, 255));
         addpicture.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        add_pic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-add-photo-60.png"))); // NOI18N
-        add_pic.addMouseListener(new java.awt.event.MouseAdapter() {
+        addpic_here.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        addpic_here.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-add-user-male-50.png"))); // NOI18N
+        addpic_here.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                add_picMouseClicked(evt);
+                addpic_hereMouseClicked(evt);
             }
         });
-        addpicture.add(add_pic, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 30, 60, 90));
+        addpicture.add(addpic_here, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 180, 160));
 
-        jPanel18.add(addpicture, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 180, 160));
-
-        jLabel26.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        jLabel26.setText("Name");
-        jPanel18.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 70, -1, -1));
-
-        jLabel27.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        jLabel27.setText("ID");
-        jPanel18.add(jLabel27, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 30, -1, -1));
-
-        jLabel28.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        jLabel28.setText("Email");
-        jPanel18.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 110, -1, -1));
-
-        jLabel29.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        jLabel29.setText("Contact");
-        jPanel18.add(jLabel29, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 150, -1, -1));
-
-        jLabel30.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        jLabel30.setText("Role");
-        jPanel18.add(jLabel30, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 190, 50, -1));
+        jPanel18.add(addpicture, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 150, 180, 160));
 
         editprofile.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
         editprofile.setForeground(new java.awt.Color(51, 0, 255));
@@ -757,88 +773,103 @@ public class admin extends javax.swing.JFrame {
                 editprofileMouseClicked(evt);
             }
         });
-        jPanel18.add(editprofile, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 220, -1, 40));
+        jPanel18.add(editprofile, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 390, -1, 40));
 
-        email.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
-        jPanel18.add(email, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 100, 230, 40));
+        jLabel25.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
+        jLabel25.setForeground(new java.awt.Color(51, 0, 204));
+        jLabel25.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel25.setText("My Profile");
+        jPanel18.add(jLabel25, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 90, 180, 50));
 
-        contact.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
-        jPanel18.add(contact, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 150, 180, 30));
+        jPanel17.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel17.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255), 2));
+        jPanel17.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        role.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
-        jPanel18.add(role, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 180, 180, 30));
-
-        name.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
-        jPanel18.add(name, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 70, 180, 30));
+        jLabel27.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        jLabel27.setText("ID :");
+        jPanel17.add(jLabel27, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 20, -1, -1));
 
         id.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
-        jPanel18.add(id, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 20, 70, 40));
+        jPanel17.add(id, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 20, 50, 40));
 
-        mp.add(jPanel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 110, 530, 260));
+        jLabel26.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        jLabel26.setText("Name :");
+        jPanel17.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 60, -1));
+
+        jLabel28.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        jLabel28.setText("Email :");
+        jPanel17.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, -1, 30));
+
+        jLabel29.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        jLabel29.setText("Contact :");
+        jPanel17.add(jLabel29, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 150, 80, -1));
+
+        contact.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        jPanel17.add(contact, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 150, 210, 30));
+
+        jLabel30.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        jLabel30.setText("Role :");
+        jPanel17.add(jLabel30, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 182, 60, 30));
+
+        role.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        jPanel17.add(role, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 180, 170, 40));
+
+        name.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        jPanel17.add(name, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 70, 210, 30));
+
+        email.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        jPanel17.add(email, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 110, 210, 30));
+
+        jPanel18.add(jPanel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 90, 320, 270));
+
+        jLabel18.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        jLabel18.setForeground(new java.awt.Color(51, 0, 255));
+        jLabel18.setText("Back to dashboard");
+        jPanel18.add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 396, -1, 30));
+
+        mp.add(jPanel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 20, 570, 430));
 
         myprofile.add(mp, new org.netbeans.lib.awtextra.AbsoluteConstraints(2, -1, 650, 470));
 
-        Profile.addTab("profile", myprofile);
+        tabbed.addTab("profile", myprofile);
 
         mp1.setBackground(new java.awt.Color(255, 255, 255));
         mp1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel31.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
-        jLabel31.setText("My Profile");
-        mp1.add(jLabel31, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 30, 120, 60));
-
         jPanel19.setBackground(new java.awt.Color(204, 255, 255));
         jPanel19.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        addpicture1.setBackground(new java.awt.Color(204, 204, 204));
+        addpicture1.setBackground(new java.awt.Color(255, 255, 255));
         addpicture1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         pic.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        pic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-profile-100.png"))); // NOI18N
+        pic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-add-user-male-50.png"))); // NOI18N
         addpicture1.add(pic, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 180, 160));
 
-        jPanel19.add(addpicture1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 180, 160));
-
-        jLabel32.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        jLabel32.setText("Name");
-        jPanel19.add(jLabel32, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 70, -1, -1));
-
-        jLabel33.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        jLabel33.setText("ID");
-        jPanel19.add(jLabel33, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 30, -1, -1));
-
-        jLabel34.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        jLabel34.setText("Email");
-        jPanel19.add(jLabel34, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 110, -1, -1));
-
-        jLabel35.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        jLabel35.setText("Contact");
-        jPanel19.add(jLabel35, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 150, -1, -1));
-
-        jLabel36.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        jLabel36.setText("Role");
-        jPanel19.add(jLabel36, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 190, 40, -1));
+        jPanel19.add(addpicture1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 140, 180, 160));
 
         editprofile1.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
         editprofile1.setForeground(new java.awt.Color(51, 0, 255));
-        editprofile1.setText("Edit Profile");
-        jPanel19.add(editprofile1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 220, -1, 40));
+        editprofile1.setText("Back to dahsboard");
+        editprofile1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                editprofile1MouseClicked(evt);
+            }
+        });
+        jPanel19.add(editprofile1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 390, 150, 40));
 
         id1.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
         jPanel19.add(id1, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 30, 50, 30));
-        jPanel19.add(jTextField3, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 110, 200, 30));
-        jPanel19.add(jTextField4, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 150, 200, 30));
-        jPanel19.add(jTextField5, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 70, 200, 30));
 
         changephoto.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         changephoto.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        changephoto.setText("Change photo");
+        changephoto.setText("Add photo");
         changephoto.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 changephotoMouseClicked(evt);
             }
         });
-        jPanel19.add(changephoto, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 190, 180, -1));
+        jPanel19.add(changephoto, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 300, 180, 30));
 
         save.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
         save.setForeground(new java.awt.Color(51, 0, 255));
@@ -848,13 +879,117 @@ public class admin extends javax.swing.JFrame {
                 saveMouseClicked(evt);
             }
         });
-        jPanel19.add(save, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 220, 90, 40));
+        jPanel19.add(save, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 390, 90, 40));
 
-        mp1.add(jPanel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 110, 530, 260));
+        jLabel31.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
+        jLabel31.setForeground(new java.awt.Color(51, 0, 204));
+        jLabel31.setText("Edit Profile");
+        jPanel19.add(jLabel31, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 70, 120, 70));
 
-        Profile.addTab("editprofile", mp1);
+        jPanel16.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel16.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255), 2));
+        jPanel16.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        bg.add(Profile, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 20, 650, 500));
+        jLabel33.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        jLabel33.setText("ID");
+        jPanel16.add(jLabel33, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 20, -1, -1));
+
+        ID.setFont(new java.awt.Font("Trebuchet MS", 0, 14)); // NOI18N
+        jPanel16.add(ID, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 20, 40, 30));
+
+        ROLE.setFont(new java.awt.Font("Trebuchet MS", 0, 14)); // NOI18N
+        jPanel16.add(ROLE, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 190, 130, 30));
+
+        jLabel36.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        jLabel36.setText("Role");
+        jPanel16.add(jLabel36, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 180, 40, 40));
+
+        jLabel32.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        jLabel32.setText("Change Name");
+        jPanel16.add(jLabel32, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, -1, -1));
+
+        jTextField5.setFont(new java.awt.Font("Trebuchet MS", 0, 14)); // NOI18N
+        jPanel16.add(jTextField5, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 70, 190, 30));
+
+        jTextField3.setFont(new java.awt.Font("Trebuchet MS", 0, 14)); // NOI18N
+        jPanel16.add(jTextField3, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 110, 190, 30));
+
+        jLabel34.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        jLabel34.setText("Change Email");
+        jPanel16.add(jLabel34, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 110, -1, 30));
+
+        jLabel35.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        jLabel35.setText("Change Contact");
+        jPanel16.add(jLabel35, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 150, -1, 30));
+
+        jTextField4.setFont(new java.awt.Font("Trebuchet MS", 0, 14)); // NOI18N
+        jPanel16.add(jTextField4, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 150, 190, 30));
+
+        jPanel19.add(jPanel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 90, 320, 260));
+
+        mp1.add(jPanel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 20, 570, 430));
+
+        tabbed.addTab("editprofile", mp1);
+
+        jPanel20.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel21.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel22.setBackground(new java.awt.Color(153, 255, 255));
+        jPanel22.setForeground(new java.awt.Color(255, 255, 255));
+        jPanel22.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel19.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
+        jLabel19.setText("Edit User");
+        jPanel22.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 10, 140, 50));
+
+        jLabel20.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-add-user-male-50.png"))); // NOI18N
+        jPanel22.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, 80, 50));
+
+        jPanel21.add(jPanel22, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 10, 280, 70));
+
+        jPanel23.setBackground(new java.awt.Color(204, 255, 255));
+        jPanel23.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel38.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel38.setText("ID");
+        jPanel23.add(jLabel38, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 30, -1, 30));
+
+        jLabel40.setText("jLabel40");
+        jPanel23.add(jLabel40, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 40, -1, -1));
+
+        jLabel39.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel39.setText("Name");
+        jPanel23.add(jLabel39, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 90, -1, 30));
+
+        jLabel43.setText("jLabel43");
+        jPanel23.add(jLabel43, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 100, -1, -1));
+
+        jLabel42.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel42.setText("Email");
+        jPanel23.add(jLabel42, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 150, -1, -1));
+
+        jLabel41.setText("jLabel41");
+        jPanel23.add(jLabel41, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 150, -1, -1));
+
+        jLabel44.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel44.setText("Contact");
+        jPanel23.add(jLabel44, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 200, -1, -1));
+
+        jLabel45.setText("jLabel45");
+        jPanel23.add(jLabel45, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 200, -1, -1));
+
+        jLabel46.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel46.setText("Role");
+        jPanel23.add(jLabel46, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 240, -1, -1));
+
+        jPanel21.add(jPanel23, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 120, 430, 290));
+
+        jPanel20.add(jPanel21, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 650, 460));
+
+        tabbed.addTab("edit_user", jPanel20);
+
+        bg.add(tabbed, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 20, 650, 500));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -908,7 +1043,7 @@ public class admin extends javax.swing.JFrame {
     }//GEN-LAST:event_dashbtnMouseEntered
 
     private void dashbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dashbtnMouseClicked
-        Profile.setSelectedIndex(0);
+        tabbed.setSelectedIndex(0);
 
     }//GEN-LAST:event_dashbtnMouseClicked
 
@@ -919,19 +1054,19 @@ public class admin extends javax.swing.JFrame {
     }//GEN-LAST:event_dashbtnMouseExited
 
     private void usersbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_usersbtnMouseClicked
-        Profile.setSelectedIndex(1);
+        tabbed.setSelectedIndex(1);
     }//GEN-LAST:event_usersbtnMouseClicked
 
     private void staffbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_staffbtnMouseClicked
-        Profile.setSelectedIndex(2);
+        tabbed.setSelectedIndex(2);
     }//GEN-LAST:event_staffbtnMouseClicked
 
     private void analyticsbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_analyticsbtnMouseClicked
-        Profile.setSelectedIndex(3);
+        tabbed.setSelectedIndex(3);
     }//GEN-LAST:event_analyticsbtnMouseClicked
 
     private void system_logsbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_system_logsbtnMouseClicked
-       Profile.setSelectedIndex(4);
+       tabbed.setSelectedIndex(4);
     }//GEN-LAST:event_system_logsbtnMouseClicked
 
     private void usersbtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_usersbtnMouseEntered
@@ -1012,7 +1147,7 @@ public class admin extends javax.swing.JFrame {
     }//GEN-LAST:event_logoMouseClicked
 
     private void pMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pMouseClicked
-        Profile.setSelectedIndex(5);
+        tabbed.setSelectedIndex(5);
     }//GEN-LAST:event_pMouseClicked
 
     private void pMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pMouseEntered
@@ -1026,58 +1161,51 @@ public class admin extends javax.swing.JFrame {
     }//GEN-LAST:event_pMouseExited
 
     private void editprofileMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editprofileMouseClicked
-       Profile.setSelectedIndex(6);
+       tabbed.setSelectedIndex(6);
     }//GEN-LAST:event_editprofileMouseClicked
 
     private void changephotoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_changephotoMouseClicked
-JFileChooser chooser = new JFileChooser();
-chooser.setFileFilter(
-    new javax.swing.filechooser.FileNameExtensionFilter(
-        "Image files", "jpg", "png", "jpeg", "gif"
-    )
-);
 
-int result = chooser.showOpenDialog(this);
+    JFileChooser chooser = new JFileChooser();
+    chooser.setFileFilter(
+        new javax.swing.filechooser.FileNameExtensionFilter(
+            "Image files", "jpg", "png", "jpeg", "gif"
+        )
+    );
 
-if (result == JFileChooser.APPROVE_OPTION) {
+    int result = chooser.showOpenDialog(this);
 
-    String path = chooser.getSelectedFile().getAbsolutePath();
+    if (result == JFileChooser.APPROVE_OPTION) {
 
-    // Save path to DB
-    try {
-        config db = new config();
-        Connection con = db.connectDB();
+        String path = chooser.getSelectedFile().getAbsolutePath();
 
-        String sql = "UPDATE tbl_accounts SET acc_pic = ? WHERE acc_id = ?";
-        PreparedStatement pst = con.prepareStatement(sql);
-
-        pst.setString(1, path);
-        pst.setInt(2, session.getId());
-
-        pst.executeUpdate();
-
-        pst.close();
-        con.close();
-
-        // Reload picture
-        loadprofile();
-
-        JOptionPane.showMessageDialog(
-            this,
-            "Profile picture updated!"
+        // ✅ 1. SHOW IMAGE IMMEDIATELY
+        ImageIcon icon = new ImageIcon(path);
+        Image img = icon.getImage().getScaledInstance(
+                addpic_here.getWidth(),
+                addpic_here.getHeight(),
+                Image.SCALE_SMOOTH
         );
 
-    } catch (Exception ex) {
+        addpic_here.setIcon(new ImageIcon(img));
 
-        JOptionPane.showMessageDialog(
-            this,
-            "Error: " + ex.getMessage()
-        );
+        // ✅ 2. SAVE TO DATABASE
+        try (Connection con = config.connectDB();
+             PreparedStatement pst = con.prepareStatement(
+                     "UPDATE tbl_accounts SET acc_pic = ? WHERE acc_id = ?")) {
 
-        ex.printStackTrace();
+            pst.setString(1, path);
+            pst.setInt(2, session.getId());
+            pst.executeUpdate();
+
+            JOptionPane.showMessageDialog(this, "Profile picture updated!");
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
-    
-}
+
     }//GEN-LAST:event_changephotoMouseClicked
 
     private void saveMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveMouseClicked
@@ -1186,7 +1314,7 @@ String sql;
 
 String baseQuery =
         "SELECT order_id AS id, " +
-        "customer_name AS name, " +
+        "acc_name AS name, " +
         "pickup_address AS pickup_address, " +
         "dropoff_address AS drop_off, " +
         "status AS status, " +
@@ -1233,38 +1361,21 @@ try (Connection con = config.connectDB();
 }
     }//GEN-LAST:event_searchKeyTyped
 
-    private void add_picMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_add_picMouseClicked
-     
-    JFileChooser chooser = new JFileChooser();
-    chooser.setFileFilter(
-        new javax.swing.filechooser.FileNameExtensionFilter(
-            "Image files", "jpg", "png", "jpeg", "gif"
-        )
-    );
+    private void editprofile1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editprofile1MouseClicked
+     tabbed.setSelectedIndex(0);
+    }//GEN-LAST:event_editprofile1MouseClicked
 
-    int result = chooser.showOpenDialog(this);
+    private void addstaffMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_addstaffMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_addstaffMouseClicked
 
-    if (result == JFileChooser.APPROVE_OPTION) {
+    private void addpic_hereMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_addpic_hereMouseClicked
+         chooseAndSavePhoto();  // now picture logic is only triggered here
+    }//GEN-LAST:event_addpic_hereMouseClicked
 
-        String path = chooser.getSelectedFile().getAbsolutePath();
-
-        try (Connection con = config.connectDB();
-             PreparedStatement pst = con.prepareStatement(
-                     "UPDATE tbl_accounts SET acc_pic = ? WHERE acc_id = ?")) {
-
-            pst.setString(1, path);
-            pst.setInt(2, session.getId());
-
-            pst.executeUpdate();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // Just reload profile
-        loadprofile();
-    }
-    }//GEN-LAST:event_add_picMouseClicked
+    private void addMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_addMouseClicked
+        
+    }//GEN-LAST:event_addMouseClicked
 
     void acctable(){
         String sql = "SELECT acc_id AS Id"
@@ -1277,55 +1388,94 @@ try (Connection con = config.connectDB();
         config con = new config();
         con.displayData(sql,tbl);
     }
-private void loadprofile() {
+    
+   private void chooseAndSavePhoto() {
+    JFileChooser chooser = new JFileChooser();
+    chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Image files", "jpg", "png", "jpeg", "gif"));
+    int result = chooser.showOpenDialog(this);
 
-    String sql = "SELECT acc_id, acc_name, acc_email,acc_contact, acc_role, acc_pic FROM tbl_accounts WHERE acc_id = ?";
+    if (result == JFileChooser.APPROVE_OPTION) {
+        try {
+            File selectedFile = chooser.getSelectedFile();
+            File folder = new File("profile_pics");
+            if (!folder.exists()) folder.mkdir();
+
+            String newFileName = "user_" + session.getId() + ".jpg";
+            File destination = new File(folder, newFileName);
+            java.nio.file.Files.copy(selectedFile.toPath(), destination.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
+            String newPath = destination.getAbsolutePath();
+
+            // Save path in DB
+            try (Connection con = config.connectDB();
+                 PreparedStatement pst = con.prepareStatement("UPDATE tbl_accounts SET acc_pic = ? WHERE acc_id = ?")) {
+                pst.setString(1, newPath);
+                pst.setInt(2, session.getId());
+                pst.executeUpdate();
+            }
+
+            // Update image in Add Picture tab
+            ImageIcon icon = new ImageIcon(newPath);
+            Image img = icon.getImage().getScaledInstance(pic.getWidth(), pic.getHeight(), Image.SCALE_SMOOTH);
+            pic.setIcon(new ImageIcon(img));
+
+            JOptionPane.showMessageDialog(this, "Profile picture updated!");
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+    
+    
+private void loadprofile() {
+    String sql = "SELECT acc_id, acc_name, acc_email, acc_contact, acc_role, acc_pic "
+               + "FROM tbl_accounts WHERE acc_id = ?";
 
     try (Connection con = new config().connectDB();
          PreparedStatement pst = con.prepareStatement(sql)) {
 
-        // Set the logged-in user's ID
         pst.setInt(1, session.getId());
 
         try (ResultSet rs = pst.executeQuery()) {
-
             if (rs.next()) {
-
-                String fullName = rs.getString("acc_name");
-                name.setText(fullName);
+                // Set text fields
+                name.setText(rs.getString("acc_name"));
                 role.setText(rs.getString("acc_role"));
                 email.setText(rs.getString("acc_email"));
                 contact.setText(rs.getString("acc_contact"));
                 id.setText(String.valueOf(rs.getInt("acc_id")));
-                
-                
+
+                // Load image
                 String path = rs.getString("acc_pic");
-                if (path != null && !path.isEmpty()){
-                    ImageIcon icon = new ImageIcon(path);
-                    Image original = icon.getImage();
-                    
-                    Image imgl = original.getScaledInstance(
-                            pic.getWidth(),
-                            pic.getHeight(),
-                            Image.SCALE_SMOOTH
-                    );
-                    pic.setIcon(new ImageIcon(imgl));
+                if (path != null && !path.trim().isEmpty()) {
+                    File imgFile = new File(path);
+                    if (imgFile.exists()) {
+                        ImageIcon icon = new ImageIcon(path);
+
+                        // Scale properly even if component not fully rendered yet
+                        Image img = icon.getImage();
+                        int width = pic.getWidth() > 0 ? pic.getWidth() : 150; // default size
+                        int height = pic.getHeight() > 0 ? pic.getHeight() : 150;
+
+                        Image scaledImg = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+                        pic.setIcon(new ImageIcon(scaledImg));
+                    }
+                } else {
+                    pic.setIcon(null); // Clear if no image
                 }
 
+                pic.revalidate();
+                pic.repaint();
             }
-            
-
         }
-        pst.close();
-            con.close();
+
     } catch (Exception e) {
         JOptionPane.showMessageDialog(this, "Error loading profile: " + e.getMessage());
         e.printStackTrace();
     }
-    
 }
-
-
     /**
      * @param args the command line arguments
      */
@@ -1371,13 +1521,15 @@ private void loadprofile() {
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTabbedPane Profile;
+    private javax.swing.JLabel ID;
+    private javax.swing.JLabel ROLE;
     private javax.swing.JLabel XBTN;
     private javax.swing.JPanel XPNL;
     private javax.swing.JLabel add;
-    private javax.swing.JLabel add_pic;
+    private javax.swing.JLabel addpic_here;
     private javax.swing.JPanel addpicture;
     private javax.swing.JPanel addpicture1;
+    private javax.swing.JLabel addstaff;
     private javax.swing.JLabel admin_name;
     private javax.swing.JPanel analyticpane;
     private javax.swing.JPanel analytics;
@@ -1390,9 +1542,11 @@ private void loadprofile() {
     private javax.swing.JPanel dashpnl;
     private javax.swing.JPanel db;
     private javax.swing.JLabel delete;
+    private javax.swing.JLabel deletestaff;
     private javax.swing.JLabel edit;
     private javax.swing.JLabel editprofile;
     private javax.swing.JLabel editprofile1;
+    private javax.swing.JLabel editstaff;
     private javax.swing.JLabel email;
     private javax.swing.JPanel hdr;
     private javax.swing.JLabel id;
@@ -1403,6 +1557,7 @@ private void loadprofile() {
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
@@ -1427,7 +1582,16 @@ private void loadprofile() {
     private javax.swing.JLabel jLabel35;
     private javax.swing.JLabel jLabel36;
     private javax.swing.JLabel jLabel37;
+    private javax.swing.JLabel jLabel38;
+    private javax.swing.JLabel jLabel39;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel40;
+    private javax.swing.JLabel jLabel41;
+    private javax.swing.JLabel jLabel42;
+    private javax.swing.JLabel jLabel43;
+    private javax.swing.JLabel jLabel44;
+    private javax.swing.JLabel jLabel45;
+    private javax.swing.JLabel jLabel46;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
@@ -1440,9 +1604,15 @@ private void loadprofile() {
     private javax.swing.JPanel jPanel13;
     private javax.swing.JPanel jPanel14;
     private javax.swing.JPanel jPanel15;
+    private javax.swing.JPanel jPanel16;
+    private javax.swing.JPanel jPanel17;
     private javax.swing.JPanel jPanel18;
     private javax.swing.JPanel jPanel19;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel20;
+    private javax.swing.JPanel jPanel21;
+    private javax.swing.JPanel jPanel22;
+    private javax.swing.JPanel jPanel23;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
@@ -1453,9 +1623,7 @@ private void loadprofile() {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JTable jTable2;
     private javax.swing.JTable jTable3;
-    private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
     private javax.swing.JTextField jTextField5;
@@ -1471,12 +1639,15 @@ private void loadprofile() {
     private javax.swing.JLabel role;
     private javax.swing.JLabel save;
     private javax.swing.JTextField search;
+    private javax.swing.JTextField srch;
     private javax.swing.JLabel staffbtn;
     private javax.swing.JPanel staffmanage;
     private javax.swing.JPanel staffpane;
+    private javax.swing.JTable stafftbl;
     private javax.swing.JLabel system_logsbtn;
     private javax.swing.JPanel systemlogs;
     private javax.swing.JPanel systempane;
+    private javax.swing.JTabbedPane tabbed;
     private javax.swing.JTable tbl;
     private javax.swing.JPanel userpane;
     private javax.swing.JPanel users;
