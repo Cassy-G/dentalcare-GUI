@@ -7,6 +7,8 @@ package features;
 
 import config.config;
 import java.awt.Color;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import javax.swing.BorderFactory;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -474,6 +476,42 @@ try {
             + "VALUES (?, ?, ?, ?, ?, ?)";
 
     db.addRecord(sql, usern, eml, ctct, hashedPass, "patient", 1);
+// ✅ Log account creation
+try (Connection con = config.connectDB()) {
+    String logSql = "INSERT INTO tbl_logs (actor_id, actor_role, action, details, created_at) " +
+                    "VALUES (?, ?, ?, ?, datetime('now'))";
+    PreparedStatement pst = con.prepareStatement(logSql);
+
+    // You don’t yet have the new acc_id directly here, but you can log with 0 or fetch it
+    pst.setInt(1, 0); // or use db.addRecordAndReturnId(...) to get the actual ID
+    pst.setString(2, "patient"); 
+    pst.setString(3, "Register");
+    pst.setString(4, usern + " created a new account");
+    pst.executeUpdate();
+} catch (Exception e) {
+    e.printStackTrace();
+}
+
+ sql = "INSERT INTO tbl_accounts "
+           + "(acc_name, acc_email, acc_contact, acc_pass, acc_role, acc_status) "
+           + "VALUES (?, ?, ?, ?, ?, ?)";
+
+int newId = db.addRecordAndReturnId(sql, usern, eml, ctct, hashedPass, "patient", 1);
+
+// ✅ Log account creation with actual ID
+try (Connection con = config.connectDB()) {
+    String logSql = "INSERT INTO tbl_logs (actor_id, actor_role, action, details, created_at) " +
+                    "VALUES (?, ?, ?, ?, datetime('now'))";
+    PreparedStatement pst = con.prepareStatement(logSql);
+    pst.setInt(1, newId);
+    pst.setString(2, "patient");
+    pst.setString(3, "Register");
+    pst.setString(4, usern + " created a new account");
+    pst.executeUpdate();
+} catch (Exception e) {
+    e.printStackTrace();
+}
+
 
     JOptionPane.showMessageDialog(null, "Sign Up Successful!");
     dispose();

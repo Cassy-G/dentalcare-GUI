@@ -858,16 +858,34 @@ public class staff extends javax.swing.JFrame {
     private void logoutMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logoutMouseClicked
               
         
-           int confirm = JOptionPane.showConfirmDialog(
-            this,
-            "Are you sure you want to logout?",
-            "Logout",
-            JOptionPane.YES_NO_OPTION
+    int confirm = JOptionPane.showConfirmDialog(
+        this,
+        "Are you sure you want to logout?",
+        "Logout",
+        JOptionPane.YES_NO_OPTION
     );
 
     if (confirm == JOptionPane.YES_OPTION) {
 
-        // ✅ CLEAR SESSION
+        // ✅ Log the logout event first
+        int actorId = session.getId();
+        String actorRole = session.getRole();
+        String actorName = session.getName();
+
+        try (Connection con = config.connectDB()) {
+            String logSql = "INSERT INTO tbl_logs (actor_id, actor_role, action, details, created_at) " +
+                            "VALUES (?, ?, ?, ?, datetime('now'))";
+            PreparedStatement pst = con.prepareStatement(logSql);
+            pst.setInt(1, actorId);
+            pst.setString(2, actorRole);
+            pst.setString(3, "Logout");
+            pst.setString(4, actorName + " logged out");
+            pst.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // ✅ Clear session
         session.clear();
 
         // Go back to login page

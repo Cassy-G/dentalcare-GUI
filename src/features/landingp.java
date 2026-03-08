@@ -216,6 +216,8 @@ public class landingp extends javax.swing.JFrame {
         smile.setText("Smile");
         jPanel1.add(smile, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 240, 80, 30));
 
+        bookpnel.setBackground(new java.awt.Color(255, 255, 255));
+
         bookbtn.setFont(new java.awt.Font("Times New Roman", 1, 15)); // NOI18N
         bookbtn.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         bookbtn.setText("Book An Appointment");

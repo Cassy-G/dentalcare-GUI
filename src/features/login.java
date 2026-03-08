@@ -375,6 +375,16 @@ String contact = rs.getString("acc_contact"); // GET CONTACT FROM DB
 
 session.setSession(id, name, email, contact, role);
 
+
+String logSql = "INSERT INTO tbl_logs (actor_id, actor_role, action, details, created_at) " +
+                "VALUES (?, ?, ?, ?, datetime('now'))";
+PreparedStatement logPst = conn.prepareStatement(logSql);
+logPst.setInt(1, id);
+logPst.setString(2, role);
+logPst.setString(3, "Login");
+logPst.setString(4, name + " logged in");
+logPst.executeUpdate();
+
             // Redirect based on role
             switch (role.toLowerCase()) {
                 case "patient":
@@ -412,6 +422,8 @@ session.setSession(id, name, email, contact, role);
     } catch (Exception e) {
         System.out.println("Login Error: " + e.getMessage());
     }
+    
+    
     }//GEN-LAST:event_loginbtnMouseClicked
 
     private void userTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_userTxtActionPerformed

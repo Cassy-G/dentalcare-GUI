@@ -4,15 +4,20 @@ package features;
 import config.config;
 import java.awt.Color;
 import internal.session;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Image;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import net.proteanit.sql.DbUtils;
 
 /**
@@ -29,26 +34,159 @@ public class admin extends javax.swing.JFrame {
        acctable();
        pic.setPreferredSize(new Dimension(150, 150));
        loadprofile();
-    // 🔒 Check if user is logged in
-    if (session.getId() == 0) {
-        JOptionPane.showMessageDialog(this, "Please login first.");
-        new login().setVisible(true);
-        this.dispose();
+       loadSystemLogs();
+       initSearchPlaceholder();
+ 
+       
+       
+       
+       
+searchBTN.setText("Search"); // emoji on button
+
+
+     // Create a panel to act as the search bar
+JPanel searchBar = new JPanel(new BorderLayout());
+searchBar.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+
+// 🔎 Emoji label on the left (real emoji)
+JLabel emojiLabel = new JLabel("🔎");
+emojiLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 18));
+emojiLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+// Set engaging placeholder text
+search.setText("🔎 Search accounts by name, ID, or email...");
+search.setForeground(Color.GRAY);
+
+// Focus listeners handle placeholder behavior
+search.addFocusListener(new java.awt.event.FocusAdapter() {
+    @Override
+    public void focusGained(java.awt.event.FocusEvent e) {
+        if (search.getText().equals("🔎 Search accounts by name, ID, or email...")) {
+            search.setText("");              // remove placeholder
+            search.setForeground(Color.BLACK); // switch to black text
+        }
+    }
+
+    @Override
+    public void focusLost(java.awt.event.FocusEvent e) {
+        if (search.getText().trim().isEmpty()) {
+            search.setText("🔎 Search accounts by name, ID, or email...");
+            search.setForeground(Color.GRAY); // revert to gray placeholder
+        }
+    }
+});
+
+
+// Action when pressing Enter
+search.addActionListener(evt -> triggerSearch());
+
+// Action when clicking the button
+searchBTN.addMouseListener(new java.awt.event.MouseAdapter() {
+    @Override
+    
+    public void mouseClicked(java.awt.event.MouseEvent evt) {
+        triggerSearch();
+    }
+});
+    }
+// Centralized search trigger
+private void triggerSearch() {
+    String query = search.getText().trim();
+
+    if (query.isEmpty() || query.equals("🔎 Find users by name...")) {
+        JOptionPane.showMessageDialog(this,
+            "Please type a name, ID, or email before searching.",
+            "Validation",
+            JOptionPane.WARNING_MESSAGE);
         return;
     }
 
-    // 🔒 Check if role is ADMIN
-    if (!session.getRole().equalsIgnoreCase("admin")) {
-        JOptionPane.showMessageDialog(this, "Access Denied. Admins only.");
-        this.dispose();
-        return;
+    performSearch(query);
+
+       
+  //        lblUser.setText("Welcome, " + name);
+
+
+
+
+    }
+    private void initSearchPlaceholder() {
+    seach_logs.setText("🔍 Search logs...");
+    seach_logs.setForeground(Color.GRAY);
+
+    seach_logs.addFocusListener(new java.awt.event.FocusAdapter() {
+        @Override
+        public void focusGained(java.awt.event.FocusEvent evt) {
+            if (seach_logs.getText().equals("🔍 Search logs...")) {
+                seach_logs.setText("");
+                seach_logs.setForeground(Color.BLACK);
+            }
+        }
+
+        @Override
+        public void focusLost(java.awt.event.FocusEvent evt) {
+            if (seach_logs.getText().isEmpty()) {
+                seach_logs.setText("🔍 Search logs...");
+                seach_logs.setForeground(Color.GRAY);
+            }
+        }
+    });
+}
+
+    
+private void performSearch(String search1) {
+    String sql;
+    String baseQuery =
+        "SELECT acc_id AS id, " +
+        "acc_name AS name, " +
+        "acc_email AS email, " +
+        "acc_contact AS contact, " +
+        "acc_role AS role, " +
+        "acc_status AS status " +
+        "FROM tbl_accounts";
+
+    if (search1.isEmpty() || search1.equals("🔎 Find users by name...")) {
+        sql = baseQuery;
+    } else {
+        // ✅ Search across multiple fields
+        sql = baseQuery + " WHERE acc_name LIKE ? OR acc_id LIKE ? OR acc_email LIKE ?";
     }
 
-    // ✅ If authorized
-    admin_name.setText("Welcome, " + session.getName());
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(sql)) {
 
-//        lblUser.setText("Welcome, " + name);
+        if (!search1.isEmpty() && !search1.equals("🔎 Find users by name...")) {
+            String keyword = "%" + search1 + "%";
+            pst.setString(1, keyword); // name
+            pst.setString(2, keyword); // id
+            pst.setString(3, keyword); // email
+        }
+
+        try (ResultSet rs = pst.executeQuery()) {
+            tbl.setModel(DbUtils.resultSetToTableModel(rs));
+            tbl.setDefaultEditor(Object.class, null);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        System.out.println("Search error: " + e.getMessage());
     }
+}
+
+// Insert a log record into system_logs
+private void logSystemAction(int actorId, String actorRole, String action, String details) {
+    String sql = "INSERT INTO system_logs (actor_id, actor_role, action, details, created_at) " +
+                 "VALUES (?, ?, ?, ?, datetime('now'))";
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(sql)) {
+        pst.setInt(1, actorId);
+        pst.setString(2, actorRole);
+        pst.setString(3, action);
+        pst.setString(4, details);
+        pst.executeUpdate();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -114,8 +252,10 @@ public class admin extends javax.swing.JFrame {
         delete = new javax.swing.JLabel();
         search = new javax.swing.JTextField();
         jPanel4 = new javax.swing.JPanel();
-        jLabel37 = new javax.swing.JLabel();
+        searchBTN = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
+        jLabel47 = new javax.swing.JLabel();
+        jLabel37 = new javax.swing.JLabel();
         staffmanage = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         stafftbl = new javax.swing.JTable();
@@ -133,9 +273,12 @@ public class admin extends javax.swing.JFrame {
         analytics = new javax.swing.JPanel();
         systemlogs = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jTable3 = new javax.swing.JTable();
+        system_logs = new javax.swing.JTable();
         jLabel5 = new javax.swing.JLabel();
         jLabel14 = new javax.swing.JLabel();
+        seach_logs = new javax.swing.JTextField();
+        jPanel24 = new javax.swing.JPanel();
+        search_systemlogs = new javax.swing.JLabel();
         myprofile = new javax.swing.JPanel();
         mp = new javax.swing.JPanel();
         jPanel18 = new javax.swing.JPanel();
@@ -432,10 +575,9 @@ public class admin extends javax.swing.JFrame {
         jLabel2.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(102, 102, 102));
         jLabel2.setText("Admin Portal");
-        jLabel2.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-        hdr.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 10, 130, 20));
+        hdr.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, 130, 30));
 
-        admin_name.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        admin_name.setFont(new java.awt.Font("Trebuchet MS", 0, 15)); // NOI18N
         hdr.add(admin_name, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 30, 190, 20));
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/5046faad4a4c9af72bcf4fe75c8a11d0.jpg"))); // NOI18N
@@ -466,7 +608,7 @@ public class admin extends javax.swing.JFrame {
 
         db.add(jPanel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 190, 190, 90));
 
-        jPanel8.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel8.setBackground(new java.awt.Color(204, 204, 255));
         jPanel8.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel6.setForeground(new java.awt.Color(102, 102, 102));
@@ -478,7 +620,7 @@ public class admin extends javax.swing.JFrame {
 
         db.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, 190, 90));
 
-        jPanel9.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel9.setBackground(new java.awt.Color(204, 204, 255));
         jPanel9.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel7.setForeground(new java.awt.Color(102, 102, 102));
@@ -490,7 +632,7 @@ public class admin extends javax.swing.JFrame {
 
         db.add(jPanel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 80, 190, 90));
 
-        jPanel10.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel10.setBackground(new java.awt.Color(204, 204, 255));
         jPanel10.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel8.setForeground(new java.awt.Color(102, 102, 102));
@@ -550,65 +692,91 @@ public class admin extends javax.swing.JFrame {
 
         users.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 150, 610, 310));
 
-        jPanel1.setBackground(new java.awt.Color(51, 153, 255));
+        jPanel1.setBackground(new java.awt.Color(0, 51, 204));
         jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 255, 255), 2));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         add.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
+        add.setForeground(new java.awt.Color(255, 255, 255));
         add.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        add.setText("Add");
+        add.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-plus-sign-20.png"))); // NOI18N
+        add.setText("Register User");
         add.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 addMouseClicked(evt);
             }
         });
-        jPanel1.add(add, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 40));
+        jPanel1.add(add, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 140, 40));
 
-        users.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 90, 40));
+        users.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, 140, 40));
 
-        jPanel2.setBackground(new java.awt.Color(51, 153, 255));
+        jPanel2.setBackground(new java.awt.Color(0, 51, 204));
         jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 255, 255), 2));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         edit.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        edit.setForeground(new java.awt.Color(255, 255, 255));
         edit.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        edit.setText("Edit");
-        jPanel2.add(edit, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 40));
+        edit.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-edit-pencil-20.png"))); // NOI18N
+        edit.setText("Edit User");
+        jPanel2.add(edit, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 140, 40));
 
-        users.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 90, 90, 40));
+        users.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 60, 140, 40));
 
-        jPanel3.setBackground(new java.awt.Color(51, 153, 255));
+        jPanel3.setBackground(new java.awt.Color(0, 51, 204));
         jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 255, 255), 2));
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        delete.setBackground(new java.awt.Color(255, 255, 255));
         delete.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
+        delete.setForeground(new java.awt.Color(255, 255, 255));
         delete.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        delete.setText("Delete");
-        jPanel3.add(delete, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -1, 90, 40));
+        delete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-delete-user-20.png"))); // NOI18N
+        delete.setText("Delete User");
+        jPanel3.add(delete, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -1, 140, 40));
 
-        users.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 90, 90, 40));
+        users.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 60, 140, 40));
 
         search.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 searchKeyTyped(evt);
             }
         });
-        users.add(search, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 90, 140, 40));
+        users.add(search, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 520, 30));
 
-        jPanel4.setBackground(new java.awt.Color(51, 153, 255));
+        jPanel4.setBackground(new java.awt.Color(0, 51, 204));
         jPanel4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 255, 255), 2));
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel37.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
-        jLabel37.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel37.setText("Search");
-        jPanel4.add(jLabel37, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 70, 40));
+        searchBTN.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        searchBTN.setForeground(new java.awt.Color(255, 255, 255));
+        searchBTN.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        searchBTN.setText("Search");
+        searchBTN.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                searchBTNMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                searchBTNMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                searchBTNMouseExited(evt);
+            }
+        });
+        jPanel4.add(searchBTN, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 80, 30));
 
-        users.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 90, 70, 40));
+        users.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 110, 80, 30));
 
         jLabel15.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
         jLabel15.setText("Users Management");
-        users.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 20, -1, -1));
+        users.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 10, -1, 40));
+
+        jLabel47.setForeground(new java.awt.Color(153, 153, 153));
+        jLabel47.setText("_______________________________________________________________________________________");
+        users.add(jLabel47, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 26, -1, 30));
+
+        jLabel37.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-administrator-male-40.png"))); // NOI18N
+        users.add(jLabel37, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 0, 50, 50));
 
         tabbed.addTab("users", users);
 
@@ -719,7 +887,7 @@ public class admin extends javax.swing.JFrame {
         systemlogs.setBackground(new java.awt.Color(255, 255, 255));
         systemlogs.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jTable3.setModel(new javax.swing.table.DefaultTableModel(
+        system_logs.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -727,7 +895,7 @@ public class admin extends javax.swing.JFrame {
 
             }
         ));
-        jScrollPane3.setViewportView(jTable3);
+        jScrollPane3.setViewportView(system_logs);
 
         systemlogs.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 160, 630, 300));
 
@@ -740,6 +908,35 @@ public class admin extends javax.swing.JFrame {
         jLabel14.setForeground(new java.awt.Color(102, 102, 102));
         jLabel14.setText("Monitor all system activities and user actions");
         systemlogs.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, -1, -1));
+
+        seach_logs.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                seach_logsKeyTyped(evt);
+            }
+        });
+        systemlogs.add(seach_logs, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 112, 540, 30));
+
+        jPanel24.setBackground(new java.awt.Color(0, 51, 255));
+        jPanel24.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        search_systemlogs.setBackground(new java.awt.Color(255, 255, 255));
+        search_systemlogs.setForeground(new java.awt.Color(255, 255, 255));
+        search_systemlogs.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        search_systemlogs.setText("Search");
+        search_systemlogs.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                search_systemlogsMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                search_systemlogsMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                search_systemlogsMouseExited(evt);
+            }
+        });
+        jPanel24.add(search_systemlogs, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 60, 30));
+
+        systemlogs.add(jPanel24, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 110, 80, 30));
 
         tabbed.addTab("logs", systemlogs);
 
@@ -1067,6 +1264,7 @@ public class admin extends javax.swing.JFrame {
 
     private void system_logsbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_system_logsbtnMouseClicked
        tabbed.setSelectedIndex(4);
+       loadSystemLogs();
     }//GEN-LAST:event_system_logsbtnMouseClicked
 
     private void usersbtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_usersbtnMouseEntered
@@ -1111,17 +1309,34 @@ public class admin extends javax.swing.JFrame {
 
     private void logoutMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logoutMouseClicked
                
-        
-           int confirm = JOptionPane.showConfirmDialog(
-            this,
-            "Are you sure you want to logout?",
-            "Logout",
-            JOptionPane.YES_NO_OPTION
+    int confirm = JOptionPane.showConfirmDialog(
+        this,
+        "Are you sure you want to logout?",
+        "Logout",
+        JOptionPane.YES_NO_OPTION
     );
 
     if (confirm == JOptionPane.YES_OPTION) {
 
-        // ✅ CLEAR SESSION
+        // ✅ Log the logout event first
+        int actorId = session.getId();
+        String actorRole = session.getRole();
+        String actorName = session.getName();
+
+        try (Connection con = config.connectDB()) {
+            String logSql = "INSERT INTO tbl_logs (actor_id, actor_role, action, details, created_at) " +
+                            "VALUES (?, ?, ?, ?, datetime('now'))";
+            PreparedStatement pst = con.prepareStatement(logSql);
+            pst.setInt(1, actorId);
+            pst.setString(2, actorRole);
+            pst.setString(3, "Logout");
+            pst.setString(4, actorName + " logged out");
+            pst.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // ✅ Clear session
         session.clear();
 
         // Go back to login page
@@ -1129,6 +1344,7 @@ public class admin extends javax.swing.JFrame {
         this.dispose();
         home.setVisible(true);
     }
+    
     }//GEN-LAST:event_logoutMouseClicked
 
     private void logoutMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logoutMouseEntered
@@ -1308,59 +1524,6 @@ public class admin extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_saveMouseClicked
 
-    private void searchKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_searchKeyTyped
-       String search1 = search.getText().trim();
-String sql;
-
-String baseQuery =
-        "SELECT order_id AS id, " +
-        "acc_name AS name, " +
-        "pickup_address AS pickup_address, " +
-        "dropoff_address AS drop_off, " +
-        "status AS status, " +
-        "order_date AS date " +
-        "FROM tbl_orders";
-
-if (search1.isEmpty()) {
-
-    sql = baseQuery;
-
-} else {
-
-    sql = baseQuery +
-          " WHERE order_id LIKE ? OR " +
-          "customer_name LIKE ? OR " +
-          "pickup_address LIKE ? OR " +
-          "dropoff_address LIKE ? OR " +
-          "status LIKE ? OR " +
-          "order_date LIKE ?";
-}
-
-try (Connection con = config.connectDB();
-     PreparedStatement pst = con.prepareStatement(sql)) {
-
-    if (!search1.isEmpty()) {
-
-        String like = "%" + search + "%";
-
-        for (int i = 1; i <= 6; i++) {
-            pst.setString(i, like);
-        }
-    }
-
-    try (ResultSet rs = pst.executeQuery()) {
-
-       tbl.setModel(DbUtils.resultSetToTableModel(rs));
-        tbl.setDefaultEditor(Object.class, null);
-    }
-
-} catch (Exception e) {
-
-    e.printStackTrace();
-    System.out.println("Search error: " + e.getMessage());
-}
-    }//GEN-LAST:event_searchKeyTyped
-
     private void editprofile1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editprofile1MouseClicked
      tabbed.setSelectedIndex(0);
     }//GEN-LAST:event_editprofile1MouseClicked
@@ -1376,6 +1539,175 @@ try (Connection con = config.connectDB();
     private void addMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_addMouseClicked
         
     }//GEN-LAST:event_addMouseClicked
+
+    private void searchBTNMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchBTNMouseClicked
+searchBTN.addMouseListener(new java.awt.event.MouseAdapter() {
+    @Override
+    public void mouseClicked(java.awt.event.MouseEvent evt) {
+        String search1 = search.getText().trim();
+
+        // ✅ Single professional validation
+        if (search1.isEmpty() || search1.length() < 2 || 
+            search1.equals("Search by name...") || 
+            search1.equals("🔎 Search accounts by name, ID, or email...")) {
+            
+            JOptionPane.showMessageDialog(null,
+                "Please enter at least 2 characters to search.",
+                "Validation",
+                JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // If validation passes → perform search
+        performSearch(search1);
+    }
+});
+
+    }//GEN-LAST:event_searchBTNMouseClicked
+
+    private void searchKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_searchKeyTyped
+     String search1 = search.getText().trim();
+    String sql;
+
+    String baseQuery =
+        "SELECT acc_id AS id, " +
+        "acc_name AS name, " +
+        "acc_email AS email, " +
+        "acc_contact AS contact, " +
+        "acc_role AS role, " +
+        "acc_status AS status " +
+        "FROM tbl_accounts";
+
+    if (search1.isEmpty() || search1.equals("🔎 Search accounts by name, ID, or email...")) {
+        sql = baseQuery;
+    } else {
+        sql = baseQuery + " WHERE acc_name LIKE ? OR acc_id LIKE ? OR acc_email LIKE ?";
+    }
+
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(sql)) {
+
+        if (!search1.isEmpty() && !search1.equals("🔎 Search accounts by name, ID, or email...")) {
+            String keyword = "%" + search1 + "%";
+            pst.setString(1, keyword);
+            pst.setString(2, keyword);
+            pst.setString(3, keyword);
+        }
+
+        try (ResultSet rs = pst.executeQuery()) {
+            tbl.setModel(DbUtils.resultSetToTableModel(rs));
+            tbl.setDefaultEditor(Object.class, null);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        System.out.println("Search error: " + e.getMessage());
+    }
+    }//GEN-LAST:event_searchKeyTyped
+
+    private void searchBTNMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchBTNMouseEntered
+    // Highlight on hover with dentalcare accent
+    searchBTN.setForeground(new Color(102, 204, 255)); // light aqua/sky blue
+    searchBTN.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); 
+    }//GEN-LAST:event_searchBTNMouseEntered
+
+    private void searchBTNMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchBTNMouseExited
+// Back to original color
+    searchBTN.setForeground(Color.WHITE);  
+    searchBTN.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+    }//GEN-LAST:event_searchBTNMouseExited
+
+    private void seach_logsKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_seach_logsKeyTyped
+     String keyword = seach_logs.getText().trim();
+
+    // ✅ Validation: allow only letters, numbers, spaces
+    if (!keyword.matches("[a-zA-Z0-9\\s]*")) {
+        JOptionPane.showMessageDialog(this, "Invalid characters in search.");
+        seach_logs.setText(keyword.replaceAll("[^a-zA-Z0-9\\s]", ""));
+        return;
+    }
+
+    // ✅ Handle placeholder or empty
+    if (keyword.isEmpty() || keyword.equals("🔍 Search logs...")) {
+        loadSystemLogs(); // show all logs
+        return;
+    }
+
+    String sql = "SELECT id AS 'Log ID', actor_id AS 'User ID', actor_role AS 'Role', " +
+                 "action AS 'Activity', details AS 'Description', created_at AS 'Logged At' " +
+                 "FROM tbl_logs WHERE actor_id LIKE ? OR actor_role LIKE ? OR action LIKE ? OR details LIKE ? " +
+                 "ORDER BY created_at DESC";
+
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(sql)) {
+
+        String searchTerm = "%" + keyword + "%";
+        pst.setString(1, searchTerm);
+        pst.setString(2, searchTerm);
+        pst.setString(3, searchTerm);
+        pst.setString(4, searchTerm);
+
+        try (ResultSet rs = pst.executeQuery()) {
+            system_logs.setModel(DbUtils.resultSetToTableModel(rs));
+            system_logs.setDefaultEditor(Object.class, null);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    }//GEN-LAST:event_seach_logsKeyTyped
+
+    private void search_systemlogsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_search_systemlogsMouseClicked
+       String keyword = seach_logs.getText().trim();
+
+    // ✅ Validation: block placeholder or empty input
+    if (keyword.isEmpty() || keyword.equals("🔍 Search logs...")) {
+        loadSystemLogs(); // reload all logs if nothing typed
+        return;
+    }
+
+    // ✅ Validation: allow only letters, numbers, spaces
+    if (!keyword.matches("[a-zA-Z0-9\\s]*")) {
+        JOptionPane.showMessageDialog(this, "Invalid characters in search.");
+        seach_logs.setText(keyword.replaceAll("[^a-zA-Z0-9\\s]", ""));
+        return;
+    }
+
+    // ✅ SQL query with aliases for clean JTable headers
+    String sql = "SELECT id AS 'Log ID', actor_id AS 'User ID', actor_role AS 'Role', " +
+                 "action AS 'Activity', details AS 'Description', created_at AS 'Logged At' " +
+                 "FROM tbl_logs WHERE actor_id LIKE ? OR actor_role LIKE ? OR action LIKE ? OR details LIKE ? " +
+                 "ORDER BY created_at DESC";
+
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(sql)) {
+
+        String searchTerm = "%" + keyword + "%";
+        pst.setString(1, searchTerm);
+        pst.setString(2, searchTerm);
+        pst.setString(3, searchTerm);
+        pst.setString(4, searchTerm);
+
+        try (ResultSet rs = pst.executeQuery()) {
+            system_logs.setModel(DbUtils.resultSetToTableModel(rs));
+            system_logs.setDefaultEditor(Object.class, null);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error searching logs: " + e.getMessage());
+    }
+    }//GEN-LAST:event_search_systemlogsMouseClicked
+
+    private void search_systemlogsMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_search_systemlogsMouseEntered
+         // Highlight on hover with dentalcare accent
+    search_systemlogs.setForeground(new Color(102, 204, 255)); // light aqua/sky blue
+    search_systemlogs.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); 
+    }//GEN-LAST:event_search_systemlogsMouseEntered
+
+    private void search_systemlogsMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_search_systemlogsMouseExited
+      // Back to original color
+    search_systemlogs.setForeground(Color.WHITE);  
+    search_systemlogs.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+    }//GEN-LAST:event_search_systemlogsMouseExited
 
     void acctable(){
         String sql = "SELECT acc_id AS Id"
@@ -1476,6 +1808,51 @@ private void loadprofile() {
         e.printStackTrace();
     }
 }
+
+public static void logAction(int actorId, String actorRole, String action, String details) {
+    String sql = "INSERT INTO tbl_logs (actor_id, actor_role, action, details, created_at) " +
+                 "VALUES (?, ?, ?, ?, datetime('now'))";
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(sql)) {
+        pst.setInt(1, actorId);
+        pst.setString(2, actorRole);
+        pst.setString(3, action);
+        pst.setString(4, details);
+        pst.executeUpdate();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+private void loadSystemLogs() {
+    // Use aliases to make column headers professional
+    String sql = 
+        "SELECT id AS 'Log ID', " +
+        "actor_id AS 'User ID', " +
+        "actor_role AS 'Role', " +
+        "action AS 'Activity', " +
+        "details AS 'Description', " +
+        "created_at AS 'Logged At' " +
+        "FROM tbl_logs " +
+        "ORDER BY created_at DESC";
+
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(sql);
+         ResultSet rs = pst.executeQuery()) {
+
+        
+            // Use config helper to display directly into JTable
+        config cfg = new config();
+        cfg.displayData(sql, system_logs);
+        system_logs.setModel(DbUtils.resultSetToTableModel(rs));
+        system_logs.setDefaultEditor(Object.class, null); // make table read-only
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, 
+            "Error loading system logs: " + e.getMessage());
+    }
+}
+
     /**
      * @param args the command line arguments
      */
@@ -1518,8 +1895,22 @@ private void loadprofile() {
         });
     }
 
-    
-    
+    private void searchLogs(String keyword) {
+    String sql = "SELECT id, actor_id, actor_role, action, details, created_at " +
+                 "FROM tbl_logs WHERE actor_role LIKE ? OR action LIKE ? OR details LIKE ? ORDER BY created_at DESC";
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(sql)) {
+        String kw = "%" + keyword + "%";
+        pst.setString(1, kw);
+        pst.setString(2, kw);
+        pst.setString(3, kw);
+        ResultSet rs = pst.executeQuery();
+        system_logs.setModel(DbUtils.resultSetToTableModel(rs));
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel ID;
     private javax.swing.JLabel ROLE;
@@ -1592,6 +1983,7 @@ private void loadprofile() {
     private javax.swing.JLabel jLabel44;
     private javax.swing.JLabel jLabel45;
     private javax.swing.JLabel jLabel46;
+    private javax.swing.JLabel jLabel47;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
@@ -1613,6 +2005,7 @@ private void loadprofile() {
     private javax.swing.JPanel jPanel21;
     private javax.swing.JPanel jPanel22;
     private javax.swing.JPanel jPanel23;
+    private javax.swing.JPanel jPanel24;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
@@ -1623,7 +2016,6 @@ private void loadprofile() {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JTable jTable3;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
     private javax.swing.JTextField jTextField5;
@@ -1638,12 +2030,16 @@ private void loadprofile() {
     private javax.swing.JPanel pp;
     private javax.swing.JLabel role;
     private javax.swing.JLabel save;
+    private javax.swing.JTextField seach_logs;
     private javax.swing.JTextField search;
+    private javax.swing.JLabel searchBTN;
+    private javax.swing.JLabel search_systemlogs;
     private javax.swing.JTextField srch;
     private javax.swing.JLabel staffbtn;
     private javax.swing.JPanel staffmanage;
     private javax.swing.JPanel staffpane;
     private javax.swing.JTable stafftbl;
+    private javax.swing.JTable system_logs;
     private javax.swing.JLabel system_logsbtn;
     private javax.swing.JPanel systemlogs;
     private javax.swing.JPanel systempane;
