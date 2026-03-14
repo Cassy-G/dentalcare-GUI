@@ -78,6 +78,7 @@ int xMouse, yMouse;
         jLabel29 = new javax.swing.JLabel();
         jLabel30 = new javax.swing.JLabel();
         gender = new javax.swing.JComboBox<>();
+        jLabel47 = new javax.swing.JLabel();
         bg1 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
@@ -246,7 +247,7 @@ int xMouse, yMouse;
 
         getContentPane().add(header, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
 
-        bg.setBackground(new java.awt.Color(255, 255, 255));
+        bg.setBackground(new java.awt.Color(204, 255, 255));
         bg.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel4.setBackground(new java.awt.Color(204, 255, 255));
@@ -294,6 +295,8 @@ int xMouse, yMouse;
 
         jLabel15.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-billing-32.png"))); // NOI18N
         jPanel4.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 10, 40, 40));
+
+        jPanel11.setBackground(new java.awt.Color(255, 255, 255));
 
         jLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-user-32.png"))); // NOI18N
         jPanel11.add(jLabel10);
@@ -408,6 +411,7 @@ int xMouse, yMouse;
 
         jLabel26.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel26.setForeground(new java.awt.Color(204, 0, 0));
+        jLabel26.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel26.setText("*");
         jPanel1.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 80, 30, 20));
 
@@ -422,8 +426,9 @@ int xMouse, yMouse;
         jPanel1.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 80, 20, 20));
 
         jLabel29.setForeground(new java.awt.Color(204, 0, 0));
+        jLabel29.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel29.setText("*");
-        jPanel1.add(jLabel29, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 140, 20, 30));
+        jPanel1.add(jLabel29, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 140, 30, 30));
 
         jLabel30.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel30.setForeground(new java.awt.Color(204, 0, 0));
@@ -439,7 +444,11 @@ int xMouse, yMouse;
         });
         jPanel1.add(gender, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 110, 250, 30));
 
-        bg.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 110, 550, 340));
+        jLabel47.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel47.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/bgg.jpg"))); // NOI18N
+        jPanel1.add(jLabel47, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -4, 550, 360));
+
+        bg.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 100, 550, 350));
 
         taab.addTab("book1", bg);
 
@@ -491,6 +500,8 @@ int xMouse, yMouse;
 
         jLabel36.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-billing-32.png"))); // NOI18N
         jPanel5.add(jLabel36, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 10, 40, 40));
+
+        jPanel12.setBackground(new java.awt.Color(255, 255, 255));
 
         jLabel34.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel34.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-calendar-32.png"))); // NOI18N
@@ -862,6 +873,7 @@ int xMouse, yMouse;
         jLabel58.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-billing-32.png"))); // NOI18N
         jPanel6.add(jLabel58, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 10, 40, 40));
 
+        jPanel13.setBackground(new java.awt.Color(255, 255, 255));
         jPanel13.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel50.setFont(new java.awt.Font("Times New Roman", 0, 13)); // NOI18N
@@ -1020,6 +1032,7 @@ int xMouse, yMouse;
         jLabel71.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-billing-32.png"))); // NOI18N
         jPanel7.add(jLabel71, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 10, 40, 40));
 
+        jPanel14.setBackground(new java.awt.Color(255, 255, 255));
         jPanel14.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
         jPanel7.add(jPanel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 10, 70, 60));
 
@@ -1154,6 +1167,8 @@ int xMouse, yMouse;
 
         jLabel82.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-clock-32.png"))); // NOI18N
         jPanel9.add(jLabel82, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 10, 40, 40));
+
+        jPanel15.setBackground(new java.awt.Color(255, 255, 255));
 
         jLabel83.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-billing-32.png"))); // NOI18N
         jPanel15.add(jLabel83);
@@ -1742,6 +1757,7 @@ int xMouse, yMouse;
     private javax.swing.JLabel jLabel44;
     private javax.swing.JLabel jLabel45;
     private javax.swing.JLabel jLabel46;
+    private javax.swing.JLabel jLabel47;
     private javax.swing.JLabel jLabel48;
     private javax.swing.JLabel jLabel49;
     private javax.swing.JLabel jLabel5;

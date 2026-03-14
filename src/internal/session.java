@@ -7,6 +7,8 @@ public class session {
     private static String email;
     private static String contact;   // ADD THIS
     private static String role;
+    private static int userId;
+    private static String userRole;
 
     public static void setSession(int acc_id, String acc_name,
                                   String acc_email, String acc_contact,
@@ -18,7 +20,19 @@ public class session {
         contact = acc_contact;   // ADD THIS
         role = acc_role;
     }
+    // Call this after login succeeds
+    public static void setSession(int id, String role) {
+        userId = id;
+        userRole = role;
+    }
 
+    public static int getUserId() {
+        return userId;
+    }
+
+    public static String getUserRole() {
+        return userRole;
+    }
     public static int getId(){ return id; }
     public static String getName(){ return name; }
     public static String getEmail(){ return email; }
