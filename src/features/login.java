@@ -357,70 +357,70 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
 
         ResultSet rs = pst.executeQuery();
 
-        if (rs.next()) {
+if (rs.next()) {
+    // Check if email is verified
+    String verified = rs.getString("acc_status");
+    if (!"1".equals(verified)) {
+        JOptionPane.showMessageDialog(this, "Your account is not verified. Please check your email.");
+        return;
+    }
 
-            // Check if email is verified
-            String verified = rs.getString("acc_status");
-            if (!"1".equals(verified)) {
-                JOptionPane.showMessageDialog(this, "Your account is not verified. Please check your email.");
-                return;
-            }
+    // Get all values directly from DB
+    int id = rs.getInt("acc_id");
+    String name = rs.getString("acc_name");
+    String emailFromDB = rs.getString("acc_email");
+    String contact = rs.getString("acc_contact");
+    String role = rs.getString("acc_role");
 
-            // Get role and name
-            String role = rs.getString("acc_role");
-            String name = rs.getString("acc_name");
+    // ✅ Initialize session here
+    session.setSession(id, name, emailFromDB, contact, role);
 
-        int id = rs.getInt("acc_id");
-String contact = rs.getString("acc_contact"); // GET CONTACT FROM DB
+    // Log the login action
+    String logSql = "INSERT INTO tbl_logs (actor_id, actor_role, action, details, created_at) " +
+                    "VALUES (?, ?, ?, ?, datetime('now'))";
+    PreparedStatement logPst = conn.prepareStatement(logSql);
+    logPst.setInt(1, id);
+    logPst.setString(2, role);
+    logPst.setString(3, "Login");
+    logPst.setString(4, name + " logged in");
+    logPst.executeUpdate();
 
-session.setSession(id, name, email, contact, role);
-
-
-String logSql = "INSERT INTO tbl_logs (actor_id, actor_role, action, details, created_at) " +
-                "VALUES (?, ?, ?, ?, datetime('now'))";
-PreparedStatement logPst = conn.prepareStatement(logSql);
-logPst.setInt(1, id);
-logPst.setString(2, role);
-logPst.setString(3, "Login");
-logPst.setString(4, name + " logged in");
-logPst.executeUpdate();
-
-            // Redirect based on role
-            switch (role.toLowerCase()) {
-                case "patient":
-                    patient patientDash = new patient();
-                    this.dispose();
-                    patientDash.setVisible(true);
-                    break;
-
-                case "staff":
-                     staff staffDash = new staff();
-                     this.dispose();
-                     staffDash.setVisible(true);
-                    break;
-
-                case "admin":
-                     admin adminDash = new admin();
-                    this.dispose();
-                     adminDash.setVisible(true);
-                    break;
-
-                case "dentist":
-                    dentst dentist = new dentst();
-                    this.dispose();
-                    dentist.setVisible(true);
-                    break;
-
-                default:
-                    JOptionPane.showMessageDialog(this, "Unknown role: " + role);
-            }
+    // Redirect based on role
+    switch (role.toLowerCase()) {
+        case "patient":
+            patient patientDash = new patient();
+            this.dispose();
+            patientDash.setVisible(true);
+            break;
+        case "staff":
+            staff staffDash = new staff();
+            this.dispose();
+            staffDash.setVisible(true);
+            break;
+        case "admin":
+            admin adminDash = new admin();
+            this.dispose();
+            adminDash.setVisible(true);
+            break;
+        case "dentist":
+            dentst dentist = new dentst();
+            this.dispose();
+            dentist.setVisible(true);
+            break;
+        default:
+            JOptionPane.showMessageDialog(this, "Unknown role: " + role);
+    }
 
         } else {
             JOptionPane.showMessageDialog(this, "Invalid Email or Password");
         }
 
     } catch (Exception e) {
-        System.out.println("Login Error: " + e.getMessage());
+    JOptionPane.showMessageDialog(this,
+    "Login failed: " + e.getMessage(),
+    "Error",
+    JOptionPane.ERROR_MESSAGE);
+
     }
     
     
