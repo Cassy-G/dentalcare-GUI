@@ -50,7 +50,6 @@ public class services extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
         more = new javax.swing.JLabel();
         bgpic = new javax.swing.JLabel();
-        jPanel2 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
@@ -174,23 +173,10 @@ public class services extends javax.swing.JFrame {
                 moreMouseClicked(evt);
             }
         });
-        bg.add(more, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 480, 80, 30));
+        bg.add(more, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 490, 80, 30));
 
         bgpic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/p.jpg"))); // NOI18N
         bg.add(bgpic, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 530));
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
-
-        bg.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 410, -1, -1));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -301,7 +287,6 @@ public class services extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JLabel logo;
     private javax.swing.JLabel more;

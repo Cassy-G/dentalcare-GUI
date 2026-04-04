@@ -5,23 +5,258 @@
  */
 package features;
 
+import config.config;
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Calendar;
 import java.util.Date;
 import javax.swing.BorderFactory;
-
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.sql.SQLException;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
+import net.proteanit.sql.DbUtils;
+import com.toedter.calendar.JDateChooser;
+import java.awt.FlowLayout;
+import javax.swing.JComboBox;
 /**
  *
  * @author Cassandra Gallera
  */
 public class book extends javax.swing.JFrame {
 int xMouse, yMouse;
+private String selectedService; 
+private JDateChooser dateChooser;
+private JComboBox<String> timeCombo;
+
     /**
      * Creates new form book
      */
     public book() {
         initComponents();
+    hideOldPanels();     // hides NetBeans service panels
+    initServiceCards();  // adds your new grid
+    loadDentistData();
+  
+    
+    
+    
+    
+    dateChooser = new JDateChooser();
+dateChooser.setPreferredSize(new Dimension(200, 30));
+
+timeCombo = new JComboBox<>(new String[] {
+    "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
+    "11:00 AM", "11:30 AM", "01:00 PM", "01:30 PM",
+    "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM"
+});
+timeCombo.setPreferredSize(new Dimension(120, 30));
+
+// Add them to your panel
+Jpanel_date_time.setLayout(new FlowLayout());
+Jpanel_date_time.add(dateChooser);
+Jpanel_date_time.add(timeCombo);
+
+// Fonts
+Font labelFont = new Font("Segoe UI", Font.PLAIN, 14);
+Font fieldFont = new Font("Segoe UI", Font.PLAIN, 13);
+
+// Apply to labels
+jLabel16.setFont(labelFont); // Full Name
+jLabel17.setFont(labelFont); // Email
+jLabel19.setFont(labelFont); // Age
+jLabel18.setFont(labelFont); // Gender
+jLabel20.setFont(labelFont); // Phone Number
+jLabel21.setFont(labelFont); // Address
+
+// Apply to text fields
+jTextField1.setFont(fieldFont);
+jTextField2.setFont(fieldFont);
+jTextField3.setFont(fieldFont);
+jTextField5.setFont(fieldFont);
+jTextField6.setFont(fieldFont);
+gender.setFont(fieldFont);
+
+// Button styling
+nextbtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+nextbtn.setForeground(Color.WHITE);
+nextpane.setBackground(new Color(0, 123, 255)); // Professional blue
+
+prevbtn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+prevbtn.setForeground(new Color(0, 102, 255));
+
     }
+
+    
+private void initServiceCards() {
+    Font cardFont = new Font("Segoe UI", Font.BOLD, 14);
+    Font priceFont = new Font("Segoe UI", Font.PLAIN, 13);
+    Font emojiFont = new Font("Segoe UI Emoji", Font.BOLD, 14);
+
+    // Dental system theme colors
+    Color backgroundColor = Color.WHITE;
+    Color borderColor = new Color(200, 220, 240);   // soft healthcare gray-blue
+    Color highlightColor = new Color(0, 123, 255); // professional dental blue
+    Color titleColor = new Color(0, 51, 102);      // deep navy for text
+    Color priceColor = new Color(0, 102, 204);     // lighter blue for price
+
+    JPanel serviceGrid = new JPanel(new GridLayout(2, 4, 15, 15));
+    serviceGrid.setBackground(backgroundColor);
+    serviceGrid.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+String[][] services = {
+    {"🦷 Dental Cleaning", "₱ 1,000"},
+    {"🩺 General Checkup", "₱ 500"},
+    {"🦷 Dental Filling", "₱ 2,000"},
+    {"💰 Teeth Whitening", "₱ 14,000"},
+    {"🦷 Tooth Extraction", "₱ 1,500"},
+    {"🦷 Root Canal", "₱ 8,000"},
+    {"💎 Dental Crown", "₱ 15,000"},
+    {"👥 Braces Consultation", "₱ 50,000"}
+};
+
+
+    // Keep references to all cards so we can reset borders
+    java.util.List<JPanel> cardList = new java.util.ArrayList<>();
+
+    for (String[] service : services) {
+        JPanel card = new JPanel(new BorderLayout());
+        card.setPreferredSize(new Dimension(160, 120));
+        card.setBackground(backgroundColor);
+        card.setBorder(BorderFactory.createLineBorder(borderColor, 1, true));
+
+        // Split service name into words and align center
+        String[] words = service[0].split(" ");
+        StringBuilder formattedName = new StringBuilder("<html><div style='text-align:center;'>");
+        for (String word : words) {
+            formattedName.append(word).append("<br>");
+        }
+        formattedName.append("</div></html>");
+
+        
+        JLabel title = new JLabel(formattedName.toString(), SwingConstants.CENTER);
+
+// Use emoji-compatible font instead of plain cardFont
+
+        title.setFont(emojiFont);
+
+        title.setForeground(titleColor);
+
+// Increase card height for better spacing
+        card.setPreferredSize(new Dimension(160, 140));
+
+        
+        JLabel price = new JLabel(service[1], SwingConstants.CENTER);
+        price.setFont(priceFont);
+        price.setForeground(priceColor);
+
+        JPanel textPanel = new JPanel(new GridLayout(2, 1));
+        textPanel.setBackground(backgroundColor);
+        textPanel.add(title);
+        textPanel.add(price);
+
+        card.add(textPanel, BorderLayout.CENTER);
+
+        card.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                // Reset all cards to default border
+                for (JPanel c : cardList) {
+                    c.setBorder(BorderFactory.createLineBorder(borderColor, 1, true));
+                }
+                // Highlight only the clicked card
+                selectedService = service[0];
+                card.setBorder(BorderFactory.createLineBorder(highlightColor, 2));
+            }
+        });
+
+        cardList.add(card);
+        serviceGrid.add(card);
+    }
+
+    // Clear NetBeans components but keep label + navigation buttons
+    jPanel2.removeAll();
+    jPanel2.setLayout(new BorderLayout());
+
+    // "Select Service *" label with black text + red asterisk
+    JLabel selectLabel = new JLabel(
+        "<html><span style='color:black;'>Select Service</span> <span style='color:red;'>*</span></html>",
+        SwingConstants.LEFT
+    );
+    selectLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+    jPanel2.add(selectLabel, BorderLayout.NORTH);
+
+    // Add the grid at the center
+    jPanel2.add(serviceGrid, BorderLayout.CENTER);
+
+    // Keep navigation buttons at the bottom
+    JPanel navPanel = new JPanel(new BorderLayout());
+    navPanel.setBackground(backgroundColor);
+    navPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+    navPanel.add(prevpane1, BorderLayout.WEST);
+    navPanel.add(nextpane1, BorderLayout.EAST);
+
+    jPanel2.add(navPanel, BorderLayout.SOUTH);
+
+    jPanel2.revalidate();
+    jPanel2.repaint();
+}
+
+
+
+
+
+private void hideOldPanels() {
+    dc.setVisible(false);
+    gc.setVisible(false);
+    df.setVisible(false);
+    tw.setVisible(false);
+    te.setVisible(false);
+    rc.setVisible(false);
+    denc.setVisible(false);
+    bc.setVisible(false);
+
+    dentalcheckup.setVisible(false);
+    dentalcleaning.setVisible(false);
+    dentalfilling.setVisible(false);
+    teethwhitening.setVisible(false);
+    toothextraction.setVisible(false);
+    rootcanal.setVisible(false);
+    dentalcrown.setVisible(false);
+    braceconsultation.setVisible(false);
+}
+
+
+private boolean isPersonalInfoValid() {
+    String name = jTextField1.getText().trim();     // Full Name
+    String email = jTextField2.getText().trim();    // Email
+    String age = jTextField3.getText().trim();      // Age
+    String genderValue = (String) gender.getSelectedItem(); // Gender
+    String phone = jTextField5.getText().trim();    // Phone Number
+    String address = jTextField6.getText().trim();  // Address
+
+    return !name.isEmpty()
+        && !email.isEmpty()
+        && !age.isEmpty()
+        && genderValue != null && !genderValue.isEmpty()
+        && !phone.isEmpty()
+        && !address.isEmpty();
+}
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -54,6 +289,7 @@ int xMouse, yMouse;
         jPanel11 = new javax.swing.JPanel();
         jLabel10 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        jLabel85 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jLabel16 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
@@ -79,6 +315,7 @@ int xMouse, yMouse;
         jLabel30 = new javax.swing.JLabel();
         gender = new javax.swing.JComboBox<>();
         jLabel47 = new javax.swing.JLabel();
+        jLabel84 = new javax.swing.JLabel();
         bg1 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
@@ -93,6 +330,7 @@ int xMouse, yMouse;
         jPanel12 = new javax.swing.JPanel();
         jLabel34 = new javax.swing.JLabel();
         jLabel22 = new javax.swing.JLabel();
+        jLabel86 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jLabel37 = new javax.swing.JLabel();
         jLabel38 = new javax.swing.JLabel();
@@ -127,6 +365,8 @@ int xMouse, yMouse;
         bc = new javax.swing.JPanel();
         jLabel46 = new javax.swing.JLabel();
         braceconsultation = new javax.swing.JLabel();
+        jLabel89 = new javax.swing.JLabel();
+        jLabel88 = new javax.swing.JLabel();
         bg2 = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
         jLabel48 = new javax.swing.JLabel();
@@ -141,6 +381,7 @@ int xMouse, yMouse;
         jPanel13 = new javax.swing.JPanel();
         jLabel50 = new javax.swing.JLabel();
         jLabel56 = new javax.swing.JLabel();
+        jLabel87 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jLabel59 = new javax.swing.JLabel();
         nextpane2 = new javax.swing.JPanel();
@@ -150,7 +391,9 @@ int xMouse, yMouse;
         prevbtn2 = new javax.swing.JLabel();
         jLabel60 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        table_dentist = new javax.swing.JTable();
+        jLabel95 = new javax.swing.JLabel();
+        jLabel94 = new javax.swing.JLabel();
         bg3 = new javax.swing.JPanel();
         jPanel7 = new javax.swing.JPanel();
         jLabel61 = new javax.swing.JLabel();
@@ -165,6 +408,7 @@ int xMouse, yMouse;
         jLabel70 = new javax.swing.JLabel();
         jLabel71 = new javax.swing.JLabel();
         jPanel14 = new javax.swing.JPanel();
+        jLabel90 = new javax.swing.JLabel();
         jPanel8 = new javax.swing.JPanel();
         nextpane3 = new javax.swing.JPanel();
         nextbtn3 = new javax.swing.JLabel();
@@ -174,6 +418,8 @@ int xMouse, yMouse;
         appointment_date = new javax.swing.JLabel();
         jLabel72 = new javax.swing.JLabel();
         Jpanel_date_time = new javax.swing.JPanel();
+        jLabel110 = new javax.swing.JLabel();
+        jLabel93 = new javax.swing.JLabel();
         bg4 = new javax.swing.JPanel();
         jPanel9 = new javax.swing.JPanel();
         jLabel73 = new javax.swing.JLabel();
@@ -188,12 +434,31 @@ int xMouse, yMouse;
         jLabel82 = new javax.swing.JLabel();
         jPanel15 = new javax.swing.JPanel();
         jLabel83 = new javax.swing.JLabel();
+        jLabel91 = new javax.swing.JLabel();
         jPanel10 = new javax.swing.JPanel();
         nextpane4 = new javax.swing.JPanel();
         nextbtn4 = new javax.swing.JLabel();
         nextsign4 = new javax.swing.JLabel();
         prevpane4 = new javax.swing.JPanel();
         prevbtn4 = new javax.swing.JLabel();
+        jLabel96 = new javax.swing.JLabel();
+        jLabel97 = new javax.swing.JLabel();
+        jLabel98 = new javax.swing.JLabel();
+        jComboBox1 = new javax.swing.JComboBox<>();
+        jTextField4 = new javax.swing.JTextField();
+        jTextField7 = new javax.swing.JTextField();
+        jLabel99 = new javax.swing.JLabel();
+        jLabel100 = new javax.swing.JLabel();
+        jLabel101 = new javax.swing.JLabel();
+        jLabel102 = new javax.swing.JLabel();
+        jLabel103 = new javax.swing.JLabel();
+        jLabel104 = new javax.swing.JLabel();
+        jLabel105 = new javax.swing.JLabel();
+        jLabel106 = new javax.swing.JLabel();
+        jLabel107 = new javax.swing.JLabel();
+        jPanel16 = new javax.swing.JPanel();
+        jLabel109 = new javax.swing.JLabel();
+        jLabel92 = new javax.swing.JLabel();
 
         checkbox1.setLabel("checkbox1");
 
@@ -227,7 +492,7 @@ int xMouse, yMouse;
         logo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/output-onlinepngtools__3_-removebg-preview.png"))); // NOI18N
         header.add(logo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 50, 50));
 
-        jLabel12.setFont(new java.awt.Font("Yu Gothic Light", 3, 14)); // NOI18N
+        jLabel12.setFont(new java.awt.Font("Trebuchet MS", 1, 15)); // NOI18N
         jLabel12.setForeground(new java.awt.Color(0, 0, 255));
         jLabel12.setText("Book Now");
         header.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, 80, 50));
@@ -247,7 +512,7 @@ int xMouse, yMouse;
 
         getContentPane().add(header, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
 
-        bg.setBackground(new java.awt.Color(204, 255, 255));
+        bg.setBackground(new java.awt.Color(255, 255, 255));
         bg.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel4.setBackground(new java.awt.Color(204, 255, 255));
@@ -305,9 +570,14 @@ int xMouse, yMouse;
         jLabel2.setText("Personal Info");
         jPanel11.add(jLabel2);
 
-        jPanel4.add(jPanel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 80, 60));
+        jLabel85.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
+        jLabel85.setForeground(new java.awt.Color(0, 102, 255));
+        jLabel85.setText("____________");
+        jPanel11.add(jLabel85);
 
-        bg.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 20, 550, 80));
+        jPanel4.add(jPanel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 80));
+
+        bg.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 10, 550, 80));
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -315,28 +585,28 @@ int xMouse, yMouse;
         jLabel16.setText("Full Name");
         jPanel1.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 80, -1));
 
-        jTextField1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255)));
+        jTextField1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         jPanel1.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, 250, 30));
 
         jLabel17.setText("Email");
         jPanel1.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 20, -1, -1));
 
-        jTextField2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255)));
+        jTextField2.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         jPanel1.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 40, 250, 30));
 
         jLabel18.setText("Gender");
         jPanel1.add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 90, 50, -1));
 
-        jTextField3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255)));
+        jTextField3.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         jPanel1.add(jTextField3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 250, 30));
 
         jLabel19.setText("Age");
         jPanel1.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 40, -1));
 
         jLabel20.setText("Phone Number");
-        jPanel1.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 160, 90, -1));
+        jPanel1.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 160, 110, -1));
 
-        jTextField5.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255)));
+        jTextField5.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         jPanel1.add(jTextField5, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 180, 510, 30));
 
         jLabel21.setText("Address");
@@ -345,7 +615,7 @@ int xMouse, yMouse;
         jTextField6.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255)));
         jPanel1.add(jTextField6, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 250, 510, 30));
 
-        nextpane.setBackground(new java.awt.Color(0, 153, 153));
+        nextpane.setBackground(new java.awt.Color(0, 102, 255));
         nextpane.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         nextbtn.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
@@ -413,7 +683,7 @@ int xMouse, yMouse;
         jLabel26.setForeground(new java.awt.Color(204, 0, 0));
         jLabel26.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel26.setText("*");
-        jPanel1.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 80, 30, 20));
+        jPanel1.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 80, 40, 20));
 
         jLabel27.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel27.setForeground(new java.awt.Color(204, 0, 0));
@@ -425,10 +695,11 @@ int xMouse, yMouse;
         jLabel28.setText("*");
         jPanel1.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 80, 20, 20));
 
+        jLabel29.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel29.setForeground(new java.awt.Color(204, 0, 0));
         jLabel29.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel29.setText("*");
-        jPanel1.add(jLabel29, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 140, 30, 30));
+        jPanel1.add(jLabel29, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 140, 30, 30));
 
         jLabel30.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel30.setForeground(new java.awt.Color(204, 0, 0));
@@ -436,7 +707,7 @@ int xMouse, yMouse;
         jPanel1.add(jLabel30, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 210, 30, 40));
 
         gender.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Male", "Female" }));
-        gender.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255)));
+        gender.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         gender.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 genderActionPerformed(evt);
@@ -444,11 +715,17 @@ int xMouse, yMouse;
         });
         jPanel1.add(gender, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 110, 250, 30));
 
+        jLabel47.setBackground(new java.awt.Color(204, 255, 255));
         jLabel47.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel47.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/bgg.jpg"))); // NOI18N
-        jPanel1.add(jLabel47, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -4, 550, 360));
+        jLabel47.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/a.jpg"))); // NOI18N
+        jLabel47.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
+        jPanel1.add(jLabel47, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -10, 550, 360));
 
         bg.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 100, 550, 350));
+
+        jLabel84.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Copilot_20260322_145831.png"))); // NOI18N
+        jLabel84.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
+        bg.add(jLabel84, new org.netbeans.lib.awtextra.AbsoluteConstraints(-2, 0, 810, 470));
 
         taab.addTab("book1", bg);
 
@@ -511,9 +788,14 @@ int xMouse, yMouse;
         jLabel22.setText("Serivice & Dentist");
         jPanel12.add(jLabel22);
 
-        jPanel5.add(jPanel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 10, 100, 60));
+        jLabel86.setFont(new java.awt.Font("Tahoma", 0, 15)); // NOI18N
+        jLabel86.setForeground(new java.awt.Color(0, 102, 255));
+        jLabel86.setText("_______________");
+        jPanel12.add(jLabel86);
 
-        bg1.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 20, 550, 80));
+        jPanel5.add(jPanel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 0, 100, 80));
+
+        bg1.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 10, 550, 80));
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -523,7 +805,7 @@ int xMouse, yMouse;
         jLabel38.setText("Select Service");
         jPanel2.add(jLabel38, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 80, -1));
 
-        nextpane1.setBackground(new java.awt.Color(0, 153, 153));
+        nextpane1.setBackground(new java.awt.Color(0, 102, 255));
         nextpane1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         nextbtn1.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
@@ -541,7 +823,7 @@ int xMouse, yMouse;
                 nextbtn1MouseExited(evt);
             }
         });
-        nextpane1.add(nextbtn1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 80, 30));
+        nextpane1.add(nextbtn1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 30));
 
         nextsign1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-forward-24 (1).png"))); // NOI18N
         nextsign1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -820,7 +1102,14 @@ int xMouse, yMouse;
 
         jPanel2.add(bc, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 200, 150, 60));
 
-        bg1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 110, 550, 340));
+        jLabel89.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/a.jpg"))); // NOI18N
+        jLabel89.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
+        jPanel2.add(jLabel89, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 550, 350));
+
+        bg1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 100, 550, 350));
+
+        jLabel88.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Copilot_20260322_145831.png"))); // NOI18N
+        bg1.add(jLabel88, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -10, 810, 480));
 
         taab.addTab("book2", bg1);
 
@@ -885,11 +1174,16 @@ int xMouse, yMouse;
         jLabel56.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-calendar-32.png"))); // NOI18N
         jPanel13.add(jLabel56, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 0, 40, 40));
 
-        jPanel6.add(jPanel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 10, 100, 60));
+        jLabel87.setForeground(new java.awt.Color(0, 51, 255));
+        jLabel87.setText("______________");
+        jLabel87.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
+        jPanel13.add(jLabel87, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 64, 100, -1));
 
-        bg2.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 20, 550, 80));
+        jPanel6.add(jPanel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 0, 100, 80));
 
-        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+        bg2.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 10, 550, 80));
+
+        jPanel3.setBackground(new java.awt.Color(204, 255, 255));
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel59.setText("Select Dentist");
@@ -959,7 +1253,7 @@ int xMouse, yMouse;
         jLabel60.setText("*");
         jPanel3.add(jLabel60, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 0, 20, 40));
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        table_dentist.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -967,11 +1261,18 @@ int xMouse, yMouse;
 
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(table_dentist);
 
-        jPanel3.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 50, -1, 220));
+        jPanel3.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 50, 530, 220));
 
-        bg2.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 110, 550, 340));
+        jLabel95.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Copilot_20260322_145831.png"))); // NOI18N
+        jLabel95.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
+        jPanel3.add(jLabel95, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -4, 550, 350));
+
+        bg2.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 100, 550, 340));
+
+        jLabel94.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Copilot_20260322_145831.png"))); // NOI18N
+        bg2.add(jLabel94, new org.netbeans.lib.awtextra.AbsoluteConstraints(-2, -10, 810, 480));
 
         taab.addTab("book3", bg2);
 
@@ -1007,7 +1308,7 @@ int xMouse, yMouse;
         jLabel65.setFont(new java.awt.Font("Times New Roman", 0, 13)); // NOI18N
         jLabel65.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel65.setText("Date & Time");
-        jPanel7.add(jLabel65, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 50, -1, -1));
+        jPanel7.add(jLabel65, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 50, 70, -1));
 
         jLabel66.setBackground(new java.awt.Color(153, 204, 255));
         jLabel66.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
@@ -1034,11 +1335,18 @@ int xMouse, yMouse;
 
         jPanel14.setBackground(new java.awt.Color(255, 255, 255));
         jPanel14.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        jPanel7.add(jPanel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 10, 70, 60));
 
-        bg3.add(jPanel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 20, 550, 80));
+        jLabel90.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
+        jLabel90.setForeground(new java.awt.Color(0, 51, 255));
+        jLabel90.setText("________");
+        jLabel90.setToolTipText("");
+        jPanel14.add(jLabel90, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, -1, 20));
 
-        jPanel8.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel7.add(jPanel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 0, 72, 80));
+
+        bg3.add(jPanel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 10, 550, 80));
+
+        jPanel8.setBackground(new java.awt.Color(204, 255, 255));
         jPanel8.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         nextpane3.setBackground(new java.awt.Color(0, 153, 153));
@@ -1102,15 +1410,22 @@ int xMouse, yMouse;
 
         appointment_date.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         appointment_date.setText("Select Appointment Date & Time");
-        jPanel8.add(appointment_date, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 200, -1));
+        jPanel8.add(appointment_date, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 250, -1));
 
         jLabel72.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel72.setForeground(new java.awt.Color(255, 0, 0));
         jLabel72.setText("*");
         jPanel8.add(jLabel72, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 0, 40, 30));
-        jPanel8.add(Jpanel_date_time, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 60, 410, 140));
+        jPanel8.add(Jpanel_date_time, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 60, 440, 180));
 
-        bg3.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 110, 550, 340));
+        jLabel110.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/a.jpg"))); // NOI18N
+        jPanel8.add(jLabel110, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -4, 550, 350));
+
+        bg3.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 100, 550, 340));
+
+        jLabel93.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        jLabel93.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Copilot_20260322_145831.png"))); // NOI18N
+        bg3.add(jLabel93, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -10, 810, 480));
 
         taab.addTab("book4", bg3);
 
@@ -1157,7 +1472,7 @@ int xMouse, yMouse;
         jLabel79.setFont(new java.awt.Font("Times New Roman", 0, 13)); // NOI18N
         jLabel79.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel79.setText("Billing");
-        jPanel9.add(jLabel79, new org.netbeans.lib.awtextra.AbsoluteConstraints(484, 50, 50, -1));
+        jPanel9.add(jLabel79, new org.netbeans.lib.awtextra.AbsoluteConstraints(484, 50, 60, -1));
 
         jLabel80.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-user-32.png"))); // NOI18N
         jPanel9.add(jLabel80, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 10, -1, 40));
@@ -1169,15 +1484,20 @@ int xMouse, yMouse;
         jPanel9.add(jLabel82, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 10, 40, 40));
 
         jPanel15.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel15.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel83.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-billing-32.png"))); // NOI18N
-        jPanel15.add(jLabel83);
+        jPanel15.add(jLabel83, new org.netbeans.lib.awtextra.AbsoluteConstraints(19, 5, -1, -1));
 
-        jPanel9.add(jPanel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 10, 60, 60));
+        jLabel91.setForeground(new java.awt.Color(0, 51, 255));
+        jLabel91.setText("__________");
+        jPanel15.add(jLabel91, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 64, 70, -1));
 
-        bg4.add(jPanel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 20, 550, 80));
+        jPanel9.add(jPanel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 0, 70, 80));
 
-        jPanel10.setBackground(new java.awt.Color(255, 255, 255));
+        bg4.add(jPanel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 10, 550, 80));
+
+        jPanel10.setBackground(new java.awt.Color(204, 255, 255));
         jPanel10.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         nextpane4.setBackground(new java.awt.Color(0, 153, 153));
@@ -1239,7 +1559,71 @@ int xMouse, yMouse;
 
         jPanel10.add(prevpane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 300, 100, 30));
 
-        bg4.add(jPanel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 110, 550, 340));
+        jLabel96.setForeground(new java.awt.Color(204, 204, 204));
+        jLabel96.setText("____________________________________________________________________________");
+        jPanel10.add(jLabel96, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 130, -1, -1));
+
+        jLabel97.setForeground(new java.awt.Color(204, 204, 204));
+        jLabel97.setText("____________________________________________________________________________");
+        jPanel10.add(jLabel97, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, -1, 20));
+
+        jLabel98.setForeground(new java.awt.Color(204, 204, 204));
+        jLabel98.setText("____________________________________________________________________________");
+        jPanel10.add(jLabel98, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 70, 540, 30));
+
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jPanel10.add(jComboBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 180, 180, 28));
+        jPanel10.add(jTextField4, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 220, 180, 28));
+        jPanel10.add(jTextField7, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 260, 180, 28));
+
+        jLabel99.setForeground(new java.awt.Color(0, 51, 102));
+        jLabel99.setText("Payment Method");
+        jPanel10.add(jLabel99, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 176, 110, 30));
+
+        jLabel100.setForeground(new java.awt.Color(0, 51, 102));
+        jLabel100.setText("GCash Number");
+        jPanel10.add(jLabel100, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 220, 110, 30));
+
+        jLabel101.setForeground(new java.awt.Color(0, 51, 102));
+        jLabel101.setText("Ammount to Pay");
+        jPanel10.add(jLabel101, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 260, 110, 30));
+
+        jLabel102.setForeground(new java.awt.Color(0, 51, 102));
+        jLabel102.setText("Consultation Fee");
+        jPanel10.add(jLabel102, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, -1, -1));
+
+        jLabel103.setForeground(new java.awt.Color(0, 51, 102));
+        jLabel103.setText("jLabel103");
+        jPanel10.add(jLabel103, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, -1, -1));
+
+        jLabel104.setForeground(new java.awt.Color(0, 51, 102));
+        jLabel104.setText("Service Fee");
+        jPanel10.add(jLabel104, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, -1, 30));
+
+        jLabel105.setForeground(new java.awt.Color(0, 51, 102));
+        jLabel105.setText("jLabel105");
+        jPanel10.add(jLabel105, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 90, -1, 30));
+
+        jLabel106.setForeground(new java.awt.Color(0, 51, 102));
+        jLabel106.setText("Total Amount");
+        jPanel10.add(jLabel106, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 120, -1, -1));
+
+        jLabel107.setForeground(new java.awt.Color(0, 51, 102));
+        jLabel107.setText("jLabel107");
+        jPanel10.add(jLabel107, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 150, -1, -1));
+
+        jPanel16.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel16.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        jPanel10.add(jPanel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 220, 40, 30));
+
+        jLabel109.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/a.jpg"))); // NOI18N
+        jPanel10.add(jLabel109, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -4, 550, 350));
+
+        bg4.add(jPanel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 100, 550, 340));
+
+        jLabel92.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Copilot_20260322_145831.png"))); // NOI18N
+        jLabel92.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        bg4.add(jLabel92, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 470));
 
         taab.addTab("book5", bg4);
 
@@ -1339,35 +1723,36 @@ int xMouse, yMouse;
     }//GEN-LAST:event_nextbtn3MouseEntered
 
     private void nextbtn3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtn3MouseClicked
+    Date selectedDate = dateChooser.getDate();
+    String selectedTime = (String) timeCombo.getSelectedItem();
 
-        //        Date selectedDate = dateChooser.getDate();
-        //        String selectedTime = (String) timeCombo.getSelectedItem();
-        //
-        //        if (selectedDate == null) {
-            //            javax.swing.JOptionPane.showMessageDialog(this, "Please select appointment date!");
-            //            return;
-            //        }
-        //        if (selectedTime == null) {
-            //            javax.swing.JOptionPane.showMessageDialog(this, "Please select appointment time!");
-            //            return;
-            //        }
-        //
-        //        // Combine date and time into one Date object
-        //        Calendar cal = Calendar.getInstance();
-        //        cal.setTime(selectedDate);
-        //        String[] parts = selectedTime.split(":|\\s"); // e.g. "09:30 AM"
-        //        int hour = Integer.parseInt(parts[0]);
-        //        int minute = Integer.parseInt(parts[1]);
-        //        if (parts[2].equalsIgnoreCase("PM") && hour != 12) hour += 12;
-        //        if (parts[2].equalsIgnoreCase("AM") && hour == 12) hour = 0;
-        //        cal.set(Calendar.HOUR_OF_DAY, hour);
-        //        cal.set(Calendar.MINUTE, minute);
-        //        cal.set(Calendar.SECOND, 0);
-        //
-        //        Date appointmentDateTime = cal.getTime(); // ready to save in DB
+    if (selectedDate == null) {
+        JOptionPane.showMessageDialog(this, "Please select appointment date!");
+        return;
+    }
+    if (selectedTime == null) {
+        JOptionPane.showMessageDialog(this, "Please select appointment time!");
+        return;
+    }
 
-        // Move to next booking page
-        taab.setSelectedIndex(4);
+    // Combine date + time
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(selectedDate);
+
+    String[] parts = selectedTime.split(":|\\s"); // e.g. "09:30 AM"
+    int hour = Integer.parseInt(parts[0]);
+    int minute = Integer.parseInt(parts[1]);
+    if (parts[2].equalsIgnoreCase("PM") && hour != 12) hour += 12;
+    if (parts[2].equalsIgnoreCase("AM") && hour == 12) hour = 0;
+
+    cal.set(Calendar.HOUR_OF_DAY, hour);
+    cal.set(Calendar.MINUTE, minute);
+    cal.set(Calendar.SECOND, 0);
+
+    Date appointmentDateTime = cal.getTime(); // ready to save in DB
+
+    // Move to next booking page
+    taab.setSelectedIndex(4);
     }//GEN-LAST:event_nextbtn3MouseClicked
 
     private void prevpane2MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_prevpane2MouseEntered
@@ -1613,7 +1998,9 @@ int xMouse, yMouse;
     }//GEN-LAST:event_nextbtn1MouseEntered
 
     private void nextbtn1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtn1MouseClicked
-        taab.setSelectedIndex(2);
+
+
+      taab.setSelectedIndex(2);
     }//GEN-LAST:event_nextbtn1MouseClicked
 
     private void genderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_genderActionPerformed
@@ -1655,8 +2042,82 @@ int xMouse, yMouse;
     }//GEN-LAST:event_nextbtnMouseEntered
 
     private void nextbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtnMouseClicked
-        taab.setSelectedIndex(1);
+    if (isPersonalInfoValid()) {
+        // ✅ Only proceed if valid
+        taab.setSelectedIndex(1); // move to Service & Dentist tab
+    } else {
+        // ❌ Block navigation if invalid
+        JOptionPane.showMessageDialog(
+            this,
+            "Please fill in all required fields before proceeding.",
+            "Missing Information",
+            JOptionPane.WARNING_MESSAGE
+        );
+        // Do NOT switch tabs here
+    }
     }//GEN-LAST:event_nextbtnMouseClicked
+
+    private void loadDentistData() {
+
+
+    String sql = "SELECT acc_name AS Dentist, acc_role AS Role " +
+                 "FROM tbl_accounts " +
+                 "WHERE acc_role = 'dentist'";
+
+    // Use your config helper to load results into the table
+    new config().displayData(sql, table_dentist);
+
+
+
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(sql);
+         ResultSet rs = pst.executeQuery()) {
+
+        // Load DB results into table
+        table_dentist.setModel(DbUtils.resultSetToTableModel(rs));
+
+        // ✅ Professional dental clinic styling
+        table_dentist.setRowHeight(28);
+        table_dentist.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        table_dentist.setGridColor(new Color(220, 220, 220));
+        table_dentist.setShowGrid(true);
+
+        // ✅ Header styling
+        JTableHeader header = table_dentist.getTableHeader();
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        header.setBackground(new Color(200, 230, 240)); // soft healthcare blue
+        header.setForeground(Color.DARK_GRAY);
+        header.setOpaque(true);
+        header.repaint();
+
+        // ✅ Alternate row colors
+        table_dentist.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(245, 245, 245));
+                    c.setForeground(new Color(30, 30, 30));
+                } else {
+                    c.setBackground(new Color(184, 207, 229)); // selection blue
+                    c.setForeground(Color.BLACK);
+                }
+                if (c instanceof JLabel) {
+                    ((JLabel) c).setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // padding
+                }
+                return c;
+            }
+        });
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this,
+            "Error loading dentist data: " + e.getMessage(),
+            "Database Error",
+            JOptionPane.ERROR_MESSAGE);
+    }
+}
 
     /**
      * @param args the command line arguments
@@ -1716,9 +2177,20 @@ int xMouse, yMouse;
     private javax.swing.JComboBox<String> gender;
     private javax.swing.JLabel hdrpic;
     private javax.swing.JPanel header;
+    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel100;
+    private javax.swing.JLabel jLabel101;
+    private javax.swing.JLabel jLabel102;
+    private javax.swing.JLabel jLabel103;
+    private javax.swing.JLabel jLabel104;
+    private javax.swing.JLabel jLabel105;
+    private javax.swing.JLabel jLabel106;
+    private javax.swing.JLabel jLabel107;
+    private javax.swing.JLabel jLabel109;
     private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel110;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
@@ -1798,7 +2270,23 @@ int xMouse, yMouse;
     private javax.swing.JLabel jLabel81;
     private javax.swing.JLabel jLabel82;
     private javax.swing.JLabel jLabel83;
+    private javax.swing.JLabel jLabel84;
+    private javax.swing.JLabel jLabel85;
+    private javax.swing.JLabel jLabel86;
+    private javax.swing.JLabel jLabel87;
+    private javax.swing.JLabel jLabel88;
+    private javax.swing.JLabel jLabel89;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JLabel jLabel90;
+    private javax.swing.JLabel jLabel91;
+    private javax.swing.JLabel jLabel92;
+    private javax.swing.JLabel jLabel93;
+    private javax.swing.JLabel jLabel94;
+    private javax.swing.JLabel jLabel95;
+    private javax.swing.JLabel jLabel96;
+    private javax.swing.JLabel jLabel97;
+    private javax.swing.JLabel jLabel98;
+    private javax.swing.JLabel jLabel99;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel11;
@@ -1806,6 +2294,7 @@ int xMouse, yMouse;
     private javax.swing.JPanel jPanel13;
     private javax.swing.JPanel jPanel14;
     private javax.swing.JPanel jPanel15;
+    private javax.swing.JPanel jPanel16;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -1815,12 +2304,13 @@ int xMouse, yMouse;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
+    private javax.swing.JTextField jTextField4;
     private javax.swing.JTextField jTextField5;
     private javax.swing.JTextField jTextField6;
+    private javax.swing.JTextField jTextField7;
     private javax.swing.JLabel logo;
     private javax.swing.JLabel nextbtn;
     private javax.swing.JLabel nextbtn1;
@@ -1850,6 +2340,7 @@ int xMouse, yMouse;
     private javax.swing.JPanel rc;
     private javax.swing.JLabel rootcanal;
     private javax.swing.JTabbedPane taab;
+    private javax.swing.JTable table_dentist;
     private javax.swing.JPanel te;
     private javax.swing.JLabel teethwhitening;
     private javax.swing.JLabel toothextraction;

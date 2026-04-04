@@ -33,6 +33,14 @@ public class session {
     public static void setContact(String newContact) { contact = newContact; }
     public static void setRole(String newRole) { role = newRole; }
 
+    // Add dentistId field
+private static int dentistId; // dentist_id from tbl_dentists
+
+public static void setDentistId(int id) { dentistId = id; }
+public static int getDentistId() { return dentistId; }
+
+    
+    
     // --- Clear session (logout) ---
     public static void clear() {
         id = 0;

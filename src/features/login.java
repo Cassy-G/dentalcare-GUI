@@ -340,8 +340,9 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
     }//GEN-LAST:event_loginbtnMouseEntered
 
     private void loginbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_loginbtnMouseClicked
-      String email = userTxt.getText();
-      String rawPass = new String(JPasswordField.getPassword());
+                                 
+    String userInput = userTxt.getText();   // can be email or username
+    String rawPass = new String(JPasswordField.getPassword());
 
     try {
         Connection conn = config.connectDB();
@@ -349,79 +350,93 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
         // Hash the entered password
         String hashedPass = config.hashPassword(rawPass);
 
-        // Query user by email and hashed password
-        String sql = "SELECT * FROM tbl_accounts WHERE acc_email=? AND acc_pass=?";
+        // ✅ Query user by email OR username, with hashed password
+        String sql = "SELECT * FROM tbl_accounts WHERE (acc_email=? OR acc_name=?) AND acc_pass=?";
         PreparedStatement pst = conn.prepareStatement(sql);
-        pst.setString(1, email);
-        pst.setString(2, hashedPass);
+        pst.setString(1, userInput);
+        pst.setString(2, userInput);
+        pst.setString(3, hashedPass);
 
         ResultSet rs = pst.executeQuery();
 
-if (rs.next()) {
-    // Check if email is verified
-    String verified = rs.getString("acc_status");
-    if (!"1".equals(verified)) {
-        JOptionPane.showMessageDialog(this, "Your account is not verified. Please check your email.");
-        return;
-    }
+        if (rs.next()) {
+            // ✅ Use correct column name (acc_status)
+            String verified = rs.getString("acc_status");
+            if (!"1".equals(verified)) {
+                JOptionPane.showMessageDialog(this, 
+                    "Your account is not verified or inactive.");
+                return;
+            }
 
-    // Get all values directly from DB
-    int id = rs.getInt("acc_id");
-    String name = rs.getString("acc_name");
-    String emailFromDB = rs.getString("acc_email");
-    String contact = rs.getString("acc_contact");
-    String role = rs.getString("acc_role");
+            // Get all values directly from DB
+            int id = rs.getInt("acc_id");
+            String name = rs.getString("acc_name");
+            String emailFromDB = rs.getString("acc_email");
+            String contact = rs.getString("acc_contact");
+            String role = rs.getString("acc_role");
 
-    // ✅ Initialize session here
-    session.setSession(id, name, emailFromDB, contact, role);
+            // ✅ Initialize session
+            session.setSession(id, name, emailFromDB, contact, role);
 
-    // Log the login action
-    String logSql = "INSERT INTO tbl_logs (actor_id, actor_role, action, details, created_at) " +
-                    "VALUES (?, ?, ?, ?, datetime('now'))";
-    PreparedStatement logPst = conn.prepareStatement(logSql);
-    logPst.setInt(1, id);
-    logPst.setString(2, role);
-    logPst.setString(3, "Login");
-    logPst.setString(4, name + " logged in");
-    logPst.executeUpdate();
+            // If dentist, fetch dentist_id
+            if (role.equalsIgnoreCase("dentist")) {
+                String sqlDent = "SELECT dentist_id FROM tbl_dentists WHERE acc_id=?";
+                PreparedStatement psDent = conn.prepareStatement(sqlDent);
+                psDent.setInt(1, id);
+                ResultSet rsDent = psDent.executeQuery();
+                if (rsDent.next()) {
+                    session.setDentistId(rsDent.getInt("dentist_id"));
+                }
+            }
 
-    // Redirect based on role
-    switch (role.toLowerCase()) {
-        case "patient":
-            patient patientDash = new patient();
-            this.dispose();
-            patientDash.setVisible(true);
-            break;
-        case "staff":
-            staff staffDash = new staff();
-            this.dispose();
-            staffDash.setVisible(true);
-            break;
-        case "admin":
-            admin adminDash = new admin();
-            this.dispose();
-            adminDash.setVisible(true);
-            break;
-        case "dentist":
-            dentst dentist = new dentst();
-            this.dispose();
-            dentist.setVisible(true);
-            break;
-        default:
-            JOptionPane.showMessageDialog(this, "Unknown role: " + role);
-    }
+            // Log the login action
+            String logSql = "INSERT INTO tbl_logs (actor_id, actor_role, action, details, created_at) " +
+                            "VALUES (?, ?, ?, ?, datetime('now'))";
+            PreparedStatement logPst = conn.prepareStatement(logSql);
+            logPst.setInt(1, id);
+            logPst.setString(2, role);
+            logPst.setString(3, "Login");
+            logPst.setString(4, name + " logged in");
+            logPst.executeUpdate();
+
+            // Redirect based on role
+            switch (role.toLowerCase()) {
+                case "patient":
+                    patient patientDash = new patient();
+                    this.dispose();
+                    patientDash.setVisible(true);
+                    break;
+                case "staff":
+                    staff staffDash = new staff();
+                    this.dispose();
+                    staffDash.setVisible(true);
+                    break;
+                case "admin":
+                    admin adminDash = new admin();
+                    this.dispose();
+                    adminDash.setVisible(true);
+                    break;
+                case "dentist":
+                    dentst dentist = new dentst();
+                    this.dispose();
+                    dentist.setVisible(true);
+                    break;
+                default:
+                    JOptionPane.showMessageDialog(this, "Unknown role: " + role);
+            }
 
         } else {
-            JOptionPane.showMessageDialog(this, "Invalid Email or Password");
+            JOptionPane.showMessageDialog(this, "Invalid Email/Username or Password");
         }
 
     } catch (Exception e) {
-    JOptionPane.showMessageDialog(this,
-    "Login failed: " + e.getMessage(),
-    "Error",
-    JOptionPane.ERROR_MESSAGE);
-
+        e.printStackTrace(); // ✅ Debugging
+        JOptionPane.showMessageDialog(this,
+            "Login failed: " + e.getMessage(),
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
     }
+
     
     
     }//GEN-LAST:event_loginbtnMouseClicked
