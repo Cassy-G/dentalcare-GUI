@@ -30,6 +30,7 @@ import javax.swing.table.DefaultTableModel;
 import java.util.Arrays;
 import javax.swing.table.JTableHeader;
 import java.awt.image.BufferedImage;
+import java.sql.Statement;
 import javax.imageio.ImageIO;
 
 /**
@@ -527,12 +528,15 @@ private void loadAdminProfile() {
         jPanel8 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
+        jLabel123 = new javax.swing.JLabel();
         jPanel9 = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
+        jLabel124 = new javax.swing.JLabel();
         jPanel10 = new javax.swing.JPanel();
         jLabel12 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
+        jLabel125 = new javax.swing.JLabel();
         jScrollPane4 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jScrollPane5 = new javax.swing.JScrollPane();
@@ -583,12 +587,16 @@ private void loadAdminProfile() {
         jPanel34 = new javax.swing.JPanel();
         jPanel35 = new javax.swing.JPanel();
         jLabel72 = new javax.swing.JLabel();
+        jLabel119 = new javax.swing.JLabel();
         jPanel36 = new javax.swing.JPanel();
         jLabel73 = new javax.swing.JLabel();
+        jLabel120 = new javax.swing.JLabel();
         jPanel37 = new javax.swing.JPanel();
         jLabel74 = new javax.swing.JLabel();
+        jLabel121 = new javax.swing.JLabel();
         jPanel38 = new javax.swing.JPanel();
         jLabel75 = new javax.swing.JLabel();
+        jLabel122 = new javax.swing.JLabel();
         jScrollPane9 = new javax.swing.JScrollPane();
         jTable6 = new javax.swing.JTable();
         jScrollPane10 = new javax.swing.JScrollPane();
@@ -801,6 +809,7 @@ private void loadAdminProfile() {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
+        setPreferredSize(new java.awt.Dimension(810, 520));
         setResizable(false);
 
         bg.setBackground(new java.awt.Color(153, 204, 255));
@@ -1092,14 +1101,14 @@ private void loadAdminProfile() {
         XPNL.setLayout(XPNLLayout);
         XPNLLayout.setHorizontalGroup(
             XPNLLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(XBTN, javax.swing.GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE)
+            .addComponent(XBTN, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE)
         );
         XPNLLayout.setVerticalGroup(
             XPNLLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(XBTN, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
         );
 
-        hdr.add(XPNL, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 10, 40, 30));
+        hdr.add(XPNL, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 10, 40, 30));
 
         jLabel2.setBackground(new java.awt.Color(51, 102, 255));
         jLabel2.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
@@ -1108,18 +1117,18 @@ private void loadAdminProfile() {
         hdr.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 0, 60, 50));
 
         admin_name.setFont(new java.awt.Font("Times New Roman", 0, 15)); // NOI18N
-        hdr.add(admin_name, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 0, 110, 30));
+        hdr.add(admin_name, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 0, 110, 30));
 
         circle_adminPic.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         circle_adminPic.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-circle-48.png"))); // NOI18N
-        hdr.add(circle_adminPic, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 0, 50, 50));
+        hdr.add(circle_adminPic, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 0, 50, 50));
 
         jLabel13.setFont(new java.awt.Font("Times New Roman", 0, 15)); // NOI18N
         jLabel13.setForeground(new java.awt.Color(102, 102, 102));
         jLabel13.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel13.setText("Admin");
         jLabel13.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-        hdr.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 30, 90, 20));
+        hdr.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 30, 90, 20));
 
         jLabel22.setFont(new java.awt.Font("Modern No. 20", 3, 17)); // NOI18N
         jLabel22.setForeground(new java.awt.Color(0, 0, 255));
@@ -1158,6 +1167,9 @@ private void loadAdminProfile() {
         jLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-appointment-25.png"))); // NOI18N
         jPanel8.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 60, 50));
 
+        jLabel123.setText("jLabel123");
+        jPanel8.add(jLabel123, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 40, -1, -1));
+
         db.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, 200, 60));
 
         jPanel9.setBackground(new java.awt.Color(255, 255, 255));
@@ -1172,6 +1184,9 @@ private void loadAdminProfile() {
         jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-waiting-room-25.png"))); // NOI18N
         jPanel9.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 60, 50));
 
+        jLabel124.setText("jLabel124");
+        jPanel9.add(jLabel124, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 40, -1, -1));
+
         db.add(jPanel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 60, 200, 60));
 
         jPanel10.setBackground(new java.awt.Color(255, 255, 255));
@@ -1185,6 +1200,9 @@ private void loadAdminProfile() {
         jLabel8.setForeground(new java.awt.Color(51, 51, 255));
         jLabel8.setText("Dentist Available");
         jPanel10.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 0, -1, 40));
+
+        jLabel125.setText("jLabel125");
+        jPanel10.add(jLabel125, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 40, -1, -1));
 
         db.add(jPanel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 60, 200, 60));
 
@@ -1530,6 +1548,9 @@ private void loadAdminProfile() {
         jLabel72.setText("Revenue Today");
         jPanel35.add(jLabel72, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 140, 30));
 
+        jLabel119.setText("jLabel119");
+        jPanel35.add(jLabel119, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 40, -1, -1));
+
         jPanel34.add(jPanel35, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 150, 70));
 
         jPanel36.setBackground(new java.awt.Color(255, 255, 255));
@@ -1543,6 +1564,9 @@ private void loadAdminProfile() {
         jLabel73.setText("Pending Balance");
         jPanel36.add(jLabel73, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 150, 30));
 
+        jLabel120.setText("jLabel120");
+        jPanel36.add(jLabel120, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 40, -1, -1));
+
         jPanel34.add(jPanel36, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 30, 150, 70));
 
         jPanel37.setBackground(new java.awt.Color(255, 255, 255));
@@ -1554,6 +1578,9 @@ private void loadAdminProfile() {
         jLabel74.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-user-24.png"))); // NOI18N
         jLabel74.setText("Today's Visits");
         jPanel37.add(jLabel74, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 4, 130, 40));
+
+        jLabel121.setText("jLabel121");
+        jPanel37.add(jLabel121, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 40, -1, -1));
 
         jPanel34.add(jPanel37, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 30, 150, 70));
 
@@ -1567,6 +1594,9 @@ private void loadAdminProfile() {
         jLabel75.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-calendar-20.png"))); // NOI18N
         jLabel75.setText("Monthly Revenue");
         jPanel38.add(jLabel75, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 150, 30));
+
+        jLabel122.setText("jLabel122");
+        jPanel38.add(jLabel122, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 40, -1, -1));
 
         jPanel34.add(jPanel38, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 30, 150, 70));
 
@@ -1803,11 +1833,11 @@ private void loadAdminProfile() {
 
         jPanel67.setBackground(new java.awt.Color(0, 51, 204));
 
-        change_photo.setFont(new java.awt.Font("Trebuchet MS", 1, 10)); // NOI18N
+        change_photo.setFont(new java.awt.Font("Trebuchet MS", 1, 12)); // NOI18N
         change_photo.setForeground(new java.awt.Color(255, 255, 255));
         change_photo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         change_photo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-edit-image-24.png"))); // NOI18N
-        change_photo.setText("Change Photo");
+        change_photo.setText("Add Photo");
         change_photo.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 change_photoMouseClicked(evt);
@@ -1832,8 +1862,9 @@ private void loadAdminProfile() {
         jPanel68.setBackground(new java.awt.Color(0, 51, 204));
         jPanel68.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        editprofile.setFont(new java.awt.Font("Trebuchet MS", 0, 12)); // NOI18N
+        editprofile.setFont(new java.awt.Font("Trebuchet MS", 1, 12)); // NOI18N
         editprofile.setForeground(new java.awt.Color(255, 255, 255));
+        editprofile.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         editprofile.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-edit-pencil-20.png"))); // NOI18N
         editprofile.setText("Edit Profile");
         editprofile.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -1901,7 +1932,7 @@ private void loadAdminProfile() {
         jPanel49.add(jLabel27, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 30, 180, 50));
 
         jLabel77.setForeground(new java.awt.Color(204, 204, 204));
-        jLabel77.setText("____________________________________________________________________________________");
+        jLabel77.setText("___________________________________________________________________________________");
         jPanel49.add(jLabel77, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 60, 590, -1));
 
         jLabel86.setFont(new java.awt.Font("Tw Cen MT", 0, 16)); // NOI18N
@@ -1909,19 +1940,19 @@ private void loadAdminProfile() {
         jPanel49.add(jLabel86, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 220, 60, 30));
 
         jLabel87.setFont(new java.awt.Font("Tw Cen MT", 0, 16)); // NOI18N
-        jLabel87.setText("Change Name:");
+        jLabel87.setText("Full Name:");
         jPanel49.add(jLabel87, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 100, 100, 30));
 
         jLabel88.setFont(new java.awt.Font("Tw Cen MT", 0, 16)); // NOI18N
-        jLabel88.setText("Change Email :");
-        jPanel49.add(jLabel88, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 140, -1, 30));
+        jLabel88.setText(" Email :");
+        jPanel49.add(jLabel88, new org.netbeans.lib.awtextra.AbsoluteConstraints(255, 140, 50, 30));
 
         jLabel89.setFont(new java.awt.Font("Tw Cen MT", 0, 16)); // NOI18N
-        jLabel89.setText("Change Contact :");
+        jLabel89.setText("Contact :");
         jPanel49.add(jLabel89, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 180, 110, 30));
 
         jLabel90.setForeground(new java.awt.Color(204, 204, 204));
-        jLabel90.setText("____________________________________________________________________________________");
+        jLabel90.setText("___________________________________________________________________________________");
         jPanel49.add(jLabel90, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 290, -1, -1));
 
         jLabel91.setFont(new java.awt.Font("Times New Roman", 1, 16)); // NOI18N
@@ -1929,7 +1960,7 @@ private void loadAdminProfile() {
         jPanel49.add(jLabel91, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 310, -1, 30));
 
         jLabel92.setForeground(new java.awt.Color(204, 204, 204));
-        jLabel92.setText("____________________________________________________________________________________");
+        jLabel92.setText("___________________________________________________________________________________");
         jPanel49.add(jLabel92, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 320, -1, 40));
 
         jLabel93.setFont(new java.awt.Font("Tw Cen MT", 0, 14)); // NOI18N
@@ -1954,13 +1985,13 @@ private void loadAdminProfile() {
         });
         jPanel61.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        cancel_edit.setFont(new java.awt.Font("Tw Cen MT", 1, 14)); // NOI18N
+        cancel_edit.setFont(new java.awt.Font("Times New Roman", 1, 12)); // NOI18N
         cancel_edit.setForeground(new java.awt.Color(51, 51, 51));
         cancel_edit.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         cancel_edit.setText("Cancel");
         jPanel61.add(cancel_edit, new org.netbeans.lib.awtextra.AbsoluteConstraints(32, 0, 50, 20));
 
-        jPanel49.add(jPanel61, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 450, 110, 20));
+        jPanel49.add(jPanel61, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 450, 110, 20));
 
         jLabel96.setForeground(new java.awt.Color(204, 204, 204));
         jLabel96.setText("___________________________________________________________________________________");
@@ -1970,7 +2001,7 @@ private void loadAdminProfile() {
         jPanel62.setForeground(new java.awt.Color(0, 51, 255));
         jPanel62.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        editprofile2.setFont(new java.awt.Font("Tw Cen MT", 1, 12)); // NOI18N
+        editprofile2.setFont(new java.awt.Font("Times New Roman", 1, 12)); // NOI18N
         editprofile2.setForeground(new java.awt.Color(255, 255, 255));
         editprofile2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         editprofile2.setText("Save Changes");
@@ -1981,16 +2012,16 @@ private void loadAdminProfile() {
         });
         jPanel62.add(editprofile2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 100, 22));
 
-        jPanel49.add(jPanel62, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 450, 100, 22));
+        jPanel49.add(jPanel62, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 450, 100, 22));
 
         edit_fullname.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255)));
-        jPanel49.add(edit_fullname, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 100, 260, 30));
+        jPanel49.add(edit_fullname, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 100, 270, 30));
 
         edit_email.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255)));
-        jPanel49.add(edit_email, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 140, 260, 30));
+        jPanel49.add(edit_email, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 140, 270, 30));
 
         edit_contact.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255)));
-        jPanel49.add(edit_contact, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 180, 250, 30));
+        jPanel49.add(edit_contact, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 180, 270, 30));
 
         jPanel16.setBackground(new java.awt.Color(255, 255, 255));
         jPanel16.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255)));
@@ -1999,10 +2030,10 @@ private void loadAdminProfile() {
         role_.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         jPanel16.add(role_, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, -1, 30));
 
-        jPanel49.add(jPanel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 220, 260, 30));
+        jPanel49.add(jPanel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 220, 270, 30));
 
         jLabel84.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nn.jpg"))); // NOI18N
-        jPanel49.add(jLabel84, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 650, 480));
+        jPanel49.add(jLabel84, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 640, 490));
 
         mp1.add(jPanel49, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -10, 650, 480));
 
@@ -2655,13 +2686,13 @@ private void loadAdminProfile() {
 
         tabbed.addTab("AS", jPanel51);
 
-        bg.add(tabbed, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 20, 650, 500));
+        bg.add(tabbed, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 20, 640, 500));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(bg, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(bg, javax.swing.GroupLayout.PREFERRED_SIZE, 810, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -3392,7 +3423,7 @@ private void loadAdminProfile() {
     }//GEN-LAST:event_addemail_staffActionPerformed
 
     private void saveNewstaffMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveNewstaffMouseClicked
- // Collect input values
+  // Collect input values
     String name = addname_staff.getText().trim();
     String email = addemail_staff.getText().trim();
     String password = addpass_staff.getText().trim();
@@ -3433,7 +3464,7 @@ private void loadAdminProfile() {
     // ✅ Insert into DB
     String sql = "INSERT INTO tbl_accounts (acc_name, acc_email, acc_pass, acc_contact, acc_role, acc_status) VALUES (?, ?, ?, ?, ?, ?)";
     try (Connection con = config.connectDB();
-         PreparedStatement pst = con.prepareStatement(sql)) {
+         PreparedStatement pst = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
         pst.setString(1, name);
         pst.setString(2, email);
@@ -3444,6 +3475,27 @@ private void loadAdminProfile() {
 
         int rows = pst.executeUpdate();
         if (rows > 0) {
+            // ✅ Get generated acc_id
+            int newAccId = -1;
+            try (ResultSet rs = pst.getGeneratedKeys()) {
+                if (rs.next()) {
+                    newAccId = rs.getInt(1);
+                }
+            }
+
+            // ✅ Insert into tbl_dentists if role is dentist
+            if ("dentist".equalsIgnoreCase(dbRole)) {
+                String dentistSql = "INSERT INTO tbl_dentists (acc_id, specialty, work_start, work_end, work_days) VALUES (?, ?, ?, ?, ?)";
+                try (PreparedStatement dentistPst = con.prepareStatement(dentistSql)) {
+                    dentistPst.setInt(1, newAccId);
+                    dentistPst.setString(2, "");   // placeholder until schedule editor fills it
+                    dentistPst.setString(3, "");   // placeholder work_start
+                    dentistPst.setString(4, "");   // placeholder work_end
+                    dentistPst.setString(5, "");   // placeholder work_days
+                    dentistPst.executeUpdate();
+                }
+            }
+
             JOptionPane.showMessageDialog(this, "New staff user added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             staffDentistTable(); // refresh table view
 
@@ -4334,7 +4386,14 @@ private void saveNewStaffUser() {
     private javax.swing.JLabel jLabel116;
     private javax.swing.JLabel jLabel117;
     private javax.swing.JLabel jLabel118;
+    private javax.swing.JLabel jLabel119;
     private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel120;
+    private javax.swing.JLabel jLabel121;
+    private javax.swing.JLabel jLabel122;
+    private javax.swing.JLabel jLabel123;
+    private javax.swing.JLabel jLabel124;
+    private javax.swing.JLabel jLabel125;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
