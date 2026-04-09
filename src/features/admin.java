@@ -74,7 +74,7 @@ private String mapRoleToDb(String roleWithEmoji) {
         case "👑 Admin": return "admin";
         case "🦷 Dentist": return "dentist";
         case "👤 Staff": return "staff";
-        case "🧑‍⚕️ Patient": return "patient";
+        case "🧑‍ Patient": return "patient";
         default: return "staff"; // sensible fallback
     }
 }
@@ -809,7 +809,6 @@ private void loadAdminProfile() {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
-        setPreferredSize(new java.awt.Dimension(810, 520));
         setResizable(false);
 
         bg.setBackground(new java.awt.Color(153, 204, 255));
@@ -1228,7 +1227,7 @@ private void loadAdminProfile() {
         ));
         jScrollPane5.setViewportView(jTable2);
 
-        db.add(jScrollPane5, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 140, 310, 180));
+        db.add(jScrollPane5, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 140, 300, 180));
 
         jTable3.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -1252,7 +1251,7 @@ private void loadAdminProfile() {
         ));
         jScrollPane7.setViewportView(jTable4);
 
-        db.add(jScrollPane7, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 340, 310, 120));
+        db.add(jScrollPane7, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 340, 300, 120));
 
         jLabel32.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nn.jpg"))); // NOI18N
         db.add(jLabel32, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -4, 650, 140));

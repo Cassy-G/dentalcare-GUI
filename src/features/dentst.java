@@ -4,10 +4,11 @@ package features;
 import config.config;
 import java.awt.Color;
 import internal.session;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Image;
 import java.io.File;
 import java.io.FileInputStream;
-import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.swing.Icon;
+import javax.swing.SwingConstants;
 
 /**
  *
@@ -64,13 +66,49 @@ public dentst() {
         return;
     }
 
-    dr.setText("Welcome, " + session.getName());
+    // ✅ Show name only, styled smaller
+    dr.setText(session.getName());
+    Font headerFont = new Font("Segoe UI", Font.BOLD, 15); // clean, smaller size
+    dr.setFont(headerFont);
+    dr.setForeground(new Color(0, 102, 153)); // professional teal-blue
 
-    // Load profile data immediately after login
-    loadprofile();
+  // New
+    dr.setText(session.getName());
+
+        // ✅ Apply uniform font styling
+    Font uniformFont = new Font("Arial", Font.PLAIN, 14);
+    name.setFont(uniformFont);
+    email.setFont(uniformFont);
+    contact.setFont(uniformFont);
+    change_name.setFont(uniformFont);
+    change_email.setFont(uniformFont);
+    change_contact.setFont(uniformFont);
+    newpass.setFont(uniformFont);
+    confirmnewpass.setFont(uniformFont);
+    
+    forEDITPICTURE.setPreferredSize(new Dimension(150, 120));
+    forEDITPICTURE.setMaximumSize(new Dimension(150, 120));
+    forEDITPICTURE.setMinimumSize(new Dimension(150, 120));
+    forEDITPICTURE.setHorizontalAlignment(SwingConstants.CENTER);
+    forEDITPICTURE.setVerticalAlignment(SwingConstants.CENTER);
+    forEDITPICTURE.setBorder(null); // remove extra border spacing
+
+    savePicHereFirst.setPreferredSize(new Dimension(150, 120));
+    savePicHereFirst.setMaximumSize(new Dimension(150, 120));
+    savePicHereFirst.setMinimumSize(new Dimension(150, 120));
+    savePicHereFirst.setHorizontalAlignment(SwingConstants.CENTER);
+    savePicHereFirst.setVerticalAlignment(SwingConstants.CENTER);
+    savePicHereFirst.setBorder(null);
+    
+    
 
 
- save.addMouseListener(new java.awt.event.MouseAdapter() {
+     loadprofile();        // schedules, etc.
+     loadProfileDisplay(); // ✅ auto-load profile info after login
+
+
+
+     save.addMouseListener(new java.awt.event.MouseAdapter() {
     public void mouseClicked(java.awt.event.MouseEvent evt) {
         String email = change_email.getText();
      if (email.isEmpty() || !isValidEmail(email)) {
@@ -95,10 +133,10 @@ public dentst() {
             JOptionPane.showMessageDialog(null, "Update failed. Changes reverted.\n" + e.getMessage());
         }
     }
-});
+  });
 
     // Attach Cancel button listener
-    cancelMYprofile.addMouseListener(new java.awt.event.MouseAdapter() {
+     cancelMYprofile.addMouseListener(new java.awt.event.MouseAdapter() {
         public void mouseClicked(java.awt.event.MouseEvent evt) {
             loadprofile(); // reload original DB values
         }
@@ -106,9 +144,9 @@ public dentst() {
     
     
 
-editprofile.addMouseListener(new java.awt.event.MouseAdapter() {
-    @Override
-    public void mouseClicked(java.awt.event.MouseEvent evt) {
+     editprofile.addMouseListener(new java.awt.event.MouseAdapter() {
+     @Override
+     public void mouseClicked(java.awt.event.MouseEvent evt) {
         set_specialization.setEnabled(true); // allow editing
         change_name.setEditable(true);
         change_email.setEditable(true);
@@ -118,14 +156,17 @@ editprofile.addMouseListener(new java.awt.event.MouseAdapter() {
 
 
 }
+
 // ✅ Utility method to resize images
-private ImageIcon resizeImage(ImageIcon icon, int width, int height) {
+    private ImageIcon resizeImage(ImageIcon icon, int width, int height) {
     Image img = icon.getImage();
     Image scaledImg = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
     return new ImageIcon(scaledImg);
 }
+ 
 
-    
+
+  
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -153,13 +194,13 @@ private ImageIcon resizeImage(ImageIcon icon, int width, int height) {
         jLabel1 = new javax.swing.JLabel();
         XPNL = new javax.swing.JPanel();
         XBTN = new javax.swing.JLabel();
+        cicrcle_profile = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         dr = new javax.swing.JLabel();
-        jLabel58 = new javax.swing.JLabel();
         jLabel62 = new javax.swing.JLabel();
         jLabel66 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
         dentist = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
         dashTb = new javax.swing.JTabbedPane();
         db = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
@@ -294,8 +335,8 @@ private ImageIcon resizeImage(ImageIcon icon, int width, int height) {
         jLabel60 = new javax.swing.JLabel();
         jPanel31 = new javax.swing.JPanel();
         SAVECHANGES = new javax.swing.JLabel();
-        jPasswordField1 = new javax.swing.JPasswordField();
-        jPasswordField2 = new javax.swing.JPasswordField();
+        newpass_myprofile = new javax.swing.JPasswordField();
+        confirmpass_myprofile = new javax.swing.JPasswordField();
         jPanel42 = new javax.swing.JPanel();
         changePhoto = new javax.swing.JLabel();
         jPanel43 = new javax.swing.JPanel();
@@ -306,6 +347,7 @@ private ImageIcon resizeImage(ImageIcon icon, int width, int height) {
         cancelMYprofile = new javax.swing.JLabel();
         jPanel48 = new javax.swing.JPanel();
         jLabel49 = new javax.swing.JLabel();
+        displaySpecialty = new javax.swing.JLabel();
         jLabel65 = new javax.swing.JLabel();
         jLabel61 = new javax.swing.JLabel();
 
@@ -499,6 +541,9 @@ private ImageIcon resizeImage(ImageIcon icon, int width, int height) {
 
         hdr.add(XPNL, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 10, 40, 30));
 
+        cicrcle_profile.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-circle-48.png"))); // NOI18N
+        hdr.add(cicrcle_profile, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, -4, 50, 60));
+
         jLabel2.setBackground(new java.awt.Color(51, 102, 255));
         jLabel2.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(51, 51, 51));
@@ -511,9 +556,6 @@ private ImageIcon resizeImage(ImageIcon icon, int width, int height) {
         dr.setText("Dr.");
         hdr.add(dr, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 10, 120, 20));
 
-        jLabel58.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-circle-48.png"))); // NOI18N
-        hdr.add(jLabel58, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, -4, 50, 60));
-
         jLabel62.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
         jLabel62.setForeground(new java.awt.Color(0, 102, 255));
         jLabel62.setText("Dental");
@@ -524,12 +566,12 @@ private ImageIcon resizeImage(ImageIcon icon, int width, int height) {
         jLabel66.setText("Care");
         hdr.add(jLabel66, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 0, 40, 50));
 
-        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/5046faad4a4c9af72bcf4fe75c8a11d0.jpg"))); // NOI18N
-        hdr.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
-
         dentist.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
         dentist.setText("ff");
         hdr.add(dentist, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 10, 150, 40));
+
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/5046faad4a4c9af72bcf4fe75c8a11d0.jpg"))); // NOI18N
+        hdr.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
 
         bg.add(hdr, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
 
@@ -1270,8 +1312,8 @@ private ImageIcon resizeImage(ImageIcon icon, int width, int height) {
         jPanel31.add(SAVECHANGES, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 100, 22));
 
         mp.add(jPanel31, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 460, 100, 22));
-        mp.add(jPasswordField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 370, 270, 28));
-        mp.add(jPasswordField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 400, 270, 30));
+        mp.add(newpass_myprofile, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 370, 270, 28));
+        mp.add(confirmpass_myprofile, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 400, 270, 30));
 
         jPanel42.setBackground(new java.awt.Color(0, 51, 255));
         jPanel42.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -1351,13 +1393,19 @@ private ImageIcon resizeImage(ImageIcon icon, int width, int height) {
 
         mp.add(jPanel48, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 150, 300, 30));
 
+        displaySpecialty.setFont(new java.awt.Font("Trebuchet MS", 1, 15)); // NOI18N
+        displaySpecialty.setForeground(new java.awt.Color(0, 51, 102));
+        displaySpecialty.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        displaySpecialty.setText("jLabel36");
+        mp.add(displaySpecialty, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 210, 150, 20));
+
         jLabel65.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/a.jpg"))); // NOI18N
         mp.add(jLabel65, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 610, 260));
 
         jLabel61.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nn.jpg"))); // NOI18N
         jLabel61.setToolTipText("");
         jLabel61.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-        mp.add(jLabel61, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -10, 640, 510));
+        mp.add(jLabel61, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 640, 500));
 
         dashTb.addTab("myprofile", mp);
 
@@ -1609,13 +1657,30 @@ if (selectedSpecialty != null && !selectedSpecialty.trim().isEmpty()) {
     psSpec.executeUpdate();
 }
 
+// ✅ Update header label with new name
+dr.setText(change_name.getText());
 
+// After successful update in EditProfile
+name.setText(change_name.getText());
+email.setText(change_email.getText());
+contact.setText(change_contact.getText());
 
         con.commit();
 
         JOptionPane.showMessageDialog(this, "Profile updated successfully!");
         loadprofile();       // refresh My Profile
         loadProfileEdit();   // refresh Edit Profile
+        // ✅ Clear fields after save
+change_name.setText("");
+change_email.setText("");
+change_contact.setText("");
+newpass.setText("");
+confirmnewpass.setText("");
+
+// Lock fields back
+change_name.setEditable(false);
+change_email.setEditable(false);
+change_contact.setEditable(false);
     } catch (Exception e) {
         JOptionPane.showMessageDialog(this, "Error updating profile: " + e.getMessage());
     }
@@ -1657,7 +1722,8 @@ if (selectedSpecialty != null && !selectedSpecialty.trim().isEmpty()) {
     }//GEN-LAST:event_seMouseExited
 
     private void editprofileMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editprofileMouseClicked
-        dashTb.setSelectedIndex(4);
+    dashTb.setSelectedIndex(4);   // Switch to MyProfile tab
+    loadProfileDisplay();         // Load profile info automatically
     }//GEN-LAST:event_editprofileMouseClicked
 
     private void savePicHereFirstMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_savePicHereFirstMouseClicked
@@ -1669,42 +1735,56 @@ if (selectedSpecialty != null && !selectedSpecialty.trim().isEmpty()) {
     }//GEN-LAST:event_seMouseClicked
 
     private void changePhotoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_changePhotoMouseClicked
-      JFileChooser chooser = new JFileChooser();
+    JFileChooser chooser = new JFileChooser();
+    chooser.setFileFilter(
+        new javax.swing.filechooser.FileNameExtensionFilter(
+            "Image files", "jpg", "png", "jpeg", "gif"
+        )
+    );
+
     int result = chooser.showOpenDialog(this);
     if (result == JFileChooser.APPROVE_OPTION) {
         File file = chooser.getSelectedFile();
 
-        // Show preview
-        ImageIcon icon = new ImageIcon(file.getAbsolutePath());
-        icon.setDescription(file.getAbsolutePath()); // store path
+        if (file != null && file.exists()) {
+            // Show preview
+            ImageIcon icon = new ImageIcon(file.getAbsolutePath());
+            icon.setDescription(file.getAbsolutePath()); // store path
 
-        forEDITPICTURE.setIcon(resizeImage(icon, 150, 120));
-        savePicHereFirst.setIcon(resizeImage(icon, 150, 120));
+            forEDITPICTURE.setIcon(resizeImage(icon, 150, 120));
+            savePicHereFirst.setIcon(resizeImage(icon, 150, 120));
 
-        // ✅ Save path directly to DB
-        try (Connection conn = config.connectDB();
-             PreparedStatement ps = conn.prepareStatement(
-                 "UPDATE tbl_accounts SET acc_pic=? WHERE acc_id=?")) {
+            // ✅ Save path directly to DB
+            try (Connection conn = config.connectDB();
+                 PreparedStatement ps = conn.prepareStatement(
+                     "UPDATE tbl_accounts SET acc_pic=? WHERE acc_id=?")) {
 
-            ps.setString(1, file.getAbsolutePath()); // store path string
-            ps.setInt(2, session.getId());
-            ps.executeUpdate();
+                ps.setString(1, file.getAbsolutePath());
+                ps.setInt(2, session.getId());
+                ps.executeUpdate();
 
-            JOptionPane.showMessageDialog(this, "Photo saved successfully!");
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Failed to update photo.\n" + e.getMessage());
+                JOptionPane.showMessageDialog(this, "Profile photo updated successfully!");
+                loadProfileDisplay(); // refresh photo after save
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Failed to update photo.\n" + e.getMessage());
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Invalid file selected.");
         }
+    } else {
+        JOptionPane.showMessageDialog(this, "No photo selected.");
     }
     }//GEN-LAST:event_changePhotoMouseClicked
 
     private void SAVECHANGESMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SAVECHANGESMouseClicked
-          try (Connection conn = config.connectDB()) {
+     try (Connection conn = config.connectDB()) {
         conn.setAutoCommit(false);
 
+        // --- Handle photo ---
         Icon icon = savePicHereFirst.getIcon();
-        if (icon != null && icon instanceof ImageIcon) {
+        if (icon instanceof ImageIcon) {
             ImageIcon imgIcon = (ImageIcon) icon;
-            String imgPath = imgIcon.getDescription(); // ✅ now has value
+            String imgPath = imgIcon.getDescription();
 
             if (imgPath != null && !imgPath.trim().isEmpty()) {
                 PreparedStatement ps = conn.prepareStatement(
@@ -1713,19 +1793,42 @@ if (selectedSpecialty != null && !selectedSpecialty.trim().isEmpty()) {
                 ps.setString(1, imgPath);
                 ps.setInt(2, session.getId());
                 ps.executeUpdate();
-
-                conn.commit();
-
-                JOptionPane.showMessageDialog(this, "Photo saved successfully!");
-                loadprofile(); // refresh both views
-            } else {
-                JOptionPane.showMessageDialog(this, "No photo selected to save.");
             }
-        } else {
-            JOptionPane.showMessageDialog(this, "No photo selected to save.");
         }
+
+        // --- Handle password ---
+        String newPassVal = new String(newpass_myprofile.getPassword()).trim();
+        String confirmPassVal = new String(confirmpass_myprofile.getPassword()).trim();
+
+        if (!newPassVal.isEmpty() || !confirmPassVal.isEmpty()) {
+            if (newPassVal.length() < 8) {
+                JOptionPane.showMessageDialog(this, "Password must be at least 8 characters long.");
+                return;
+            }
+            if (!newPassVal.equals(confirmPassVal)) {
+                JOptionPane.showMessageDialog(this, "Passwords do not match.");
+                return;
+            }
+
+            String hashedPass = config.hashPassword(newPassVal);
+            PreparedStatement psPass = conn.prepareStatement(
+                "UPDATE tbl_accounts SET acc_pass=? WHERE acc_id=?"
+            );
+            psPass.setString(1, hashedPass);
+            psPass.setInt(2, session.getId());
+            psPass.executeUpdate();
+        }
+
+        conn.commit();
+
+        JOptionPane.showMessageDialog(this, "Profile updated successfully!");
+        loadprofile(); // refresh profile info
+
+        // ✅ Clear password fields
+        newpass_myprofile.setText("");
+        confirmpass_myprofile.setText("");
     } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error saving photo: " + e.getMessage());
+        JOptionPane.showMessageDialog(this, "Error saving changes: " + e.getMessage());
     }
     }//GEN-LAST:event_SAVECHANGESMouseClicked
 
@@ -1773,62 +1876,59 @@ if (selectedSpecialty != null && !selectedSpecialty.trim().isEmpty()) {
     } else {
         // No changes → just reload silently
         loadprofile();
+        loadProfileDisplay(); // refresh both main and circle profile photos
+
     }
     }//GEN-LAST:event_cancelMYprofileMouseClicked
 
     private void jLabel68MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel68MouseClicked
-     JFileChooser chooser = new JFileChooser();
-        chooser.setFileFilter(
-            new javax.swing.filechooser.FileNameExtensionFilter(
-                "Image files", "jpg", "png", "jpeg", "gif"
-            )
-        );
+    JFileChooser chooser = new JFileChooser();
+    chooser.setFileFilter(
+        new javax.swing.filechooser.FileNameExtensionFilter(
+            "Image files", "jpg", "png", "jpeg", "gif"
+        )
+    );
 
-        int result = chooser.showOpenDialog(this);
+    int result = chooser.showOpenDialog(this);
 
-        if (result == JFileChooser.APPROVE_OPTION) {
+    if (result == JFileChooser.APPROVE_OPTION) {
+        String path = chooser.getSelectedFile().getAbsolutePath();
 
-            String path = chooser.getSelectedFile().getAbsolutePath();
+        try (Connection con = config.connectDB();
+             PreparedStatement pst = con.prepareStatement(
+                 "UPDATE tbl_accounts SET acc_pic = ? WHERE acc_id = ?"
+             )) {
 
-            // Save path to DB
-            try {
-                config db = new config();
-                Connection con = db.connectDB();
+            pst.setString(1, path);
+            pst.setInt(2, session.getId());
+            pst.executeUpdate();
 
-                String sql = "UPDATE tbl_accounts SET acc_pic = ? WHERE acc_id = ?";
-                PreparedStatement pst = con.prepareStatement(sql);
+            // ✅ Commit changes
+            con.commit();
 
-                pst.setString(1, path);
-                pst.setInt(2, session.getId());
+            // ✅ Reload picture in UI
+            loadProfileDisplay();
 
-                pst.executeUpdate();
+            JOptionPane.showMessageDialog(
+                this,
+                "Profile picture updated successfully!"
+            );
 
-                pst.close();
-                con.close();
-
-                // Reload picture
-                loadprofile();
-
-                JOptionPane.showMessageDialog(
-                    this,
-                    "Profile picture updated!"
-                );
-
-            } catch (Exception ex) {
-
-                JOptionPane.showMessageDialog(
-                    this,
-                    "Error: " + ex.getMessage()
-                );
-
-                ex.printStackTrace();
-            }
-
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(
+                this,
+                "Error saving photo: " + ex.getMessage()
+            );
+            ex.printStackTrace();
         }
+    } else {
+        // User cancelled the file chooser
+        JOptionPane.showMessageDialog(this, "No photo selected.");
+    }
     }//GEN-LAST:event_jLabel68MouseClicked
 
     private void cancelChangesEditProfileMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cancelChangesEditProfileMouseClicked
-      // Get current values from Edit Profile fields
+  // Get current values from Edit Profile fields
     String currentName = change_name.getText().trim();
     String currentEmail = change_email.getText().trim();
     String currentContact = change_contact.getText().trim();
@@ -1857,7 +1957,6 @@ if (selectedSpecialty != null && !selectedSpecialty.trim().isEmpty()) {
 
     // --- Validation result ---
     if (modified) {
-        // Ask for confirmation before discarding changes
         int choice = JOptionPane.showConfirmDialog(
             this,
             "You have unsaved changes. Do you really want to cancel?",
@@ -1866,16 +1965,15 @@ if (selectedSpecialty != null && !selectedSpecialty.trim().isEmpty()) {
         );
 
         if (choice == JOptionPane.YES_OPTION) {
-            loadprofile(); // reload original DB values
+            loadProfileDisplay(); // reload original DB values including photo
             JOptionPane.showMessageDialog(this, "Changes discarded.");
         }
     } else {
         // No modifications → just reload profile silently
-        loadprofile();
+        loadProfileDisplay();
     }
 
     // 🔒 Always lock fields back after cancel
-
     change_name.setEditable(false);
     change_email.setEditable(false);
     change_contact.setEditable(false);
@@ -2283,10 +2381,10 @@ private void loadProfileEdit() {
             forEDITPICTURE.setIcon(resizeImage(icon, 150, 120));
         }
 
-String sqlDentist = "SELECT specialty FROM tbl_dentists WHERE dentist_id=?";
-PreparedStatement psDent = con.prepareStatement(sqlDentist);
-psDent.setInt(1, session.getId());
-ResultSet rsDent = psDent.executeQuery();
+            String sqlDentist = "SELECT specialty FROM tbl_dentists WHERE dentist_id=?";
+            PreparedStatement psDent = con.prepareStatement(sqlDentist);
+            psDent.setInt(1, session.getId());
+            ResultSet rsDent = psDent.executeQuery();
 
         if (rsDent.next()) {
             String specialty = rsDent.getString("specialty");
@@ -2302,7 +2400,7 @@ ResultSet rsDent = psDent.executeQuery();
 
 
 
-private void saveProfilePhoto(File file) {
+    private void saveProfilePhoto(File file) {
     try (Connection conn = config.connectDB();
          PreparedStatement ps = conn.prepareStatement(
              // ✅ Use the correct column name
@@ -2325,6 +2423,39 @@ private void saveProfilePhoto(File file) {
         JOptionPane.showMessageDialog(null, "Failed to update photo.\n" + e.getMessage());
     }
 }
+     private void loadProfileDisplay() {
+    try (Connection conn = config.connectDB();
+         PreparedStatement ps = conn.prepareStatement(
+             "SELECT acc_name, acc_email, acc_contact, acc_pic FROM tbl_accounts WHERE acc_id=?"
+         )) {
+
+        ps.setInt(1, session.getId());
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            // Load text info
+            name.setText(rs.getString("acc_name"));
+            email.setText(rs.getString("acc_email"));
+            contact.setText(rs.getString("acc_contact"));
+
+            // Load profile picture
+            String imgPath = rs.getString("acc_pic");
+            if (imgPath != null && !imgPath.trim().isEmpty()) {
+            ImageIcon icon = new ImageIcon(imgPath);
+            ImageIcon resized = resizeImage(icon, 150, 120);
+            forEDITPICTURE.setIcon(resized);
+            savePicHereFirst.setIcon(resized);
+            
+            
+            }
+        }
+
+
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Failed to load profile info.\n" + e.getMessage());
+    }
+}
+
 
     /**
      * @param args the command line arguments
@@ -2392,8 +2523,10 @@ private void saveProfilePhoto(File file) {
     private javax.swing.JTextField change_email;
     private javax.swing.JTextField change_name;
     private javax.swing.JPanel change_photo;
+    private javax.swing.JLabel cicrcle_profile;
     private javax.swing.JLabel completed;
     private javax.swing.JTextField confirmnewpass;
+    private javax.swing.JPasswordField confirmpass_myprofile;
     private javax.swing.JLabel contact;
     private javax.swing.JTabbedPane dashTb;
     private javax.swing.JPanel dashbox;
@@ -2401,6 +2534,7 @@ private void saveProfilePhoto(File file) {
     private javax.swing.JPanel dashpnl;
     private javax.swing.JPanel db;
     private javax.swing.JLabel dentist;
+    private javax.swing.JLabel displaySpecialty;
     private javax.swing.JLabel dr;
     private javax.swing.JLabel editprofile;
     private javax.swing.JLabel email;
@@ -2455,7 +2589,6 @@ private void saveProfilePhoto(File file) {
     private javax.swing.JLabel jLabel52;
     private javax.swing.JLabel jLabel53;
     private javax.swing.JLabel jLabel54;
-    private javax.swing.JLabel jLabel58;
     private javax.swing.JLabel jLabel59;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel60;
@@ -2508,8 +2641,6 @@ private void saveProfilePhoto(File file) {
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
-    private javax.swing.JPasswordField jPasswordField1;
-    private javax.swing.JPasswordField jPasswordField2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -2524,6 +2655,7 @@ private void saveProfilePhoto(File file) {
     private javax.swing.JPanel mpa;
     private javax.swing.JLabel name;
     private javax.swing.JTextField newpass;
+    private javax.swing.JPasswordField newpass_myprofile;
     private javax.swing.JLabel p;
     private javax.swing.JPanel patient;
     private javax.swing.JPanel patient1;
