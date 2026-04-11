@@ -32,6 +32,7 @@ import javax.swing.table.JTableHeader;
 import java.awt.image.BufferedImage;
 import java.sql.Statement;
 import javax.imageio.ImageIO;
+import javax.swing.table.TableColumnModel;
 
 /**
  *
@@ -41,6 +42,14 @@ public class admin extends javax.swing.JFrame {
  int xMouse, yMouse;
  private int selectedAccId;
 
+private String mapIntToStatus(int status) {
+    switch (status) {
+        case 1: return "active";
+        case 0: return "inactive";
+        case 2: return "suspended";
+        default: return "inactive"; // sensible fallback
+    }
+}
 
 
 private String selectedPhotoPath;
@@ -57,15 +66,14 @@ private boolean isValidEmail(String email) {
     
     
 }
-// --- Map Status ComboBox to DB values ---
 private int mapStatusToInt(String status) {
     switch (status.toLowerCase()) {
         case "active": return 1;
         case "inactive": return 0;
         case "suspended": return 2;
-        default: return 0; // fallback
+        default: return 0;
     }
-    
+
     
 }
 // --- Map Role ComboBox (with emoji) to DB values ---
@@ -95,9 +103,28 @@ private String mapRoleToDb(String roleWithEmoji) {
       
        refreshProfile();
        applyStaffDentistFilter();
-       filterUsers();
+       loadAllUsers();
+      
+       loadProfileDisplay();
+       loadDentistAvailable(); // ✅ show available dentists count
        
+       
+       
+      setDentist_specialty.setModel(new DefaultComboBoxModel<>(
+    new String[] {
+        "General Dentistry",
+        "Cosmetic Dentistry",
+        "Oral Surgery",
+        "Endodontics",
+        "Prosthodontics",
+        "Orthodontics"
+    }
+));
 
+    // ✅ Insert here — after initComponents()
+    editUser_status.setModel(new DefaultComboBoxModel<>(
+        new String[] { "active", "inactive", "suspended" }
+    ));
 
        
      // ✅ Role dropdown with All, Admin, Dentist, Staff, Patient
@@ -196,6 +223,7 @@ edit_email.addFocusListener(new java.awt.event.FocusAdapter() {
         saveEditedUserRoleStatus();
     }
 });
+
 
 
 
@@ -344,11 +372,11 @@ private void initStaffDentistSearchPlaceholder() {
 private void performSearch(String search1) {
     String sql;
     String baseQuery =
-        "SELECT acc_id AS id, " +
-        "acc_name AS name, " +
-        "acc_email AS email, " +
-        "acc_contact AS contact, " +
-        "acc_role AS role, " +
+        "SELECT acc_id AS Id, " +
+        "acc_name AS Name, " +
+        "acc_email AS Email, " +
+        "acc_contact AS Contact, " +
+        "acc_role AS Role, " +
         "CASE acc_status " +
         "     WHEN 1 THEN 'Active' " +
         "     WHEN 0 THEN 'Inactive' " +
@@ -378,6 +406,15 @@ private void performSearch(String search1) {
 
             // Apply renderer to the status column
             tbl.getColumnModel().getColumn(5).setCellRenderer(new StatusCellRenderer());
+                // ✅ Add column width adjustments here
+    tbl.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+    TableColumnModel columnModel = tbl.getColumnModel();
+    columnModel.getColumn(0).setPreferredWidth(50);   // id
+    columnModel.getColumn(1).setPreferredWidth(150);  // name
+    columnModel.getColumn(2).setPreferredWidth(250);  // email
+    columnModel.getColumn(3).setPreferredWidth(150);  // contact
+    columnModel.getColumn(4).setPreferredWidth(100);  // role
+    columnModel.getColumn(5).setPreferredWidth(100);  // status
         }
 
     } catch (Exception e) {
@@ -528,15 +565,15 @@ private void loadAdminProfile() {
         jPanel8 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
-        jLabel123 = new javax.swing.JLabel();
+        todays_appointment = new javax.swing.JLabel();
         jPanel9 = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
-        jLabel124 = new javax.swing.JLabel();
+        patients_in_waiting = new javax.swing.JLabel();
         jPanel10 = new javax.swing.JPanel();
         jLabel12 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
-        jLabel125 = new javax.swing.JLabel();
+        Dentist_available = new javax.swing.JLabel();
         jScrollPane4 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jScrollPane5 = new javax.swing.JScrollPane();
@@ -806,6 +843,59 @@ private void loadAdminProfile() {
         jPanel63 = new javax.swing.JPanel();
         saveNewstaff = new javax.swing.JLabel();
         jLabel103 = new javax.swing.JLabel();
+        jPanel65 = new javax.swing.JPanel();
+        jPanel66 = new javax.swing.JPanel();
+        jPanel69 = new javax.swing.JPanel();
+        jLabel127 = new javax.swing.JLabel();
+        jLabel128 = new javax.swing.JLabel();
+        jPanel70 = new javax.swing.JPanel();
+        jLabel129 = new javax.swing.JLabel();
+        jLabel130 = new javax.swing.JLabel();
+        jLabel131 = new javax.swing.JLabel();
+        jLabel132 = new javax.swing.JLabel();
+        jLabel133 = new javax.swing.JLabel();
+        jLabel134 = new javax.swing.JLabel();
+        jLabel135 = new javax.swing.JLabel();
+        jPanel71 = new javax.swing.JPanel();
+        staff_role = new javax.swing.JLabel();
+        staff_stat = new javax.swing.JComboBox<>();
+        staff_name = new javax.swing.JLabel();
+        staff_email = new javax.swing.JLabel();
+        staff_contact = new javax.swing.JLabel();
+        jPanel77 = new javax.swing.JPanel();
+        saveEdit_staff = new javax.swing.JLabel();
+        jPanel78 = new javax.swing.JPanel();
+        cancelEditStaff = new javax.swing.JLabel();
+        jLabel126 = new javax.swing.JLabel();
+        jPanel72 = new javax.swing.JPanel();
+        jPanel73 = new javax.swing.JPanel();
+        jPanel74 = new javax.swing.JPanel();
+        jLabel136 = new javax.swing.JLabel();
+        jLabel137 = new javax.swing.JLabel();
+        jPanel75 = new javax.swing.JPanel();
+        jLabel139 = new javax.swing.JLabel();
+        jLabel140 = new javax.swing.JLabel();
+        jLabel141 = new javax.swing.JLabel();
+        jLabel142 = new javax.swing.JLabel();
+        jLabel143 = new javax.swing.JLabel();
+        jLabel144 = new javax.swing.JLabel();
+        jLabel145 = new javax.swing.JLabel();
+        jPanel76 = new javax.swing.JPanel();
+        dentist_role = new javax.swing.JLabel();
+        dentist_stat = new javax.swing.JComboBox<>();
+        dentist_name = new javax.swing.JLabel();
+        dentist_email = new javax.swing.JLabel();
+        dentist_contact = new javax.swing.JLabel();
+        jPanel79 = new javax.swing.JPanel();
+        saveEdit_dentist = new javax.swing.JLabel();
+        jPanel80 = new javax.swing.JPanel();
+        cancelsave_dentist = new javax.swing.JLabel();
+        jLabel147 = new javax.swing.JLabel();
+        setDentist_specialty = new javax.swing.JComboBox<>();
+        jLabel138 = new javax.swing.JLabel();
+        jPanel81 = new javax.swing.JPanel();
+        jPanel82 = new javax.swing.JPanel();
+        jLabel146 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
@@ -1166,8 +1256,8 @@ private void loadAdminProfile() {
         jLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-appointment-25.png"))); // NOI18N
         jPanel8.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 60, 50));
 
-        jLabel123.setText("jLabel123");
-        jPanel8.add(jLabel123, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 40, -1, -1));
+        todays_appointment.setText("jLabel123");
+        jPanel8.add(todays_appointment, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 26, -1, 30));
 
         db.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, 200, 60));
 
@@ -1178,13 +1268,13 @@ private void loadAdminProfile() {
         jLabel7.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
         jLabel7.setForeground(new java.awt.Color(51, 51, 255));
         jLabel7.setText("Patient's In Waiting");
-        jPanel9.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 0, -1, 40));
+        jPanel9.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, -1, 40));
 
         jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-waiting-room-25.png"))); // NOI18N
-        jPanel9.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 60, 50));
+        jPanel9.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 0, 60, 50));
 
-        jLabel124.setText("jLabel124");
-        jPanel9.add(jLabel124, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 40, -1, -1));
+        patients_in_waiting.setText("jLabel124");
+        jPanel9.add(patients_in_waiting, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 30, -1, 30));
 
         db.add(jPanel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 60, 200, 60));
 
@@ -1193,15 +1283,16 @@ private void loadAdminProfile() {
         jPanel10.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel12.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-dentist-25.png"))); // NOI18N
-        jPanel10.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 70, 50));
+        jPanel10.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 0, 70, 50));
 
         jLabel8.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
         jLabel8.setForeground(new java.awt.Color(51, 51, 255));
         jLabel8.setText("Dentist Available");
-        jPanel10.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 0, -1, 40));
+        jPanel10.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, -1, 40));
 
-        jLabel125.setText("jLabel125");
-        jPanel10.add(jLabel125, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 40, -1, -1));
+        Dentist_available.setFont(new java.awt.Font("Times New Roman", 1, 15)); // NOI18N
+        Dentist_available.setText("jLabel125");
+        jPanel10.add(Dentist_available, new org.netbeans.lib.awtextra.AbsoluteConstraints(75, 30, -1, 30));
 
         db.add(jPanel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 60, 200, 60));
 
@@ -1254,7 +1345,7 @@ private void loadAdminProfile() {
         db.add(jScrollPane7, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 340, 300, 120));
 
         jLabel32.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nn.jpg"))); // NOI18N
-        db.add(jLabel32, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -4, 650, 140));
+        db.add(jLabel32, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -4, 640, 140));
 
         tabbed.addTab("db", db);
 
@@ -1389,8 +1480,8 @@ private void loadAdminProfile() {
 
         jLabel31.setForeground(new java.awt.Color(204, 204, 204));
         jLabel31.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel31.setText("__________________________________________________________________________________________");
-        users.add(jLabel31, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 130, -1, 60));
+        jLabel31.setText("_____________________________________________________________________________________________");
+        users.add(jLabel31, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 130, -1, 60));
 
         allUsers.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All", "Admin", "Dentist", "Staff" }));
         allUsers.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255), 2));
@@ -1433,6 +1524,11 @@ private void loadAdminProfile() {
         editstaff.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         editstaff.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-edit-20.png"))); // NOI18N
         editstaff.setText("Edit Staff");
+        editstaff.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                editstaffMouseClicked(evt);
+            }
+        });
         jPanel5.add(editstaff, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 160, 30));
 
         staffmanage.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 70, 160, 30));
@@ -2032,7 +2128,7 @@ private void loadAdminProfile() {
         jPanel49.add(jPanel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 220, 270, 30));
 
         jLabel84.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nn.jpg"))); // NOI18N
-        jPanel49.add(jLabel84, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 640, 490));
+        jPanel49.add(jLabel84, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 650, 490));
 
         mp1.add(jPanel49, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -10, 650, 480));
 
@@ -2249,7 +2345,7 @@ private void loadAdminProfile() {
         jLabel110.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
         jLabel110.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-user-24.png"))); // NOI18N
         jLabel110.setText("Role:");
-        jPanel47.add(jLabel110, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 160, 90, -1));
+        jPanel47.add(jLabel110, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 160, 90, 30));
 
         jLabel111.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
         jLabel111.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-user-male-24.png"))); // NOI18N
@@ -2645,7 +2741,7 @@ private void loadAdminProfile() {
         jPanel64.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         cancelAddingstaf.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
-        cancelAddingstaf.setForeground(new java.awt.Color(51, 51, 51));
+        cancelAddingstaf.setForeground(new java.awt.Color(102, 102, 102));
         cancelAddingstaf.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         cancelAddingstaf.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-cancel-24.png"))); // NOI18N
         cancelAddingstaf.setText("Cancel");
@@ -2654,9 +2750,9 @@ private void loadAdminProfile() {
                 cancelAddingstafMouseClicked(evt);
             }
         });
-        jPanel64.add(cancelAddingstaf, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 30));
+        jPanel64.add(cancelAddingstaf, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 100, 30));
 
-        jPanel60.add(jPanel64, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 300, 90, 30));
+        jPanel60.add(jPanel64, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 300, 100, 30));
 
         jPanel63.setBackground(new java.awt.Color(0, 153, 0));
         jPanel63.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -2674,7 +2770,7 @@ private void loadAdminProfile() {
         });
         jPanel63.add(saveNewstaff, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 100, 30));
 
-        jPanel60.add(jPanel63, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 300, 100, 30));
+        jPanel60.add(jPanel63, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 300, 100, 30));
 
         jPanel52.add(jPanel60, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 80, 540, 350));
 
@@ -2684,6 +2780,263 @@ private void loadAdminProfile() {
         jPanel51.add(jPanel52, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 650, 470));
 
         tabbed.addTab("AS", jPanel51);
+
+        jPanel65.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel66.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel69.setBackground(new java.awt.Color(0, 0, 204));
+        jPanel69.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel127.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-edit-pencil-50.png"))); // NOI18N
+        jPanel69.add(jLabel127, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 0, 60, 70));
+
+        jLabel128.setFont(new java.awt.Font("Trebuchet MS", 1, 20)); // NOI18N
+        jLabel128.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel128.setText("Edit Staff");
+        jPanel69.add(jLabel128, new org.netbeans.lib.awtextra.AbsoluteConstraints(96, 0, 90, 70));
+
+        jPanel66.add(jPanel69, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 10, 540, 70));
+
+        jPanel70.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel70.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
+        jPanel70.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel129.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
+        jLabel129.setText("Name:");
+        jPanel70.add(jLabel129, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 40, -1, 40));
+
+        jLabel130.setForeground(new java.awt.Color(204, 204, 204));
+        jLabel130.setText("___________________________________________________________________");
+        jPanel70.add(jLabel130, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 60, -1, 30));
+
+        jLabel131.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
+        jLabel131.setText("Email:");
+        jPanel70.add(jLabel131, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 86, -1, 30));
+
+        jLabel132.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
+        jLabel132.setText("Contact:");
+        jPanel70.add(jLabel132, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 121, -1, 30));
+
+        jLabel133.setForeground(new java.awt.Color(204, 204, 204));
+        jLabel133.setText("___________________________________________________________________");
+        jPanel70.add(jLabel133, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 136, -1, 30));
+
+        jLabel134.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
+        jLabel134.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-user-male-24.png"))); // NOI18N
+        jLabel134.setText("Status");
+        jPanel70.add(jLabel134, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 210, 90, 30));
+
+        jLabel135.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
+        jLabel135.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-user-24.png"))); // NOI18N
+        jLabel135.setText("Role");
+        jPanel70.add(jLabel135, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 170, 80, 30));
+
+        jPanel71.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel71.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255), 2));
+        jPanel71.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        staff_role.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        staff_role.setText("jLabel139");
+        jPanel71.add(staff_role, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 170, 30));
+
+        jPanel70.add(jPanel71, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 170, 260, 30));
+
+        staff_stat.setFont(new java.awt.Font("Trebuchet MS", 0, 16)); // NOI18N
+        staff_stat.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "active", "inactive", "suspended" }));
+        staff_stat.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255), 2));
+        jPanel70.add(staff_stat, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 210, 260, 30));
+
+        staff_name.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        staff_name.setText("jLabel136");
+        jPanel70.add(staff_name, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 40, 290, 40));
+
+        staff_email.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        staff_email.setText("jLabel137");
+        jPanel70.add(staff_email, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 80, 310, 40));
+
+        staff_contact.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        staff_contact.setText("jLabel138");
+        jPanel70.add(staff_contact, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 120, 290, 30));
+
+        jPanel77.setBackground(new java.awt.Color(0, 153, 0));
+        jPanel77.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        saveEdit_staff.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
+        saveEdit_staff.setForeground(new java.awt.Color(255, 255, 255));
+        saveEdit_staff.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        saveEdit_staff.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-check-24.png"))); // NOI18N
+        saveEdit_staff.setText("Save");
+        saveEdit_staff.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                saveEdit_staffMouseClicked(evt);
+            }
+        });
+        jPanel77.add(saveEdit_staff, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 100, 30));
+
+        jPanel70.add(jPanel77, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 300, 100, 30));
+
+        jPanel78.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel78.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
+        jPanel78.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        cancelEditStaff.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
+        cancelEditStaff.setForeground(new java.awt.Color(102, 102, 102));
+        cancelEditStaff.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        cancelEditStaff.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-cancel-24.png"))); // NOI18N
+        cancelEditStaff.setText("Cancel");
+        cancelEditStaff.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cancelEditStaffMouseClicked(evt);
+            }
+        });
+        jPanel78.add(cancelEditStaff, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 100, 30));
+
+        jPanel70.add(jPanel78, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 300, 100, 30));
+
+        jPanel66.add(jPanel70, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 80, 540, 350));
+
+        jLabel126.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nn.jpg"))); // NOI18N
+        jPanel66.add(jLabel126, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -4, 650, 480));
+
+        jPanel65.add(jPanel66, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 650, 470));
+
+        tabbed.addTab("ES", jPanel65);
+
+        jPanel72.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel73.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel74.setBackground(new java.awt.Color(0, 0, 204));
+        jPanel74.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel136.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-edit-pencil-50.png"))); // NOI18N
+        jPanel74.add(jLabel136, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 0, 60, 70));
+
+        jLabel137.setFont(new java.awt.Font("Trebuchet MS", 1, 20)); // NOI18N
+        jLabel137.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel137.setText("Edit Dentist");
+        jPanel74.add(jLabel137, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 0, 120, 70));
+
+        jPanel73.add(jPanel74, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 10, 540, 70));
+
+        jPanel75.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel75.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
+        jPanel75.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel139.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
+        jLabel139.setText("Name:");
+        jPanel75.add(jLabel139, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 50, -1, 30));
+
+        jLabel140.setForeground(new java.awt.Color(204, 204, 204));
+        jLabel140.setText("___________________________________________________________________");
+        jPanel75.add(jLabel140, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 70, -1, -1));
+
+        jLabel141.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
+        jLabel141.setText("Email:");
+        jPanel75.add(jLabel141, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 90, 50, 30));
+
+        jLabel142.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
+        jLabel142.setText("Contact:");
+        jPanel75.add(jLabel142, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 120, -1, 40));
+
+        jLabel143.setForeground(new java.awt.Color(204, 204, 204));
+        jLabel143.setText("___________________________________________________________________");
+        jPanel75.add(jLabel143, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 136, -1, 30));
+
+        jLabel144.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
+        jLabel144.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-user-24.png"))); // NOI18N
+        jLabel144.setText("Role:");
+        jPanel75.add(jLabel144, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 210, 100, 30));
+
+        jLabel145.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
+        jLabel145.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-user-male-24.png"))); // NOI18N
+        jLabel145.setText("Status");
+        jPanel75.add(jLabel145, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 250, 80, 30));
+
+        jPanel76.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel76.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255), 2));
+        jPanel76.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        dentist_role.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        dentist_role.setText("jLabel146");
+        jPanel76.add(dentist_role, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 170, 30));
+
+        jPanel75.add(jPanel76, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 210, 230, 30));
+
+        dentist_stat.setFont(new java.awt.Font("Trebuchet MS", 0, 16)); // NOI18N
+        dentist_stat.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "active", "inactive", "suspended" }));
+        dentist_stat.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255), 2));
+        jPanel75.add(dentist_stat, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 250, 230, 30));
+
+        dentist_name.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        dentist_name.setText("jLabel146");
+        jPanel75.add(dentist_name, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 50, 240, 30));
+
+        dentist_email.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        dentist_email.setText("jLabel147");
+        jPanel75.add(dentist_email, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 90, 250, 30));
+
+        dentist_contact.setText("jLabel148");
+        jPanel75.add(dentist_contact, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 126, 210, 30));
+
+        jPanel79.setBackground(new java.awt.Color(0, 153, 0));
+        jPanel79.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        saveEdit_dentist.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
+        saveEdit_dentist.setForeground(new java.awt.Color(255, 255, 255));
+        saveEdit_dentist.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        saveEdit_dentist.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-check-24.png"))); // NOI18N
+        saveEdit_dentist.setText("Save");
+        saveEdit_dentist.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                saveEdit_dentistMouseClicked(evt);
+            }
+        });
+        jPanel79.add(saveEdit_dentist, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 0, 90, 30));
+
+        jPanel75.add(jPanel79, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 300, 100, 30));
+
+        jPanel80.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel80.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
+        jPanel80.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        cancelsave_dentist.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
+        cancelsave_dentist.setForeground(new java.awt.Color(102, 102, 102));
+        cancelsave_dentist.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        cancelsave_dentist.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-cancel-24.png"))); // NOI18N
+        cancelsave_dentist.setText("Cancel");
+        jPanel80.add(cancelsave_dentist, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 100, 30));
+
+        jPanel75.add(jPanel80, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 300, 100, 30));
+
+        jLabel147.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
+        jLabel147.setText("Set Specialty:");
+        jPanel75.add(jLabel147, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 176, -1, 20));
+
+        setDentist_specialty.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
+        setDentist_specialty.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "General Dentistry", "Cosmetic Dentistry", "Oral Surgery", "Endodontics", "Prosthodontics", "Orthodontics" }));
+        jPanel75.add(setDentist_specialty, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 170, 230, 30));
+
+        jPanel73.add(jPanel75, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 80, 540, 350));
+
+        jLabel138.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nn.jpg"))); // NOI18N
+        jPanel73.add(jLabel138, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 650, 470));
+
+        jPanel72.add(jPanel73, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 650, 470));
+
+        tabbed.addTab("ED", jPanel72);
+
+        jPanel81.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel82.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel146.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nn.jpg"))); // NOI18N
+        jPanel82.add(jLabel146, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 650, 470));
+
+        jPanel81.add(jPanel82, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 650, 470));
+
+        tabbed.addTab("EA", jPanel81);
 
         bg.add(tabbed, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 20, 640, 500));
 
@@ -3280,43 +3633,50 @@ private void loadAdminProfile() {
     }//GEN-LAST:event_searchKeyTyped
 
     private void searchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_searchKeyReleased
-        String search1 = search.getText().trim();
-        String sql;
+    String search1 = search.getText().trim();
+    String sql;
 
-        String baseQuery =
+    String baseQuery =
         "SELECT acc_id AS id, " +
         "acc_name AS name, " +
         "acc_email AS email, " +
         "acc_contact AS contact, " +
         "acc_role AS role, " +
-        "acc_status AS status " +
+        "CASE acc_status " +
+        "     WHEN 1 THEN 'Active' " +
+        "     WHEN 0 THEN 'Inactive' " +
+        "     WHEN 2 THEN 'Suspended' " +
+        "END AS status " +
         "FROM tbl_accounts";
 
-        if (search1.isEmpty() || search1.equals("🔎 Search accounts by name, ID, or email...")) {
-            sql = baseQuery;
-        } else {
-            sql = baseQuery + " WHERE acc_name LIKE ? OR acc_id LIKE ? OR acc_email LIKE ?";
+    if (search1.isEmpty() || search1.equals("🔎 Search accounts by name, ID, or email...")) {
+        sql = baseQuery;
+    } else {
+        sql = baseQuery + " WHERE acc_name LIKE ? OR acc_id LIKE ? OR acc_email LIKE ?";
+    }
+
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(sql)) {
+
+        if (!search1.isEmpty() && !search1.equals("🔎 Search accounts by name, ID, or email...")) {
+            String keyword = "%" + search1 + "%";
+            pst.setString(1, keyword);
+            pst.setString(2, keyword);
+            pst.setString(3, keyword);
         }
 
-        try (Connection con = config.connectDB();
-            PreparedStatement pst = con.prepareStatement(sql)) {
+        try (ResultSet rs = pst.executeQuery()) {
+            tbl.setModel(DbUtils.resultSetToTableModel(rs));
+            tbl.setDefaultEditor(Object.class, null);
 
-            if (!search1.isEmpty() && !search1.equals("🔎 Search accounts by name, ID, or email...")) {
-                String keyword = "%" + search1 + "%";
-                pst.setString(1, keyword);
-                pst.setString(2, keyword);
-                pst.setString(3, keyword);
-            }
-
-            try (ResultSet rs = pst.executeQuery()) {
-                tbl.setModel(DbUtils.resultSetToTableModel(rs));
-                tbl.setDefaultEditor(Object.class, null);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Search error: " + e.getMessage());
+            // Apply renderer to status column for color coding
+            tbl.getColumnModel().getColumn(5).setCellRenderer(new StatusCellRenderer());
         }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        System.out.println("Search error: " + e.getMessage());
+    }
     }//GEN-LAST:event_searchKeyReleased
 
     private void deleteMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_deleteMouseExited
@@ -3533,7 +3893,87 @@ private void loadAdminProfile() {
     JOptionPane.showMessageDialog(this, "Adding staff cancelled.", 
                                   "Cancelled", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_cancelAddingstafMouseClicked
-private void acctable() {
+
+    private void editstaffMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editstaffMouseClicked
+     int selectedRow = staff_dentist_table.getSelectedRow();
+
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this, "Please select a staff or dentist account first.");
+        return;
+    }
+
+    // Extract values from table
+    String id = staff_dentist_table.getValueAt(selectedRow, 0).toString();
+    String name = staff_dentist_table.getValueAt(selectedRow, 1).toString();
+    String email = staff_dentist_table.getValueAt(selectedRow, 2).toString();
+    String contact = staff_dentist_table.getValueAt(selectedRow, 3).toString();
+    String role = staff_dentist_table.getValueAt(selectedRow, 4).toString();
+    String status = staff_dentist_table.getValueAt(selectedRow, 5).toString();
+
+    // ✅ Display values in labels
+    staff_name.setText(name);
+    staff_email.setText(email);
+    staff_contact.setText(contact);
+    staff_role.setText(role);
+
+    // ✅ Status remains editable
+    staff_stat.setSelectedItem(status.toLowerCase());
+
+    // ✅ Store selected account ID for saving later
+    selectedAccId = Integer.parseInt(id);
+
+    // ✅ Switch to correct tab
+    switch (role.toLowerCase()) {
+        case "staff":   tabbed.setSelectedIndex(12); break;
+        case "dentist": tabbed.setSelectedIndex(13); break;
+        case "admin":   tabbed.setSelectedIndex(14); break;
+    }
+    }//GEN-LAST:event_editstaffMouseClicked
+
+    private void saveEdit_staffMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveEdit_staffMouseClicked
+       if (selectedAccId <= 0) {
+        JOptionPane.showMessageDialog(this, "No staff/dentist selected.");
+        return;
+    }
+
+    // ✅ Use staff_stat combo box
+    String newStatus = staff_stat.getSelectedItem().toString().trim();
+    editStaffStatus(selectedAccId, newStatus);
+    }//GEN-LAST:event_saveEdit_staffMouseClicked
+
+    private void cancelEditStaffMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cancelEditStaffMouseClicked
+     // ✅ Validation: only allow cancel if a staff/dentist was selected
+    if (selectedAccId <= 0) {
+        JOptionPane.showMessageDialog(this, "No staff/dentist is currently being edited.");
+        return;
+    }
+
+    // ✅ Switch back to Workforce Management tab (assuming index 11)
+    tabbed.setSelectedIndex(2);
+
+    // ✅ Reset only the editable field (status combo box)
+    staff_stat.setSelectedIndex(-1);
+
+    // ✅ Reset ID so no stale selection remains
+    selectedAccId = -1;
+
+    JOptionPane.showMessageDialog(this, "Edit cancelled. Returning to Workforce Management.");
+    }//GEN-LAST:event_cancelEditStaffMouseClicked
+
+    private void saveEdit_dentistMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveEdit_dentistMouseClicked
+      if (selectedAccId <= 0) {
+        JOptionPane.showMessageDialog(this, "No dentist selected.");
+        return;
+    }
+
+    String newStatus = dentist_stat.getSelectedItem().toString().trim();
+    String newSpecialty = setDentist_specialty.getSelectedItem().toString().trim();
+
+    editDentistStatusAndSpecialty(selectedAccId, newStatus, newSpecialty);;
+    }//GEN-LAST:event_saveEdit_dentistMouseClicked
+
+    
+    private void acctable() {
     String sql =
         "SELECT acc_id AS Id, " +
         "acc_name AS name, " +
@@ -3900,7 +4340,7 @@ private void saveNewUser() {
   private void staffDentistTable() {
     String sql =
         "SELECT acc_id AS Id, " +
-        "acc_name AS name, " +
+        "acc_name AS Name, " +
         "acc_email AS Email, " +
         "acc_contact AS Contact, " +
         "acc_role AS Role, " +
@@ -3918,27 +4358,29 @@ private void saveNewUser() {
 
         staff_dentist_table.setModel(DbUtils.resultSetToTableModel(rs));
 
-        // ✅ Professional UI styling (same as acctable)
-        staff_dentist_table.setRowHeight(28);
-        staff_dentist_table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        staff_dentist_table.setGridColor(Color.LIGHT_GRAY);
-        staff_dentist_table.setShowGrid(true);
+// Professional dental health styling
+staff_dentist_table.setRowHeight(28);
+staff_dentist_table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+staff_dentist_table.setGridColor(new Color(220, 220, 220));
+staff_dentist_table.setShowGrid(true);
 
-        JTableHeader header = staff_dentist_table.getTableHeader();
-        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        header.setBackground(new Color(200, 230, 240)); // soft dental blue
-        header.setForeground(Color.BLACK);
-
+// Header styling
+JTableHeader header = staff_dentist_table.getTableHeader();
+header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+header.setBackground(new Color(200, 230, 240)); // soft healthcare blue
+header.setForeground(Color.DARK_GRAY);
         // Alternate row colors
         staff_dentist_table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            
+            
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
                     boolean isSelected, boolean hasFocus, int row, int column) {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 if (!isSelected) {
-                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(245, 255, 255));
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(245, 245, 245));
                 } else {
-                    c.setBackground(new Color(180, 220, 200)); // soft green highlight
+                    c.setBackground(new Color(184, 207, 229)); // soft green highlight
                 }
                 return c;
             }
@@ -3968,6 +4410,15 @@ DefaultCellEditor statusEditor = new DefaultCellEditor(
 );
 statusEditor.setClickCountToStart(2); // ✅ double-click only
 staff_dentist_table.getColumnModel().getColumn(5).setCellEditor(statusEditor);
+staff_dentist_table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+TableColumnModel columnModel = staff_dentist_table.getColumnModel();
+columnModel.getColumn(0).setPreferredWidth(50);   // ID
+columnModel.getColumn(1).setPreferredWidth(150);  // Name
+columnModel.getColumn(2).setPreferredWidth(250);  // Email
+columnModel.getColumn(3).setPreferredWidth(150);  // Contact
+columnModel.getColumn(4).setPreferredWidth(100);  // Role
+columnModel.getColumn(5).setPreferredWidth(100);  // Status
 
 
 // Stop editing automatically when clicking elsewhere
@@ -4097,7 +4548,7 @@ private void applyStaffDentistFilter() {
     String sql;
 
     if (selectedRole.equalsIgnoreCase("All")) {
-        sql = "SELECT acc_id AS id, acc_name AS name, acc_email AS email, acc_contact AS contact, acc_role AS role, " +
+        sql = "SELECT acc_id AS Id, acc_name AS Name, acc_email AS Email, acc_contact AS Contact, acc_role AS Role, " +
               "CASE acc_status WHEN 1 THEN 'Active' WHEN 0 THEN 'Inactive' WHEN 2 THEN 'Suspended' END AS status " +
               "FROM tbl_accounts WHERE acc_status = ?";
     } else {
@@ -4120,6 +4571,16 @@ private void applyStaffDentistFilter() {
             staff_dentist_table.setModel(DbUtils.resultSetToTableModel(rs));
             staff_dentist_table.setDefaultEditor(Object.class, null);
             staff_dentist_table.getColumnModel().getColumn(5).setCellRenderer(new StatusCellRenderer());
+            staff_dentist_table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+TableColumnModel columnModel = staff_dentist_table.getColumnModel();
+columnModel.getColumn(0).setPreferredWidth(50);   // ID
+columnModel.getColumn(1).setPreferredWidth(150);  // Name
+columnModel.getColumn(2).setPreferredWidth(250);  // Email
+columnModel.getColumn(3).setPreferredWidth(150);  // Contact
+columnModel.getColumn(4).setPreferredWidth(100);  // Role
+columnModel.getColumn(5).setPreferredWidth(100);  // Status
+
         }
 
     } catch (Exception e) {
@@ -4131,19 +4592,22 @@ private void applyStaffDentistFilter() {
 
 
 private void filterUsers() {
-    // Get selected values from dropdowns
-    String selectedRole = mapRoleToDb(allUsers.getSelectedItem().toString());
+    String selectedRole = allUsers.getSelectedItem().toString();
     String selectedStatus = statusAllUsers.getSelectedItem().toString().replaceAll("[^a-zA-Z]", "");
     String keyword = search.getText().trim();
 
-    // Base SQL
-    String sql = "SELECT acc_id AS id, acc_name AS name, acc_email AS email, acc_contact AS contact, acc_role AS role, " +
+    String sql = "SELECT acc_id AS Id, acc_name AS Name, acc_email AS Email, acc_contact AS Contact, acc_role AS Role, " +
                  "CASE acc_status WHEN 1 THEN 'Active' WHEN 0 THEN 'Inactive' WHEN 2 THEN 'Suspended' END AS status " +
-                 "FROM tbl_accounts WHERE acc_status = ?";
+                 "FROM tbl_accounts WHERE 1=1"; // ✅ start with no filter
 
     // Role filter (skip if All)
-    if (!selectedRole.equalsIgnoreCase("All")) {
+    if (!selectedRole.equals("🌐 All")) {
         sql += " AND LOWER(acc_role) = LOWER(?)";
+    }
+
+    // Status filter (skip if All)
+    if (!selectedStatus.equalsIgnoreCase("All")) {
+        sql += " AND acc_status = ?";
     }
 
     // Keyword filter
@@ -4155,10 +4619,13 @@ private void filterUsers() {
          PreparedStatement pst = con.prepareStatement(sql)) {
 
         int paramIndex = 1;
-        pst.setInt(paramIndex++, mapStatusToInt(selectedStatus));
 
-        if (!selectedRole.equalsIgnoreCase("All")) {
-            pst.setString(paramIndex++, selectedRole);
+        if (!selectedRole.equals("🌐 All")) {
+            pst.setString(paramIndex++, mapRoleToDb(selectedRole));
+        }
+
+        if (!selectedStatus.equalsIgnoreCase("All")) {
+            pst.setInt(paramIndex++, mapStatusToInt(selectedStatus));
         }
 
         if (!keyword.isEmpty() && !keyword.equals("🔎 Search accounts by name, ID, or email...")) {
@@ -4172,9 +4639,16 @@ private void filterUsers() {
         try (ResultSet rs = pst.executeQuery()) {
             tbl.setModel(DbUtils.resultSetToTableModel(rs));
             tbl.setDefaultEditor(Object.class, null);
-
-            // Apply renderer to status column
             tbl.getColumnModel().getColumn(5).setCellRenderer(new StatusCellRenderer());
+                // ✅ Add column width adjustments here
+    tbl.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+    TableColumnModel columnModel = tbl.getColumnModel();
+    columnModel.getColumn(0).setPreferredWidth(50);   // id
+    columnModel.getColumn(1).setPreferredWidth(150);  // name
+    columnModel.getColumn(2).setPreferredWidth(250);  // email
+    columnModel.getColumn(3).setPreferredWidth(150);  // contact
+    columnModel.getColumn(4).setPreferredWidth(100);  // role
+    columnModel.getColumn(5).setPreferredWidth(100);  // status
         }
 
     } catch (Exception e) {
@@ -4183,6 +4657,7 @@ private void filterUsers() {
         e.printStackTrace();
     }
 }
+
 
 private void saveEditedUserRoleStatus() {
     String newRole = mapRoleToDb(editUser_role.getSelectedItem().toString());
@@ -4258,6 +4733,143 @@ private void saveNewStaffUser() {
         e.printStackTrace();
     }
 }
+private void loadAllUsers() {
+    String sql = "SELECT acc_id AS Id, acc_name AS Name, acc_email AS Email, acc_contact AS Contact, acc_role AS Role, " +
+                 "CASE acc_status WHEN 1 THEN 'Active' WHEN 0 THEN 'Inactive' WHEN 2 THEN 'Suspended' END AS status " +
+                 "FROM tbl_accounts";
+
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(sql);
+         ResultSet rs = pst.executeQuery()) {
+
+        tbl.setModel(DbUtils.resultSetToTableModel(rs));
+        tbl.setDefaultEditor(Object.class, null);
+        tbl.getColumnModel().getColumn(5).setCellRenderer(new StatusCellRenderer());
+    // ✅ Add column width adjustments here
+    tbl.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+    TableColumnModel columnModel = tbl.getColumnModel();
+    columnModel.getColumn(0).setPreferredWidth(50);   // id
+    columnModel.getColumn(1).setPreferredWidth(150);  // name
+    columnModel.getColumn(2).setPreferredWidth(250);  // email
+    columnModel.getColumn(3).setPreferredWidth(150);  // contact
+    columnModel.getColumn(4).setPreferredWidth(100);  // role
+    columnModel.getColumn(5).setPreferredWidth(100);  // status
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "❌ Error loading Users: " + e.getMessage(),
+                                      "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
+    }
+}
+
+private void editStaffStatus(int accId, String newStatus) {
+    int statusDb = mapStatusToInt(newStatus);
+
+    if (statusDb == -1) {
+        JOptionPane.showMessageDialog(this, "Invalid status selected.");
+        return;
+    }
+
+    try (Connection conn = config.connectDB()) {
+        String sql = "UPDATE tbl_accounts SET acc_status=? WHERE acc_id=?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, statusDb);
+            ps.setInt(2, accId);
+
+            int updated = ps.executeUpdate();
+            if (updated > 0) {
+                JOptionPane.showMessageDialog(this, "Staff/Dentist status updated!");
+                staffDentistTable();  // refresh workforce table
+                loadAllUsers();       // refresh all users table
+            } else {
+                JOptionPane.showMessageDialog(this, "No rows updated. Check acc_id.");
+            }
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage(),
+                                      "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
+    }
+}
+
+private void editDentistStatusAndSpecialty(int accId, String newStatus, String newSpecialty) {
+    int statusDb = mapStatusToInt(newStatus);
+
+    if (statusDb == -1) {
+        JOptionPane.showMessageDialog(this, "Invalid status selected.");
+        return;
+    }
+
+    try (Connection conn = config.connectDB()) {
+        // Update status in tbl_accounts
+        String sqlAcc = "UPDATE tbl_accounts SET acc_status=? WHERE acc_id=?";
+        try (PreparedStatement psAcc = conn.prepareStatement(sqlAcc)) {
+            psAcc.setInt(1, statusDb);
+            psAcc.setInt(2, accId);
+            psAcc.executeUpdate();
+        }
+
+        // Update specialty in tbl_dentists
+        String sqlDentist = "UPDATE tbl_dentists SET specialty=? WHERE acc_id=?";
+        try (PreparedStatement psDentist = conn.prepareStatement(sqlDentist)) {
+            psDentist.setString(1, newSpecialty);
+            psDentist.setInt(2, accId);
+            psDentist.executeUpdate();
+        }
+
+        JOptionPane.showMessageDialog(this, "Dentist status and specialty updated!");
+        staffDentistTable();  // refresh workforce table
+        loadAllUsers();       // refresh all users table
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage(),
+                                      "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
+    }
+}
+
+private void loadProfileDisplay() {
+    try (Connection conn = config.connectDB();
+         PreparedStatement ps = conn.prepareStatement(
+             "SELECT acc_name, acc_email, acc_contact, acc_role " +
+             "FROM tbl_accounts WHERE acc_id=?")) {
+
+        ps.setInt(1, session.getId()); // dentist’s own account ID
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                dentist_name.setText(rs.getString("acc_name"));
+                dentist_email.setText(rs.getString("acc_email"));
+                dentist_contact.setText(rs.getString("acc_contact"));
+                dentist_role.setText(rs.getString("acc_role"));
+            }
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error loading profile: " + e.getMessage(),
+                                      "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
+    }
+}
+
+private void loadDentistAvailable() {
+    String sql = "SELECT COUNT(*) AS availableDentists " +
+                 "FROM tbl_accounts " +
+                 "WHERE acc_role = 'dentist' AND acc_status = 1"; // 1 = active
+
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(sql);
+         ResultSet rs = pst.executeQuery()) {
+
+        if (rs.next()) {
+            int count = rs.getInt("availableDentists");
+            // ✅ Only show the number
+            Dentist_available.setText(String.valueOf(count));
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error loading dentist availability: " + e.getMessage(),
+                                      "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
+    }
+}
+
+
 
     /**
      * @param args the command line arguments
@@ -4303,6 +4915,7 @@ private void saveNewStaffUser() {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel Dentist_available;
     private javax.swing.JLabel XBTN;
     private javax.swing.JPanel XPNL;
     private javax.swing.JLabel add;
@@ -4326,7 +4939,9 @@ private void saveNewStaffUser() {
     private javax.swing.JPanel billpane;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JLabel cancelAddingstaf;
+    private javax.swing.JLabel cancelEditStaff;
     private javax.swing.JLabel cancel_edit;
+    private javax.swing.JLabel cancelsave_dentist;
     private javax.swing.JLabel change_photo;
     private javax.swing.JLabel change_photo1;
     private javax.swing.JLabel circle_adminPic;
@@ -4338,6 +4953,11 @@ private void saveNewStaffUser() {
     private javax.swing.JPanel db;
     private javax.swing.JLabel delete;
     private javax.swing.JLabel deletestaff;
+    private javax.swing.JLabel dentist_contact;
+    private javax.swing.JLabel dentist_email;
+    private javax.swing.JLabel dentist_name;
+    private javax.swing.JLabel dentist_role;
+    private javax.swing.JComboBox<String> dentist_stat;
     private javax.swing.JLabel edit;
     private javax.swing.JLabel editUser_contact;
     private javax.swing.JLabel editUser_email;
@@ -4390,11 +5010,30 @@ private void saveNewStaffUser() {
     private javax.swing.JLabel jLabel120;
     private javax.swing.JLabel jLabel121;
     private javax.swing.JLabel jLabel122;
-    private javax.swing.JLabel jLabel123;
-    private javax.swing.JLabel jLabel124;
-    private javax.swing.JLabel jLabel125;
+    private javax.swing.JLabel jLabel126;
+    private javax.swing.JLabel jLabel127;
+    private javax.swing.JLabel jLabel128;
+    private javax.swing.JLabel jLabel129;
     private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel130;
+    private javax.swing.JLabel jLabel131;
+    private javax.swing.JLabel jLabel132;
+    private javax.swing.JLabel jLabel133;
+    private javax.swing.JLabel jLabel134;
+    private javax.swing.JLabel jLabel135;
+    private javax.swing.JLabel jLabel136;
+    private javax.swing.JLabel jLabel137;
+    private javax.swing.JLabel jLabel138;
+    private javax.swing.JLabel jLabel139;
     private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel140;
+    private javax.swing.JLabel jLabel141;
+    private javax.swing.JLabel jLabel142;
+    private javax.swing.JLabel jLabel143;
+    private javax.swing.JLabel jLabel144;
+    private javax.swing.JLabel jLabel145;
+    private javax.swing.JLabel jLabel146;
+    private javax.swing.JLabel jLabel147;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
@@ -4549,10 +5188,26 @@ private void saveNewStaffUser() {
     private javax.swing.JPanel jPanel62;
     private javax.swing.JPanel jPanel63;
     private javax.swing.JPanel jPanel64;
+    private javax.swing.JPanel jPanel65;
+    private javax.swing.JPanel jPanel66;
     private javax.swing.JPanel jPanel67;
     private javax.swing.JPanel jPanel68;
+    private javax.swing.JPanel jPanel69;
     private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel70;
+    private javax.swing.JPanel jPanel71;
+    private javax.swing.JPanel jPanel72;
+    private javax.swing.JPanel jPanel73;
+    private javax.swing.JPanel jPanel74;
+    private javax.swing.JPanel jPanel75;
+    private javax.swing.JPanel jPanel76;
+    private javax.swing.JPanel jPanel77;
+    private javax.swing.JPanel jPanel78;
+    private javax.swing.JPanel jPanel79;
     private javax.swing.JPanel jPanel8;
+    private javax.swing.JPanel jPanel80;
+    private javax.swing.JPanel jPanel81;
+    private javax.swing.JPanel jPanel82;
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane10;
@@ -4586,6 +5241,7 @@ private void saveNewStaffUser() {
     private javax.swing.JTextField name_newUser;
     private javax.swing.JLabel p;
     private javax.swing.JTextField password_newUser;
+    private javax.swing.JLabel patients_in_waiting;
     private javax.swing.JPanel pp;
     private javax.swing.JLabel profilePic;
     private javax.swing.JLabel profilePic1;
@@ -4595,14 +5251,22 @@ private void saveNewStaffUser() {
     private javax.swing.JComboBox<String> role_staff;
     private javax.swing.JComboBox<String> role_staff_dentist;
     private javax.swing.JLabel saveEditUser;
+    private javax.swing.JLabel saveEdit_dentist;
+    private javax.swing.JLabel saveEdit_staff;
     private javax.swing.JLabel saveNewstaff;
     private javax.swing.JLabel save_newUser;
     private javax.swing.JLabel savechanges_profile;
     private javax.swing.JTextField seach_logs;
     private javax.swing.JTextField search;
     private javax.swing.JLabel search_systemlogs;
+    private javax.swing.JComboBox<String> setDentist_specialty;
+    private javax.swing.JLabel staff_contact;
     private javax.swing.JTextField staff_dentistSearch;
     private javax.swing.JTable staff_dentist_table;
+    private javax.swing.JLabel staff_email;
+    private javax.swing.JLabel staff_name;
+    private javax.swing.JLabel staff_role;
+    private javax.swing.JComboBox<String> staff_stat;
     private javax.swing.JLabel staffbtn;
     private javax.swing.JPanel staffmanage;
     private javax.swing.JPanel staffpane;
@@ -4616,6 +5280,7 @@ private void saveNewStaffUser() {
     private javax.swing.JPanel systempane;
     private javax.swing.JTabbedPane tabbed;
     private javax.swing.JTable tbl;
+    private javax.swing.JLabel todays_appointment;
     private javax.swing.JPanel userpane;
     private javax.swing.JPanel users;
     private javax.swing.JLabel usersbtn;

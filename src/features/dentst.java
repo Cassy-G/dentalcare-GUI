@@ -2053,9 +2053,8 @@ sunCheck.setSelected(false);
     private void saveScheduleMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveScheduleMouseEntered
         // TODO add your handling code here:
     }//GEN-LAST:event_saveScheduleMouseEntered
-
 private void loadprofile() {
-  String start = (String) startTimeCombo.getSelectedItem();
+    String start = (String) startTimeCombo.getSelectedItem();
     String end   = (String) endTimeCombo.getSelectedItem();
 
     List<String> days = new ArrayList<>();
@@ -2066,7 +2065,6 @@ private void loadprofile() {
     if (friCheck.isSelected()) days.add("Friday");
     if (satCheck.isSelected()) days.add("Saturday");
     if (sunCheck.isSelected()) days.add("Sunday");
-    
 
     try {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
@@ -2086,26 +2084,44 @@ private void loadprofile() {
 
     try (Connection con = config.connectDB();
          PreparedStatement pst = con.prepareStatement(
-             "UPDATE tbl_dentists SET work_start=?, work_end=?, work_days=? WHERE dentist_id=?"
+             "UPDATE tbl_dentists SET work_start=?, work_end=?, work_days=?, specialty=? WHERE dentist_id=?"
          )) {
-        
+
         pst.setString(1, start);
         pst.setString(2, end);
         pst.setString(3, workDays);
-        pst.setInt(4, session.getId());
+        pst.setString(4, set_specialization.getSelectedItem().toString()); // ✅ save specialty
+        pst.setInt(5, session.getId());
 
         int updated = pst.executeUpdate();
+
         if (updated > 0) {
-            JOptionPane.showMessageDialog(this, "Schedule updated successfully!");
+            JOptionPane.showMessageDialog(this, "Schedule and specialty updated successfully!");
+
+            // ✅ Refresh specialty from DB and update label
+            try (PreparedStatement fetchStmt = con.prepareStatement(
+                "SELECT specialty FROM tbl_dentists WHERE dentist_id=?"
+            )) {
+                fetchStmt.setInt(1, session.getId());
+                try (ResultSet rs = fetchStmt.executeQuery()) {
+                    if (rs.next()) {
+                        displaySpecialty.setText(rs.getString("specialty"));
+                    }
+                }
+            }
+
             // Audit log
             try (PreparedStatement logStmt = con.prepareStatement(
                 "INSERT INTO tbl_logs (acc_id, action, timestamp) VALUES (?, ?, CURRENT_TIMESTAMP)"
             )) {
                 logStmt.setInt(1, session.getId());
-                logStmt.setString(2, "Updated schedule: " + workDays + " (" + start + " - " + end + ")");
+                logStmt.setString(2, "Updated schedule: " + workDays + " (" + start + " - " + end + 
+                                  "), Specialty: " + set_specialization.getSelectedItem().toString());
                 logStmt.executeUpdate();
             }
-            loadSchedule(); // reload UI
+
+            loadSchedule();        // reload schedule UI
+            loadProfileDisplay();  // reload profile info instantly
         } else {
             JOptionPane.showMessageDialog(this, "No schedule updated. Dentist not found.");
         }
@@ -2114,6 +2130,7 @@ private void loadprofile() {
         JOptionPane.showMessageDialog(this, "Error saving schedule: " + e.getMessage());
     }
 }
+
 
 private void loadSchedule() {
     try (Connection con = config.connectDB();

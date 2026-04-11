@@ -85,12 +85,12 @@ jLabel20.setFont(labelFont); // Phone Number
 jLabel21.setFont(labelFont); // Address
 
 // Apply to text fields
-jTextField1.setFont(fieldFont);
-jTextField2.setFont(fieldFont);
-jTextField3.setFont(fieldFont);
-jTextField5.setFont(fieldFont);
+booking_fullname.setFont(fieldFont);
+book_email.setFont(fieldFont);
+age_spinner.setFont(fieldFont);
+book_contact.setFont(fieldFont);
 jTextField6.setFont(fieldFont);
-gender.setFont(fieldFont);
+book_gender.setFont(fieldFont);
 
 // Button styling
 nextbtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -242,11 +242,12 @@ private void hideOldPanels() {
 
 
 private boolean isPersonalInfoValid() {
-    String name = jTextField1.getText().trim();     // Full Name
-    String email = jTextField2.getText().trim();    // Email
-    String age = jTextField3.getText().trim();      // Age
-    String genderValue = (String) gender.getSelectedItem(); // Gender
-    String phone = jTextField5.getText().trim();    // Phone Number
+    String name = booking_fullname.getText().trim();     // Full Name
+    String email = book_email.getText().trim();    // Email
+    String age = age_spinner.getValue().toString().trim();
+
+    String genderValue = (String) book_gender.getSelectedItem(); // Gender
+    String phone = book_contact.getText().trim();    // Phone Number
     String address = jTextField6.getText().trim();  // Address
 
     return !name.isEmpty()
@@ -292,14 +293,13 @@ private boolean isPersonalInfoValid() {
         jLabel85 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jLabel16 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        booking_fullname = new javax.swing.JTextField();
         jLabel17 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
+        book_email = new javax.swing.JTextField();
         jLabel18 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
         jLabel19 = new javax.swing.JLabel();
         jLabel20 = new javax.swing.JLabel();
-        jTextField5 = new javax.swing.JTextField();
+        book_contact = new javax.swing.JTextField();
         jLabel21 = new javax.swing.JLabel();
         jTextField6 = new javax.swing.JTextField();
         nextpane = new javax.swing.JPanel();
@@ -313,7 +313,8 @@ private boolean isPersonalInfoValid() {
         jLabel28 = new javax.swing.JLabel();
         jLabel29 = new javax.swing.JLabel();
         jLabel30 = new javax.swing.JLabel();
-        gender = new javax.swing.JComboBox<>();
+        book_gender = new javax.swing.JComboBox<>();
+        age_spinner = new javax.swing.JSpinner();
         jLabel47 = new javax.swing.JLabel();
         jLabel84 = new javax.swing.JLabel();
         bg1 = new javax.swing.JPanel();
@@ -582,38 +583,41 @@ private boolean isPersonalInfoValid() {
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        jLabel16.setFont(new java.awt.Font("Tw Cen MT", 0, 15)); // NOI18N
         jLabel16.setText("Full Name");
-        jPanel1.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 80, -1));
+        jPanel1.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 70, 30));
 
-        jTextField1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        jPanel1.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, 250, 30));
+        booking_fullname.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        jPanel1.add(booking_fullname, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 250, 30));
 
+        jLabel17.setFont(new java.awt.Font("Tw Cen MT", 0, 15)); // NOI18N
         jLabel17.setText("Email");
-        jPanel1.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 20, -1, -1));
+        jPanel1.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 20, -1, 30));
 
-        jTextField2.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        jPanel1.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 40, 250, 30));
+        book_email.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        jPanel1.add(book_email, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 50, 250, 30));
 
+        jLabel18.setFont(new java.awt.Font("Tw Cen MT", 0, 15)); // NOI18N
         jLabel18.setText("Gender");
-        jPanel1.add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 90, 50, -1));
+        jPanel1.add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 90, 50, 30));
 
-        jTextField3.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        jPanel1.add(jTextField3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 250, 30));
-
+        jLabel19.setFont(new java.awt.Font("Tw Cen MT", 0, 15)); // NOI18N
         jLabel19.setText("Age");
-        jPanel1.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 40, -1));
+        jPanel1.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 40, 30));
 
+        jLabel20.setFont(new java.awt.Font("Tw Cen MT", 0, 15)); // NOI18N
         jLabel20.setText("Phone Number");
-        jPanel1.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 160, 110, -1));
+        jPanel1.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 160, 90, 30));
 
-        jTextField5.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        jPanel1.add(jTextField5, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 180, 510, 30));
+        book_contact.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        jPanel1.add(book_contact, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 190, 510, 30));
 
+        jLabel21.setFont(new java.awt.Font("Tw Cen MT", 0, 15)); // NOI18N
         jLabel21.setText("Address");
-        jPanel1.add(jLabel21, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 230, -1, -1));
+        jPanel1.add(jLabel21, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 230, -1, 30));
 
         jTextField6.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255)));
-        jPanel1.add(jTextField6, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 250, 510, 30));
+        jPanel1.add(jTextField6, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 260, 510, 30));
 
         nextpane.setBackground(new java.awt.Color(0, 102, 255));
         nextpane.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -643,7 +647,7 @@ private boolean isPersonalInfoValid() {
         });
         nextpane.add(nextsign, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 0, 30, 30));
 
-        jPanel1.add(nextpane, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 300, 90, 30));
+        jPanel1.add(nextpane, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 310, 90, 30));
 
         prevpane.setBackground(new java.awt.Color(255, 255, 255));
         prevpane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 102, 255)));
@@ -672,56 +676,58 @@ private boolean isPersonalInfoValid() {
         });
         prevpane.add(prevbtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 90, 30));
 
-        jPanel1.add(prevpane, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 300, 100, 30));
+        jPanel1.add(prevpane, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 310, 100, 30));
 
         jLabel25.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel25.setForeground(new java.awt.Color(255, 0, 0));
         jLabel25.setText("*");
-        jPanel1.add(jLabel25, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 0, 30, 30));
+        jPanel1.add(jLabel25, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 0, 30, 40));
 
         jLabel26.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel26.setForeground(new java.awt.Color(204, 0, 0));
         jLabel26.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel26.setText("*");
-        jPanel1.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 80, 40, 20));
+        jPanel1.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 80, 40, 30));
 
         jLabel27.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel27.setForeground(new java.awt.Color(204, 0, 0));
         jLabel27.setText("*");
-        jPanel1.add(jLabel27, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 0, 40, 30));
+        jPanel1.add(jLabel27, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 0, 40, 40));
 
         jLabel28.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel28.setForeground(new java.awt.Color(204, 0, 0));
         jLabel28.setText("*");
-        jPanel1.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 80, 20, 20));
+        jPanel1.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 80, 10, 20));
 
         jLabel29.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel29.setForeground(new java.awt.Color(204, 0, 0));
         jLabel29.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel29.setText("*");
-        jPanel1.add(jLabel29, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 140, 30, 30));
+        jPanel1.add(jLabel29, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 130, 30, 60));
 
         jLabel30.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel30.setForeground(new java.awt.Color(204, 0, 0));
         jLabel30.setText("*");
-        jPanel1.add(jLabel30, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 210, 30, 40));
+        jPanel1.add(jLabel30, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 210, 30, 50));
 
-        gender.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Male", "Female" }));
-        gender.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        gender.addActionListener(new java.awt.event.ActionListener() {
+        book_gender.setFont(new java.awt.Font("Tw Cen MT", 0, 15)); // NOI18N
+        book_gender.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Male", "Female" }));
+        book_gender.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        book_gender.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                genderActionPerformed(evt);
+                book_genderActionPerformed(evt);
             }
         });
-        jPanel1.add(gender, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 110, 250, 30));
+        jPanel1.add(book_gender, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 120, 250, 30));
+        jPanel1.add(age_spinner, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 120, 70, 30));
 
         jLabel47.setBackground(new java.awt.Color(204, 255, 255));
         jLabel47.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel47.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/a.jpg"))); // NOI18N
         jLabel47.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
-        jPanel1.add(jLabel47, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -10, 550, 360));
+        jPanel1.add(jLabel47, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 550, 360));
 
-        bg.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 100, 550, 350));
+        bg.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 90, 550, 360));
 
         jLabel84.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Copilot_20260322_145831.png"))); // NOI18N
         jLabel84.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
@@ -2003,9 +2009,9 @@ private boolean isPersonalInfoValid() {
       taab.setSelectedIndex(2);
     }//GEN-LAST:event_nextbtn1MouseClicked
 
-    private void genderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_genderActionPerformed
+    private void book_genderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_book_genderActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_genderActionPerformed
+    }//GEN-LAST:event_book_genderActionPerformed
 
     private void prevpaneMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_prevpaneMouseEntered
 
@@ -2156,6 +2162,7 @@ private boolean isPersonalInfoValid() {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel Jpanel_date_time;
+    private javax.swing.JSpinner age_spinner;
     private javax.swing.JLabel appointment_date;
     private javax.swing.JPanel bc;
     private javax.swing.JPanel bg;
@@ -2163,6 +2170,10 @@ private boolean isPersonalInfoValid() {
     private javax.swing.JPanel bg2;
     private javax.swing.JPanel bg3;
     private javax.swing.JPanel bg4;
+    private javax.swing.JTextField book_contact;
+    private javax.swing.JTextField book_email;
+    private javax.swing.JComboBox<String> book_gender;
+    private javax.swing.JTextField booking_fullname;
     private javax.swing.JLabel braceconsultation;
     private javax.swing.JLabel check1;
     private java.awt.Checkbox checkbox1;
@@ -2174,7 +2185,6 @@ private boolean isPersonalInfoValid() {
     private javax.swing.JLabel dentalfilling;
     private javax.swing.JPanel df;
     private javax.swing.JPanel gc;
-    private javax.swing.JComboBox<String> gender;
     private javax.swing.JLabel hdrpic;
     private javax.swing.JPanel header;
     private javax.swing.JComboBox<String> jComboBox1;
@@ -2304,11 +2314,7 @@ private boolean isPersonalInfoValid() {
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
     private javax.swing.JTextField jTextField6;
     private javax.swing.JTextField jTextField7;
     private javax.swing.JLabel logo;
