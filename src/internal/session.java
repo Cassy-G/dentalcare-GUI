@@ -41,12 +41,14 @@ public static int getDentistId() { return dentistId; }
 
     
     
-    // --- Clear session (logout) ---
-    public static void clear() {
-        id = 0;
-        name = null;
-        email = null;
-        contact = null;
-        role = null;
-    }
+// --- Clear session (logout) ---
+public static void clear() {
+    id = 0;
+    name = null;
+    email = null;
+    contact = null;
+    role = null;
+    dentistId = 0; // ✅ reset dentistId too
+}
+
 }

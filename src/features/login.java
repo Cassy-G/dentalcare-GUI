@@ -368,26 +368,26 @@ private void setupPasswordPlaceholder(javax.swing.JPasswordField field, String t
                 return;
             }
 
-            // Get all values directly from DB
-            int id = rs.getInt("acc_id");
-            String name = rs.getString("acc_name");
-            String emailFromDB = rs.getString("acc_email");
-            String contact = rs.getString("acc_contact");
-            String role = rs.getString("acc_role");
+         // Get all values directly from DB
+int id = rs.getInt("acc_id");
+String name = rs.getString("acc_name");
+String emailFromDB = rs.getString("acc_email");
+String contact = rs.getString("acc_contact");
+String role = rs.getString("acc_role");
 
-            // ✅ Initialize session
-            session.setSession(id, name, emailFromDB, contact, role);
+// ✅ Initialize session with account info
+session.setSession(id, name, emailFromDB, contact, role);
 
-            // If dentist, fetch dentist_id
-            if (role.equalsIgnoreCase("dentist")) {
-                String sqlDent = "SELECT dentist_id FROM tbl_dentists WHERE acc_id=?";
-                PreparedStatement psDent = conn.prepareStatement(sqlDent);
-                psDent.setInt(1, id);
-                ResultSet rsDent = psDent.executeQuery();
-                if (rsDent.next()) {
-                    session.setDentistId(rsDent.getInt("dentist_id"));
-                }
-            }
+// ✅ If dentist, also set dentistId
+if (role.equalsIgnoreCase("dentist")) {
+    String sqlDent = "SELECT dentist_id FROM tbl_dentists WHERE acc_id=?";
+    PreparedStatement psDent = conn.prepareStatement(sqlDent);
+    psDent.setInt(1, id);
+    ResultSet rsDent = psDent.executeQuery();
+    if (rsDent.next()) {
+        session.setDentistId(rsDent.getInt("dentist_id"));
+    }
+}
 
             // Log the login action
             String logSql = "INSERT INTO tbl_logs (actor_id, actor_role, action, details, created_at) " +

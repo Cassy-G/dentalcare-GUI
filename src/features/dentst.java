@@ -33,7 +33,22 @@ import javax.swing.SwingConstants;
 public class dentst extends javax.swing.JFrame {
  int xMouse, yMouse;
 
- 
+ class ScheduleEntry {
+    private DayOfWeek day;
+    private LocalTime start;
+    private LocalTime end;
+
+    public ScheduleEntry(DayOfWeek day, LocalTime start, LocalTime end) {
+        this.day = day;
+        this.start = start;
+        this.end = end;
+    }
+
+    public DayOfWeek getDay() { return day; }
+    public LocalTime getStart() { return start; }
+    public LocalTime getEnd() { return end; }
+}
+
 private boolean isValidEmail(String email) {
 
     // Accepts user@domain and user@domain.123 or user@domain.ph
@@ -50,8 +65,7 @@ private boolean isValidEmail(String email) {
      */
 public dentst() {
     initComponents();
-    loadSchedule();
-    
+
 
     // 🔒 login/role checks
     if (session.getId() == 0) {
@@ -66,6 +80,7 @@ public dentst() {
         return;
     }
 
+    
     // ✅ Show name only, styled smaller
     dr.setText(session.getName());
     Font headerFont = new Font("Segoe UI", Font.BOLD, 15); // clean, smaller size
@@ -101,40 +116,28 @@ public dentst() {
     savePicHereFirst.setBorder(null);
     
     
+    set_specialization.removeAllItems();
+set_specialization.addItem("General Dentistry");
+set_specialization.addItem("Orthodontics");
+set_specialization.addItem("Pediatric Dentistry");
+set_specialization.addItem("Endodontics");
+set_specialization.addItem("Periodontics");
+
+    // ✅ Ensure all schedule checkboxes are unchecked at startup
+monCheck.setSelected(false);
+tueCheck.setSelected(false);
+wedCheck.setSelected(false);
+thurCheck.setSelected(false);
+friCheck.setSelected(false);
+satCheck.setSelected(false);
+sunCheck.setSelected(false);
+
 
 
      loadprofile();        // schedules, etc.
      loadProfileDisplay(); // ✅ auto-load profile info after login
-
-
-
-     save.addMouseListener(new java.awt.event.MouseAdapter() {
-    public void mouseClicked(java.awt.event.MouseEvent evt) {
-        String email = change_email.getText();
-     if (email.isEmpty() || !isValidEmail(email)) {
-
-     email = email.trim();
-
-        if (!isValidEmail(email)) {
-            JOptionPane.showMessageDialog(null, "Invalid email address.");
-            return; // stop save if invalid
-        }
-     }
-        try (Connection conn = config.connectDB()) {
-            conn.setAutoCommit(false);
-
-            updateAccountInfo(conn);        // ✅ pass connection
-            updateDentistSpecialty(conn);   // ✅ also pass connection
-
-            conn.commit();
-            JOptionPane.showMessageDialog(null, "Profile updated successfully!");
-            loadprofile();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Update failed. Changes reverted.\n" + e.getMessage());
-        }
-    }
-  });
-
+     loadSchedule();
+     loadScheduleTable();  // ✅ populate JTable with DB values
     // Attach Cancel button listener
      cancelMYprofile.addMouseListener(new java.awt.event.MouseAdapter() {
         public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -154,8 +157,17 @@ public dentst() {
     }
 });
 
-
+    // 👉 Insert this here
+    saveSchedule.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); // makes it look clickable
+    saveSchedule.addMouseListener(new java.awt.event.MouseAdapter() {
+        @Override
+        public void mouseClicked(java.awt.event.MouseEvent evt) {
+            saveScheduleMouseClicked(evt); // call your method
+        }
+    });
 }
+
+
 
 // ✅ Utility method to resize images
     private ImageIcon resizeImage(ImageIcon icon, int width, int height) {
@@ -237,28 +249,26 @@ public dentst() {
         jLabel46 = new javax.swing.JLabel();
         startTimeCombo = new javax.swing.JComboBox<>();
         jLabel54 = new javax.swing.JLabel();
-        jPanel11 = new javax.swing.JPanel();
-        jPanel23 = new javax.swing.JPanel();
-        monCheck = new javax.swing.JCheckBox();
-        jPanel24 = new javax.swing.JPanel();
-        tueCheck = new javax.swing.JCheckBox();
-        jPanel25 = new javax.swing.JPanel();
-        wedCheck = new javax.swing.JCheckBox();
-        jPanel26 = new javax.swing.JPanel();
-        thurCheck = new javax.swing.JCheckBox();
-        jPanel27 = new javax.swing.JPanel();
-        friCheck = new javax.swing.JCheckBox();
-        satCheck = new javax.swing.JCheckBox();
-        jPanel29 = new javax.swing.JPanel();
-        sunCheck = new javax.swing.JCheckBox();
-        jPanel19 = new javax.swing.JPanel();
-        jLabel53 = new javax.swing.JLabel();
         jScrollPane4 = new javax.swing.JScrollPane();
         scheduleTable = new javax.swing.JTable();
         endTimeCombo = new javax.swing.JComboBox<>();
         jLabel26 = new javax.swing.JLabel();
         jPanel7 = new javax.swing.JPanel();
         saveSchedule = new javax.swing.JLabel();
+        jPanel9 = new javax.swing.JPanel();
+        monCheck = new javax.swing.JCheckBox();
+        tueCheck = new javax.swing.JCheckBox();
+        wedCheck = new javax.swing.JCheckBox();
+        thurCheck = new javax.swing.JCheckBox();
+        friCheck = new javax.swing.JCheckBox();
+        satCheck = new javax.swing.JCheckBox();
+        sunCheck = new javax.swing.JCheckBox();
+        jLabel39 = new javax.swing.JLabel();
+        jLabel38 = new javax.swing.JLabel();
+        jLabel53 = new javax.swing.JLabel();
+        jPanel10 = new javax.swing.JPanel();
+        jLabel55 = new javax.swing.JLabel();
+        jLabel37 = new javax.swing.JLabel();
         patient = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         tbl = new javax.swing.JTable();
@@ -348,6 +358,7 @@ public dentst() {
         jPanel48 = new javax.swing.JPanel();
         jLabel49 = new javax.swing.JLabel();
         displaySpecialty = new javax.swing.JLabel();
+        jLabel36 = new javax.swing.JLabel();
         jLabel65 = new javax.swing.JLabel();
         jLabel61 = new javax.swing.JLabel();
 
@@ -732,171 +743,22 @@ public dentst() {
 
         jLabel25.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         jLabel25.setForeground(new java.awt.Color(204, 204, 204));
-        jLabel25.setText("_______________________________________________________________________________________");
-        sched.add(jLabel25, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 70, -1, -1));
+        jLabel25.setText("_________________________________________________________");
+        sched.add(jLabel25, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 70, 430, -1));
 
-        jLabel46.setFont(new java.awt.Font("Times New Roman", 0, 16)); // NOI18N
+        jLabel46.setFont(new java.awt.Font("Trebuchet MS", 0, 16)); // NOI18N
+        jLabel46.setForeground(new java.awt.Color(0, 51, 153));
         jLabel46.setText("Select Days and Time");
-        sched.add(jLabel46, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 110, -1, -1));
+        sched.add(jLabel46, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, -1, -1));
 
         startTimeCombo.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         startTimeCombo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM" }));
-        sched.add(startTimeCombo, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 410, 110, 30));
+        startTimeCombo.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153), 2));
+        sched.add(startTimeCombo, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 330, 110, 30));
 
         jLabel54.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
         jLabel54.setText("Work Hours");
-        sched.add(jLabel54, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 130, -1, 50));
-
-        jPanel11.setBackground(new java.awt.Color(102, 255, 255));
-        jPanel11.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jPanel23.setBackground(new java.awt.Color(255, 255, 255));
-
-        monCheck.setBackground(new java.awt.Color(255, 255, 255));
-        monCheck.setFont(new java.awt.Font("Times New Roman", 1, 13)); // NOI18N
-        monCheck.setText(" Monday");
-        monCheck.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        monCheck.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                monCheckActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout jPanel23Layout = new javax.swing.GroupLayout(jPanel23);
-        jPanel23.setLayout(jPanel23Layout);
-        jPanel23Layout.setHorizontalGroup(
-            jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel23Layout.createSequentialGroup()
-                .addComponent(monCheck, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 24, Short.MAX_VALUE))
-        );
-        jPanel23Layout.setVerticalGroup(
-            jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(monCheck, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
-        );
-
-        jPanel11.add(jPanel23, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 10, 120, 30));
-
-        jPanel24.setBackground(new java.awt.Color(255, 255, 255));
-
-        tueCheck.setBackground(new java.awt.Color(255, 255, 255));
-        tueCheck.setFont(new java.awt.Font("Times New Roman", 1, 13)); // NOI18N
-        tueCheck.setText("Tuesday");
-        tueCheck.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tueCheckActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout jPanel24Layout = new javax.swing.GroupLayout(jPanel24);
-        jPanel24.setLayout(jPanel24Layout);
-        jPanel24Layout.setHorizontalGroup(
-            jPanel24Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel24Layout.createSequentialGroup()
-                .addComponent(tueCheck, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 23, Short.MAX_VALUE))
-        );
-        jPanel24Layout.setVerticalGroup(
-            jPanel24Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tueCheck, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-
-        jPanel11.add(jPanel24, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 50, 120, 30));
-
-        jPanel25.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel25.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        wedCheck.setBackground(new java.awt.Color(255, 255, 255));
-        wedCheck.setFont(new java.awt.Font("Times New Roman", 1, 13)); // NOI18N
-        wedCheck.setText("Wednsday");
-        jPanel25.add(wedCheck, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 30));
-
-        jPanel11.add(jPanel25, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 90, 120, 30));
-
-        jPanel26.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel26.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        thurCheck.setBackground(new java.awt.Color(255, 255, 255));
-        thurCheck.setFont(new java.awt.Font("Times New Roman", 1, 13)); // NOI18N
-        thurCheck.setText("Thursday");
-        thurCheck.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                thurCheckActionPerformed(evt);
-            }
-        });
-        jPanel26.add(thurCheck, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 30));
-
-        jPanel11.add(jPanel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 130, 120, 30));
-
-        jPanel27.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel27.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        friCheck.setBackground(new java.awt.Color(255, 255, 255));
-        friCheck.setFont(new java.awt.Font("Times New Roman", 1, 13)); // NOI18N
-        friCheck.setText(" Friday");
-        friCheck.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(102, 153, 255), 2));
-        friCheck.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                friCheckActionPerformed(evt);
-            }
-        });
-        jPanel27.add(friCheck, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 30));
-
-        jPanel11.add(jPanel27, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 170, 120, 30));
-
-        satCheck.setBackground(new java.awt.Color(255, 255, 255));
-        satCheck.setFont(new java.awt.Font("Times New Roman", 1, 13)); // NOI18N
-        satCheck.setText(" Saturday");
-        satCheck.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                satCheckActionPerformed(evt);
-            }
-        });
-        jPanel11.add(satCheck, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 210, 100, 30));
-
-        jPanel29.setBackground(new java.awt.Color(255, 255, 255));
-
-        sunCheck.setBackground(new java.awt.Color(255, 255, 255));
-        sunCheck.setFont(new java.awt.Font("Times New Roman", 1, 13)); // NOI18N
-        sunCheck.setText("Sunday");
-        sunCheck.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                sunCheckActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout jPanel29Layout = new javax.swing.GroupLayout(jPanel29);
-        jPanel29.setLayout(jPanel29Layout);
-        jPanel29Layout.setHorizontalGroup(
-            jPanel29Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel29Layout.createSequentialGroup()
-                .addComponent(sunCheck, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 21, Short.MAX_VALUE))
-        );
-        jPanel29Layout.setVerticalGroup(
-            jPanel29Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(sunCheck, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
-        );
-
-        jPanel11.add(jPanel29, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 250, 120, 30));
-
-        javax.swing.GroupLayout jPanel19Layout = new javax.swing.GroupLayout(jPanel19);
-        jPanel19.setLayout(jPanel19Layout);
-        jPanel19Layout.setHorizontalGroup(
-            jPanel19Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
-        jPanel19Layout.setVerticalGroup(
-            jPanel19Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 30, Short.MAX_VALUE)
-        );
-
-        jPanel11.add(jPanel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 210, -1, 30));
-
-        jLabel53.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/dsb.png"))); // NOI18N
-        jPanel11.add(jLabel53, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, -14, 80, 310));
-
-        sched.add(jPanel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 170, 100, 290));
+        sched.add(jLabel54, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 120, -1, 40));
 
         scheduleTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -908,17 +770,18 @@ public dentst() {
         ));
         jScrollPane4.setViewportView(scheduleTable);
 
-        sched.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 180, 410, 200));
+        sched.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 180, 410, 60));
 
         endTimeCombo.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         endTimeCombo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM" }));
-        sched.add(endTimeCombo, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 410, 110, 30));
+        endTimeCombo.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153), 2));
+        sched.add(endTimeCombo, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 380, 110, 30));
 
         jLabel26.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         jLabel26.setText("Start Time:");
-        sched.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 410, 70, 30));
+        sched.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 330, 70, 30));
 
-        jPanel7.setBackground(new java.awt.Color(0, 102, 255));
+        jPanel7.setBackground(new java.awt.Color(0, 51, 204));
         jPanel7.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         saveSchedule.setBackground(new java.awt.Color(255, 255, 255));
@@ -930,10 +793,109 @@ public dentst() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 saveScheduleMouseClicked(evt);
             }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                saveScheduleMouseEntered(evt);
+            }
         });
         jPanel7.add(saveSchedule, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 30));
 
         sched.add(jPanel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 410, 90, 30));
+
+        jPanel9.setBackground(new java.awt.Color(0, 102, 102));
+        jPanel9.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        monCheck.setBackground(new java.awt.Color(255, 255, 255));
+        monCheck.setFont(new java.awt.Font("Times New Roman", 1, 13)); // NOI18N
+        monCheck.setText(" Monday");
+        monCheck.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        monCheck.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                monCheckActionPerformed(evt);
+            }
+        });
+        jPanel9.add(monCheck, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 100, 30));
+
+        tueCheck.setBackground(new java.awt.Color(255, 255, 255));
+        tueCheck.setFont(new java.awt.Font("Times New Roman", 1, 13)); // NOI18N
+        tueCheck.setText("Tuesday");
+        tueCheck.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tueCheckActionPerformed(evt);
+            }
+        });
+        jPanel9.add(tueCheck, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 40, 100, 30));
+
+        wedCheck.setBackground(new java.awt.Color(255, 255, 255));
+        wedCheck.setFont(new java.awt.Font("Times New Roman", 1, 13)); // NOI18N
+        wedCheck.setText("Wednsday");
+        jPanel9.add(wedCheck, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 80, 100, 30));
+
+        thurCheck.setBackground(new java.awt.Color(255, 255, 255));
+        thurCheck.setFont(new java.awt.Font("Times New Roman", 1, 13)); // NOI18N
+        thurCheck.setText("Thursday");
+        thurCheck.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                thurCheckActionPerformed(evt);
+            }
+        });
+        jPanel9.add(thurCheck, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 120, 100, 30));
+
+        friCheck.setBackground(new java.awt.Color(255, 255, 255));
+        friCheck.setFont(new java.awt.Font("Times New Roman", 1, 13)); // NOI18N
+        friCheck.setText(" Friday");
+        friCheck.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(102, 153, 255), 2));
+        friCheck.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                friCheckActionPerformed(evt);
+            }
+        });
+        jPanel9.add(friCheck, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 160, 100, 30));
+
+        satCheck.setBackground(new java.awt.Color(255, 255, 255));
+        satCheck.setFont(new java.awt.Font("Times New Roman", 1, 13)); // NOI18N
+        satCheck.setText(" Saturday");
+        satCheck.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                satCheckActionPerformed(evt);
+            }
+        });
+        jPanel9.add(satCheck, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 200, 100, 30));
+
+        sunCheck.setBackground(new java.awt.Color(255, 255, 255));
+        sunCheck.setFont(new java.awt.Font("Times New Roman", 1, 13)); // NOI18N
+        sunCheck.setText("Sunday");
+        sunCheck.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                sunCheckActionPerformed(evt);
+            }
+        });
+        jPanel9.add(sunCheck, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 240, 100, 30));
+
+        jLabel39.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nn.jpg"))); // NOI18N
+        jLabel39.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        jPanel9.add(jLabel39, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -10, 100, 290));
+
+        sched.add(jPanel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 160, 100, 270));
+
+        jLabel38.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/12 (2).jpg"))); // NOI18N
+        jLabel38.setToolTipText("");
+        sched.add(jLabel38, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 40, 180, 110));
+
+        jLabel53.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        jLabel53.setText("End Time:");
+        sched.add(jLabel53, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 390, -1, -1));
+
+        jPanel10.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel55.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/a.jpg"))); // NOI18N
+        jPanel10.add(jLabel55, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 430, 100));
+
+        sched.add(jPanel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 160, 430, -1));
+
+        jLabel37.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel37.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/21.jpg"))); // NOI18N
+        jLabel37.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
+        sched.add(jLabel37, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 20, 640, 470));
 
         dashTb.addTab("schedule", sched);
 
@@ -1058,6 +1020,11 @@ public dentst() {
         set_specialization.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
         set_specialization.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "General Dentistry", "Cosmetic Dentistry", "Oral Surgery", "Endodontics", "Prosthodontics", "Orthodontics" }));
         set_specialization.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255)));
+        set_specialization.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                set_specializationMouseClicked(evt);
+            }
+        });
         jPanel32.add(set_specialization, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 90, 260, 30));
 
         change_name.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255)));
@@ -1399,6 +1366,10 @@ public dentst() {
         displaySpecialty.setText("jLabel36");
         mp.add(displaySpecialty, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 210, 150, 20));
 
+        jLabel36.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel36.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/bor (3).jpg"))); // NOI18N
+        mp.add(jLabel36, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 200, 150, 40));
+
         jLabel65.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/a.jpg"))); // NOI18N
         mp.add(jLabel65, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 610, 260));
 
@@ -1568,24 +1539,29 @@ public dentst() {
     }//GEN-LAST:event_logoutMouseExited
 
     private void saveMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveMouseClicked
-    String newName = change_name.getText().trim();
+   
+            String newName = change_name.getText().trim();
     String newEmail = change_email.getText().trim();
     String newContact = change_contact.getText().trim();
     String newPassVal = newpass.getText().trim();
     String confirmPassVal = confirmnewpass.getText().trim();
 
-    if (newName.isEmpty() && newEmail.isEmpty() && newContact.isEmpty() && newPassVal.isEmpty()) {
+    String selectedSpecialty = (String) set_specialization.getSelectedItem();
+
+    // --- Check if nothing was changed ---
+    if (newName.isEmpty() && newEmail.isEmpty() && newContact.isEmpty() && newPassVal.isEmpty()
+        && (selectedSpecialty == null || selectedSpecialty.trim().isEmpty())) {
         JOptionPane.showMessageDialog(this, "No fields to update!");
         return;
     }
 
-    // ✅ Validate email
+    // --- Validate email ---
     if (!newEmail.isEmpty() && !isValidEmail(newEmail)) {
         JOptionPane.showMessageDialog(this, "Invalid email address.");
         return;
     }
 
-    // ✅ Validate password
+    // --- Validate password ---
     if (!newPassVal.isEmpty() && !newPassVal.equals(confirmPassVal)) {
         JOptionPane.showMessageDialog(this, "Passwords do not match.");
         return;
@@ -1647,40 +1623,45 @@ public dentst() {
             psPass.executeUpdate();
         }
 
-String selectedSpecialty = (String) set_specialization.getSelectedItem();
-if (selectedSpecialty != null && !selectedSpecialty.trim().isEmpty()) {
-    PreparedStatement psSpec = con.prepareStatement(
-        "UPDATE tbl_dentists SET specialty=? WHERE dentist_id=?"
-    );
-    psSpec.setString(1, selectedSpecialty);
-    psSpec.setInt(2, session.getDentistId());
-    psSpec.executeUpdate();
-}
+        // --- Update specialization ---
+        if (selectedSpecialty != null && !selectedSpecialty.trim().isEmpty()) {
+            PreparedStatement psSpec = con.prepareStatement(
+                "UPDATE tbl_dentists SET specialty=? WHERE acc_id=?"
+            );
+            psSpec.setString(1, selectedSpecialty);
+            psSpec.setInt(2, session.getId());  // ✅ use acc_id
+            psSpec.executeUpdate();
 
-// ✅ Update header label with new name
-dr.setText(change_name.getText());
+            // Update UI immediately
+            displaySpecialty.setText(selectedSpecialty);
+        }
 
-// After successful update in EditProfile
-name.setText(change_name.getText());
-email.setText(change_email.getText());
-contact.setText(change_contact.getText());
+        // --- Update header label with new name ---
+        dr.setText(change_name.getText());
+
+        // --- Refresh labels ---
+        name.setText(change_name.getText());
+        email.setText(change_email.getText());
+        contact.setText(change_contact.getText());
 
         con.commit();
 
         JOptionPane.showMessageDialog(this, "Profile updated successfully!");
         loadprofile();       // refresh My Profile
         loadProfileEdit();   // refresh Edit Profile
-        // ✅ Clear fields after save
-change_name.setText("");
-change_email.setText("");
-change_contact.setText("");
-newpass.setText("");
-confirmnewpass.setText("");
 
-// Lock fields back
-change_name.setEditable(false);
-change_email.setEditable(false);
-change_contact.setEditable(false);
+        // --- Clear fields after save ---
+        change_name.setText("");
+        change_email.setText("");
+        change_contact.setText("");
+        newpass.setText("");
+        confirmnewpass.setText("");
+
+        // --- Lock fields back ---
+        change_name.setEditable(false);
+        change_email.setEditable(false);
+        change_contact.setEditable(false);
+
     } catch (Exception e) {
         JOptionPane.showMessageDialog(this, "Error updating profile: " + e.getMessage());
     }
@@ -2005,7 +1986,7 @@ change_contact.setEditable(false);
     }//GEN-LAST:event_jLabel49MouseClicked
 
     private void saveScheduleMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveScheduleMouseClicked
-     String start = (String) startTimeCombo.getSelectedItem();
+    String start = (String) startTimeCombo.getSelectedItem();
     String end   = (String) endTimeCombo.getSelectedItem();
 
     List<String> days = new ArrayList<>();
@@ -2017,13 +1998,15 @@ change_contact.setEditable(false);
     if (satCheck.isSelected()) days.add("Saturday");
     if (sunCheck.isSelected()) days.add("Sunday");
 
+//if (evt != null) { // only validate when Save button is clicked
     if (start == null || end == null || days.isEmpty()) {
         JOptionPane.showMessageDialog(this, "Please select valid start/end times and at least one work day.");
         return;
     }
+//}
+
 
     try {
-        // Parse AM/PM input from combo box
         DateTimeFormatter inputFmt = DateTimeFormatter.ofPattern("h:mm a");
         DateTimeFormatter dbFmt    = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -2035,7 +2018,6 @@ change_contact.setEditable(false);
             return;
         }
 
-        // Normalize to HH:mm for DB
         String startNormalized = startTime.format(dbFmt);
         String endNormalized   = endTime.format(dbFmt);
         String workDays        = String.join(",", days);
@@ -2044,16 +2026,17 @@ change_contact.setEditable(false);
              PreparedStatement pst = con.prepareStatement(
                  "UPDATE tbl_dentists SET work_start=?, work_end=?, work_days=? WHERE dentist_id=?"
              )) {
-            
+
             pst.setString(1, startNormalized);
             pst.setString(2, endNormalized);
             pst.setString(3, workDays);
-            pst.setInt(4, session.getId());
+            pst.setInt(4, session.getDentistId()); // ✅ correct field
 
             int updated = pst.executeUpdate();
             if (updated > 0) {
                 JOptionPane.showMessageDialog(this, "Schedule updated successfully!");
-                loadSchedule(); // reload UI
+                loadSchedule(); // reload UI with fresh DB values
+                 loadScheduleTable();  // ✅ refresh JTable
             } else {
                 JOptionPane.showMessageDialog(this, "No schedule updated. Dentist not found.");
             }
@@ -2062,6 +2045,14 @@ change_contact.setEditable(false);
         JOptionPane.showMessageDialog(this, "Error saving schedule: " + e.getMessage());
     }
     }//GEN-LAST:event_saveScheduleMouseClicked
+
+    private void set_specializationMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_set_specializationMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_set_specializationMouseClicked
+
+    private void saveScheduleMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveScheduleMouseEntered
+        // TODO add your handling code here:
+    }//GEN-LAST:event_saveScheduleMouseEntered
 
 private void loadprofile() {
   String start = (String) startTimeCombo.getSelectedItem();
@@ -2075,11 +2066,7 @@ private void loadprofile() {
     if (friCheck.isSelected()) days.add("Friday");
     if (satCheck.isSelected()) days.add("Saturday");
     if (sunCheck.isSelected()) days.add("Sunday");
-
-    if (start == null || end == null || days.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Please select valid start/end times and at least one work day.");
-        return;
-    }
+    
 
     try {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
@@ -2134,7 +2121,7 @@ private void loadSchedule() {
              "SELECT work_start, work_end, work_days FROM tbl_dentists WHERE dentist_id=?"
          )) {
 
-        pst.setInt(1, session.getId());
+        pst.setInt(1, session.getDentistId()); // ✅ use dentistId here
         ResultSet rs = pst.executeQuery();
 
         if (rs.next()) {
@@ -2147,48 +2134,47 @@ private void loadSchedule() {
             satCheck.setSelected(false);
             sunCheck.setSelected(false);
 
-            DateTimeFormatter dbFmt = DateTimeFormatter.ofPattern("HH:mm");
             DateTimeFormatter uiFmt = DateTimeFormatter.ofPattern("h:mm a");
 
             String start = rs.getString("work_start");
             String end   = rs.getString("work_end");
 
-            if (start != null && !start.isEmpty()) {
-                LocalTime startTime = LocalTime.parse(start, dbFmt);
+            LocalTime startTime = tryParseTime(start);
+            LocalTime endTime   = tryParseTime(end);
+
+            if (startTime != null) {
                 startTimeCombo.setSelectedItem(startTime.format(uiFmt));
             } else {
                 startTimeCombo.setSelectedItem("8:00 AM");
             }
 
-            if (end != null && !end.isEmpty()) {
-                LocalTime endTime = LocalTime.parse(end, dbFmt);
+            if (endTime != null) {
                 endTimeCombo.setSelectedItem(endTime.format(uiFmt));
             } else {
                 endTimeCombo.setSelectedItem("5:00 PM");
             }
 
+            // Work days
             String workDays = rs.getString("work_days");
-            List<String> days = new ArrayList<>();
             if (workDays != null && !workDays.isEmpty()) {
-                days = Arrays.asList(workDays.split(","));
+                List<String> days = Arrays.asList(workDays.split(","));
+                monCheck.setSelected(days.contains("Monday"));
+                tueCheck.setSelected(days.contains("Tuesday"));
+                wedCheck.setSelected(days.contains("Wednesday"));
+                thurCheck.setSelected(days.contains("Thursday"));
+                friCheck.setSelected(days.contains("Friday"));
+                satCheck.setSelected(days.contains("Saturday"));
+                sunCheck.setSelected(days.contains("Sunday"));
             }
-
-            monCheck.setSelected(days.contains("Monday"));
-            tueCheck.setSelected(days.contains("Tuesday"));
-            wedCheck.setSelected(days.contains("Wednesday"));
-            thurCheck.setSelected(days.contains("Thursday"));
-            friCheck.setSelected(days.contains("Friday"));
-            satCheck.setSelected(days.contains("Saturday"));
-            sunCheck.setSelected(days.contains("Sunday"));
         } else {
-            // Defaults if no schedule
+            // Defaults if no schedule exists
             startTimeCombo.setSelectedItem("8:00 AM");
             endTimeCombo.setSelectedItem("5:00 PM");
-            monCheck.setSelected(true);
-            tueCheck.setSelected(true);
-            wedCheck.setSelected(true);
-            thurCheck.setSelected(true);
-            friCheck.setSelected(true);
+            monCheck.setSelected(false);
+            tueCheck.setSelected(false);
+            wedCheck.setSelected(false);
+            thurCheck.setSelected(false);
+            friCheck.setSelected(false);
             satCheck.setSelected(false);
             sunCheck.setSelected(false);
         }
@@ -2198,6 +2184,28 @@ private void loadSchedule() {
         JOptionPane.showMessageDialog(this, "Error loading schedule: " + e.getMessage());
     }
 }
+
+
+/**
+ * Utility to parse time strings from DB with mixed formats
+ */
+private LocalTime tryParseTime(String timeStr) {
+    if (timeStr == null || timeStr.trim().isEmpty()) return null;
+
+    DateTimeFormatter[] possibleFormats = {
+        DateTimeFormatter.ofPattern("h:mm a"),
+        DateTimeFormatter.ofPattern("hh:mm"),
+        DateTimeFormatter.ofPattern("HH:mm")
+    };
+
+    for (DateTimeFormatter fmt : possibleFormats) {
+        try {
+            return LocalTime.parse(timeStr.trim(), fmt);
+        } catch (Exception ignored) {}
+    }
+    return null;
+}
+
 
 private void saveSchedule() {
     String start = (String) startTimeCombo.getSelectedItem();
@@ -2423,7 +2431,7 @@ private void loadProfileEdit() {
         JOptionPane.showMessageDialog(null, "Failed to update photo.\n" + e.getMessage());
     }
 }
-     private void loadProfileDisplay() {
+private void loadProfileDisplay() {
     try (Connection conn = config.connectDB();
          PreparedStatement ps = conn.prepareStatement(
              "SELECT acc_name, acc_email, acc_contact, acc_pic FROM tbl_accounts WHERE acc_id=?"
@@ -2440,14 +2448,29 @@ private void loadProfileEdit() {
             // Load profile picture
             String imgPath = rs.getString("acc_pic");
             if (imgPath != null && !imgPath.trim().isEmpty()) {
-            ImageIcon icon = new ImageIcon(imgPath);
-            ImageIcon resized = resizeImage(icon, 150, 120);
-            forEDITPICTURE.setIcon(resized);
-            savePicHereFirst.setIcon(resized);
-            
-            
+                ImageIcon icon = new ImageIcon(imgPath);
+                ImageIcon resized = resizeImage(icon, 150, 120);
+                forEDITPICTURE.setIcon(resized);
+                savePicHereFirst.setIcon(resized);
             }
         }
+
+ 
+  // --- Load specialization ---
+try (PreparedStatement ps2 = conn.prepareStatement(
+     "SELECT specialty FROM tbl_dentists WHERE acc_id=?"
+)) {
+    ps2.setInt(1, session.getId());
+    ResultSet rs2 = ps2.executeQuery();
+    if (rs2.next()) {
+        String specialty = rs2.getString("specialty");
+        if (specialty != null && !specialty.trim().isEmpty()) {
+            set_specialization.setSelectedItem(specialty); // combo box
+            displaySpecialty.setText(specialty);           // label
+        }
+    }
+}
+
 
 
 
@@ -2455,6 +2478,146 @@ private void loadProfileEdit() {
         JOptionPane.showMessageDialog(this, "Failed to load profile info.\n" + e.getMessage());
     }
 }
+
+private void saveScheduleToDB() {
+    String start = startTimeCombo.getSelectedItem().toString();
+    String end   = endTimeCombo.getSelectedItem().toString();
+
+    // Collect selected days into a comma-separated string
+    List<String> days = new ArrayList<>();
+    if (monCheck.isSelected()) days.add("Monday");
+    if (tueCheck.isSelected()) days.add("Tuesday");
+    if (wedCheck.isSelected()) days.add("Wednesday");
+    if (thurCheck.isSelected()) days.add("Thursday");
+    if (friCheck.isSelected()) days.add("Friday");
+    if (satCheck.isSelected()) days.add("Saturday");
+    if (sunCheck.isSelected()) days.add("Sunday");
+
+    String workDays = String.join(",", days);
+
+    try (Connection conn = config.connectDB();   // ✅ use connectDB() not getConnection()
+         PreparedStatement ps = conn.prepareStatement(
+             "UPDATE tbl_dentists SET work_start = ?, work_end = ?, work_days = ? WHERE dentist_id = ?"
+         )) {
+
+        ps.setString(1, start);
+        ps.setString(2, end);
+        ps.setString(3, workDays);
+        ps.setInt(4, session.getId()); // dentist_id from session
+        ps.executeUpdate();
+
+        JOptionPane.showMessageDialog(this, "Schedule updated successfully!");
+        loadSchedule(); // refresh table
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error saving schedule: " + e.getMessage());
+    }
+}
+
+private void loadTodaySchedule() {
+    LocalDate today = LocalDate.now();
+    DayOfWeek day = today.getDayOfWeek();
+
+    try (Connection conn = config.connectDB();
+         PreparedStatement ps = conn.prepareStatement(
+             "SELECT work_start, work_end, work_days FROM tbl_dentists WHERE dentist_id = ?"
+         )) {
+
+        ps.setInt(1, session.getId()); // dentist_id from session
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            String days = rs.getString("work_days");
+            if (days != null && days.contains(day.toString())) {
+                upcoming.setText("Today: " + rs.getString("work_start") + " - " + rs.getString("work_end"));
+            } else {
+                upcoming.setText("No schedule today");
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error loading today's schedule: " + e.getMessage());
+    }
+}
+
+private void loadScheduleTable() {
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(
+             "SELECT work_start, work_end, work_days FROM tbl_dentists WHERE dentist_id=?"
+         )) {
+
+        pst.setInt(1, session.getDentistId()); // ✅ correct ID
+        ResultSet rs = pst.executeQuery();
+
+        // Define table model (non-editable)
+        javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(
+            new Object[]{"Start Time", "End Time", "Work Days"}, 0
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // prevent editing
+            }
+        };
+
+        while (rs.next()) {
+            String start = rs.getString("work_start");
+            String end   = rs.getString("work_end");
+            String days  = rs.getString("work_days");
+
+            model.addRow(new Object[]{start, end, days});
+        }
+
+        scheduleTable.setModel(model); // ✅ bind model to JTable
+
+// Professional dental health styling
+scheduleTable.setRowHeight(28);
+scheduleTable.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+scheduleTable.setGridColor(new Color(220, 220, 220));
+scheduleTable.setShowGrid(true);
+
+// Header styling
+javax.swing.table.JTableHeader header = scheduleTable.getTableHeader();
+header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+header.setBackground(new Color(200, 230, 240)); // soft healthcare blue
+header.setForeground(Color.DARK_GRAY);
+
+// Column widths
+scheduleTable.getColumnModel().getColumn(0).setPreferredWidth(90);   // Start Time
+scheduleTable.getColumnModel().getColumn(1).setPreferredWidth(90);   // End Time
+scheduleTable.getColumnModel().getColumn(2).setPreferredWidth(250);  // Work Days
+
+// Center align Start/End times
+javax.swing.table.DefaultTableCellRenderer centerRenderer = new javax.swing.table.DefaultTableCellRenderer();
+centerRenderer.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+scheduleTable.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
+scheduleTable.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
+// Work Days stays left-aligned for readability
+// ✅ Alternating row colors (clinic feel)
+scheduleTable.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+    @Override
+    public java.awt.Component getTableCellRendererComponent(
+            javax.swing.JTable table, Object value, boolean isSelected,
+            boolean hasFocus, int row, int column) {
+
+        java.awt.Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+        if (!isSelected) {
+            if (row % 2 == 0) {
+                c.setBackground(new Color(245, 250, 255)); // very light dental blue
+            } else {
+                c.setBackground(Color.WHITE);
+            }
+        }
+        return c;
+    }
+});
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error loading schedule table: " + e.getMessage());
+    }
+}
+
 
 
     /**
@@ -2572,6 +2735,10 @@ private void loadProfileEdit() {
     private javax.swing.JLabel jLabel33;
     private javax.swing.JLabel jLabel34;
     private javax.swing.JLabel jLabel35;
+    private javax.swing.JLabel jLabel36;
+    private javax.swing.JLabel jLabel37;
+    private javax.swing.JLabel jLabel38;
+    private javax.swing.JLabel jLabel39;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel40;
     private javax.swing.JLabel jLabel41;
@@ -2589,6 +2756,7 @@ private void loadProfileEdit() {
     private javax.swing.JLabel jLabel52;
     private javax.swing.JLabel jLabel53;
     private javax.swing.JLabel jLabel54;
+    private javax.swing.JLabel jLabel55;
     private javax.swing.JLabel jLabel59;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel60;
@@ -2612,18 +2780,11 @@ private void loadProfileEdit() {
     private javax.swing.JLabel jLabel93;
     private javax.swing.JLabel jLabel94;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel11;
-    private javax.swing.JPanel jPanel19;
+    private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel20;
     private javax.swing.JPanel jPanel21;
     private javax.swing.JPanel jPanel22;
-    private javax.swing.JPanel jPanel23;
-    private javax.swing.JPanel jPanel24;
-    private javax.swing.JPanel jPanel25;
-    private javax.swing.JPanel jPanel26;
-    private javax.swing.JPanel jPanel27;
-    private javax.swing.JPanel jPanel29;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel30;
     private javax.swing.JPanel jPanel31;
@@ -2641,6 +2802,7 @@ private void loadProfileEdit() {
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
+    private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
