@@ -40,9 +40,11 @@ import javax.swing.JComboBox;
  */
 public class book extends javax.swing.JFrame {
 int xMouse, yMouse;
-private String selectedService; 
+
 private JDateChooser dateChooser;
 private JComboBox<String> timeCombo;
+private String selectedService;
+private String selectedPrice;
 
     /**
      * Creates new form book
@@ -54,23 +56,62 @@ private JComboBox<String> timeCombo;
     loadDentistData();
   
     
-    
-    
-    
+       // ✅ Create the calendar
     dateChooser = new JDateChooser();
-dateChooser.setPreferredSize(new Dimension(200, 30));
+    dateChooser.setPreferredSize(new Dimension(200, 30));
 
-timeCombo = new JComboBox<>(new String[] {
-    "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
-    "11:00 AM", "11:30 AM", "01:00 PM", "01:30 PM",
-    "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM"
+    // ✅ Attach listener AFTER initialization
+    dateChooser.addPropertyChangeListener("date", evt -> {
+        if ("date".equals(evt.getPropertyName())) {
+            Date selectedDate = dateChooser.getDate();
+            if (selectedDate != null) {
+                int dentistId = internal.session.getDentistId();
+                loadAvailableTimes(dentistId, selectedDate);
+            }
+        }
+    });
+
+    // ✅ Create the time dropdown (empty, will be filled dynamically)
+    timeCombo = new JComboBox<>();
+    timeCombo.setPreferredSize(new Dimension(120, 30));
+
+    // ✅ Add them to your panel
+    Jpanel_date_time.setLayout(new FlowLayout());
+    Jpanel_date_time.add(dateChooser);
+    Jpanel_date_time.add(timeCombo);
+  
+
+ table_dentist.addMouseListener(new MouseAdapter() {
+    public void mouseClicked(MouseEvent e) {
+        int row = table_dentist.getSelectedRow();
+        if (row != -1) {
+            int dentistId = Integer.parseInt(table_dentist.getValueAt(row, 0).toString());
+            internal.session.setDentistId(dentistId);
+            JOptionPane.showMessageDialog(book.this,
+                "Dentist selected: " + dentistId);
+
+            // ✅ Once dentist is chosen, move to Tab 3
+            taab.setSelectedIndex(3);
+
+            // 🔗 Load available times for this dentist
+            if (dateChooser.getDate() != null) {
+                loadAvailableTimes(dentistId, dateChooser.getDate());
+            }
+        }
+    }
 });
-timeCombo.setPreferredSize(new Dimension(120, 30));
 
-// Add them to your panel
-Jpanel_date_time.setLayout(new FlowLayout());
-Jpanel_date_time.add(dateChooser);
-Jpanel_date_time.add(timeCombo);
+
+
+
+    
+    
+        // Populate Province ComboBox
+    streetprovince_combobox.setModel(new javax.swing.DefaultComboBoxModel<>(
+        new String[] { "Cebu", "Bohol", "Negros Oriental", "Leyte", "Others" }
+    ));
+    
+    
 
 // Fonts
 Font labelFont = new Font("Segoe UI", Font.PLAIN, 14);
@@ -89,7 +130,7 @@ booking_fullname.setFont(fieldFont);
 book_email.setFont(fieldFont);
 age_spinner.setFont(fieldFont);
 book_contact.setFont(fieldFont);
-jTextField6.setFont(fieldFont);
+streetAddress.setFont(fieldFont);
 book_gender.setFont(fieldFont);
 
 // Button styling
@@ -119,17 +160,16 @@ private void initServiceCards() {
     serviceGrid.setBackground(backgroundColor);
     serviceGrid.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-String[][] services = {
-    {"🦷 Dental Cleaning", "₱ 1,000"},
-    {"🩺 General Checkup", "₱ 500"},
-    {"🦷 Dental Filling", "₱ 2,000"},
-    {"💰 Teeth Whitening", "₱ 14,000"},
-    {"🦷 Tooth Extraction", "₱ 1,500"},
-    {"🦷 Root Canal", "₱ 8,000"},
-    {"💎 Dental Crown", "₱ 15,000"},
-    {"👥 Braces Consultation", "₱ 50,000"}
-};
-
+    String[][] services = {
+        {"🦷 Dental Cleaning", "₱ 1,000"},
+        {"🩺 General Checkup", "₱ 500"},
+        {"🦷 Dental Filling", "₱ 2,000"},
+        {"💰 Teeth Whitening", "₱ 14,000"},
+        {"🦷 Tooth Extraction", "₱ 1,500"},
+        {"🦷 Root Canal", "₱ 8,000"},
+        {"💎 Dental Crown", "₱ 15,000"},
+        {"👥 Braces Consultation", "₱ 50,000"}
+    };
 
     // Keep references to all cards so we can reset borders
     java.util.List<JPanel> cardList = new java.util.ArrayList<>();
@@ -140,7 +180,7 @@ String[][] services = {
         card.setBackground(backgroundColor);
         card.setBorder(BorderFactory.createLineBorder(borderColor, 1, true));
 
-        // Split service name into words and align center
+        // Format service name
         String[] words = service[0].split(" ");
         StringBuilder formattedName = new StringBuilder("<html><div style='text-align:center;'>");
         for (String word : words) {
@@ -148,19 +188,10 @@ String[][] services = {
         }
         formattedName.append("</div></html>");
 
-        
         JLabel title = new JLabel(formattedName.toString(), SwingConstants.CENTER);
-
-// Use emoji-compatible font instead of plain cardFont
-
         title.setFont(emojiFont);
-
         title.setForeground(titleColor);
 
-// Increase card height for better spacing
-        card.setPreferredSize(new Dimension(160, 140));
-
-        
         JLabel price = new JLabel(service[1], SwingConstants.CENTER);
         price.setFont(priceFont);
         price.setForeground(priceColor);
@@ -171,28 +202,33 @@ String[][] services = {
         textPanel.add(price);
 
         card.add(textPanel, BorderLayout.CENTER);
+        
+        
+          card.addMouseListener(new MouseAdapter() {
+    public void mouseClicked(MouseEvent e) {
+        // Reset all cards to default border
+        for (JPanel c : cardList) {
+            c.setBorder(BorderFactory.createLineBorder(borderColor, 1, true));
+        }
 
-        card.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                // Reset all cards to default border
-                for (JPanel c : cardList) {
-                    c.setBorder(BorderFactory.createLineBorder(borderColor, 1, true));
-                }
-                // Highlight only the clicked card
-                selectedService = service[0];
-                card.setBorder(BorderFactory.createLineBorder(highlightColor, 2));
-            }
-        });
+        // Highlight only the clicked card
+        selectedService = service[0];
+        selectedPrice = service[1];
+        card.setBorder(BorderFactory.createLineBorder(highlightColor, 2));
 
+        // ✅ Immediately move to Tab 3 (Date & Time)
+if (selectedService != null && !selectedService.isEmpty()) {
+    taab.setSelectedIndex(2); // ✅ go to Dentist tab
+}
+
+    }
+});
         cardList.add(card);
         serviceGrid.add(card);
     }
-
-    // Clear NetBeans components but keep label + navigation buttons
     jPanel2.removeAll();
     jPanel2.setLayout(new BorderLayout());
 
-    // "Select Service *" label with black text + red asterisk
     JLabel selectLabel = new JLabel(
         "<html><span style='color:black;'>Select Service</span> <span style='color:red;'>*</span></html>",
         SwingConstants.LEFT
@@ -200,10 +236,8 @@ String[][] services = {
     selectLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
     jPanel2.add(selectLabel, BorderLayout.NORTH);
 
-    // Add the grid at the center
     jPanel2.add(serviceGrid, BorderLayout.CENTER);
 
-    // Keep navigation buttons at the bottom
     JPanel navPanel = new JPanel(new BorderLayout());
     navPanel.setBackground(backgroundColor);
     navPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
@@ -215,7 +249,6 @@ String[][] services = {
     jPanel2.revalidate();
     jPanel2.repaint();
 }
-
 
 
 
@@ -241,22 +274,116 @@ private void hideOldPanels() {
 }
 
 
+private void loadAvailableTimes(int dentistId, Date selectedDate) {
+    try (Connection conn = config.connectDB()) {
+        String sql = "SELECT work_days, work_start, work_end, dentist_stat " +
+                     "FROM tbl_dentists WHERE dentist_id=?";
+        PreparedStatement pst = conn.prepareStatement(sql);
+        pst.setInt(1, dentistId);
+        ResultSet rs = pst.executeQuery();
+
+        if (rs.next()) {
+            String workDays = rs.getString("work_days"); 
+            String startStr = rs.getString("work_start"); 
+            String endStr   = rs.getString("work_end");     
+            String status   = rs.getString("dentist_stat");
+
+            // Default to 08:00–17:00 if null
+            java.time.LocalTime start = (startStr != null && !startStr.isEmpty()) 
+                                        ? java.time.LocalTime.parse(startStr) 
+                                        : java.time.LocalTime.of(8, 0);
+            java.time.LocalTime end   = (endStr != null && !endStr.isEmpty()) 
+                                        ? java.time.LocalTime.parse(endStr) 
+                                        : java.time.LocalTime.of(17, 0);
+
+            // Check day availability
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(selectedDate);
+            String dayName = new java.text.DateFormatSymbols()
+                .getWeekdays()[cal.get(Calendar.DAY_OF_WEEK)];
+
+            if (workDays == null || !workDays.contains(dayName)) {
+                JOptionPane.showMessageDialog(this, "Dentist not available on " + dayName);
+                dateChooser.setDate(null);
+                return;
+            }
+
+            if (status == null || !"Available".equalsIgnoreCase(status)) {
+                JOptionPane.showMessageDialog(this, "Dentist is currently " + status);
+                return;
+            }
+
+            // ✅ Populate timeCombo dynamically
+            timeCombo.removeAllItems();
+            java.time.LocalTime t = start;
+            while (!t.isAfter(end)) {
+                timeCombo.addItem(t.format(java.time.format.DateTimeFormatter.ofPattern("hh:mm a")));
+                t = t.plusMinutes(30);
+            }
+        }
+    } catch (SQLException ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error loading dentist schedule: " + ex.getMessage());
+    }
+}
+
+
+
 private boolean isPersonalInfoValid() {
     String name = booking_fullname.getText().trim();     // Full Name
-    String email = book_email.getText().trim();    // Email
+    String email = book_email.getText().trim();          // Email
     String age = age_spinner.getValue().toString().trim();
-
     String genderValue = (String) book_gender.getSelectedItem(); // Gender
-    String phone = book_contact.getText().trim();    // Phone Number
-    String address = jTextField6.getText().trim();  // Address
+    String phone = book_contact.getText().trim();        // Phone Number
+    String street = streetAddress.getText().trim();      // Street Address
+    String province = (String) streetprovince_combobox.getSelectedItem(); // Province
 
-    return !name.isEmpty()
-        && !email.isEmpty()
-        && !age.isEmpty()
-        && genderValue != null && !genderValue.isEmpty()
-        && !phone.isEmpty()
-        && !address.isEmpty();
+    if (name.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Full Name is required.");
+        return false;
+    }
+    if (email.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Email is required.");
+        return false;
+    }
+    if (age.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Age is required.");
+        return false;
+    }
+    if (genderValue == null || genderValue.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Gender is required.");
+        return false;
+    }
+    if (phone.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Phone Number is required.");
+        return false;
+    }
+    if (street.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Street Address is required.");
+        return false;
+    }
+    if (province == null || province.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "State/Province is required.");
+        return false;
+    }
+
+    return true;
 }
+// Helper method to map service names to prices
+private double getServicePrice(String service) {
+    switch (service) {
+        case "🦷 Dental Cleaning": return 1000;
+        case "🩺 General Checkup": return 500;
+        case "🦷 Dental Filling": return 2000;
+        case "💰 Teeth Whitening": return 14000;
+        case "🦷 Tooth Extraction": return 1500;
+        case "🦷 Root Canal": return 8000;
+        case "💎 Dental Crown": return 15000;
+        case "👥 Braces Consultation": return 50000;
+        default: return 0; // fallback if no match
+    }
+}
+
 
 
     /**
@@ -268,7 +395,6 @@ private boolean isPersonalInfoValid() {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        checkbox1 = new java.awt.Checkbox();
         header = new javax.swing.JPanel();
         xpane = new javax.swing.JPanel();
         xbtn = new javax.swing.JLabel();
@@ -301,7 +427,7 @@ private boolean isPersonalInfoValid() {
         jLabel20 = new javax.swing.JLabel();
         book_contact = new javax.swing.JTextField();
         jLabel21 = new javax.swing.JLabel();
-        jTextField6 = new javax.swing.JTextField();
+        streetAddress = new javax.swing.JTextField();
         nextpane = new javax.swing.JPanel();
         nextbtn = new javax.swing.JLabel();
         nextsign = new javax.swing.JLabel();
@@ -315,6 +441,9 @@ private boolean isPersonalInfoValid() {
         jLabel30 = new javax.swing.JLabel();
         book_gender = new javax.swing.JComboBox<>();
         age_spinner = new javax.swing.JSpinner();
+        jLabel108 = new javax.swing.JLabel();
+        streetprovince_combobox = new javax.swing.JComboBox<>();
+        jLabel111 = new javax.swing.JLabel();
         jLabel47 = new javax.swing.JLabel();
         jLabel84 = new javax.swing.JLabel();
         bg1 = new javax.swing.JPanel();
@@ -336,7 +465,7 @@ private boolean isPersonalInfoValid() {
         jLabel37 = new javax.swing.JLabel();
         jLabel38 = new javax.swing.JLabel();
         nextpane1 = new javax.swing.JPanel();
-        nextbtn1 = new javax.swing.JLabel();
+        nextbtn_selectservicepart = new javax.swing.JLabel();
         nextsign1 = new javax.swing.JLabel();
         prevpane1 = new javax.swing.JPanel();
         prevbtn1 = new javax.swing.JLabel();
@@ -386,7 +515,7 @@ private boolean isPersonalInfoValid() {
         jPanel3 = new javax.swing.JPanel();
         jLabel59 = new javax.swing.JLabel();
         nextpane2 = new javax.swing.JPanel();
-        nextbtn2 = new javax.swing.JLabel();
+        next_thisisSelectdentistPart = new javax.swing.JLabel();
         nextsign2 = new javax.swing.JLabel();
         prevpane2 = new javax.swing.JPanel();
         prevbtn2 = new javax.swing.JLabel();
@@ -419,6 +548,9 @@ private boolean isPersonalInfoValid() {
         appointment_date = new javax.swing.JLabel();
         jLabel72 = new javax.swing.JLabel();
         Jpanel_date_time = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        selectedDentist = new javax.swing.JTable();
+        jLabel112 = new javax.swing.JLabel();
         jLabel110 = new javax.swing.JLabel();
         jLabel93 = new javax.swing.JLabel();
         bg4 = new javax.swing.JPanel();
@@ -443,25 +575,28 @@ private boolean isPersonalInfoValid() {
         prevpane4 = new javax.swing.JPanel();
         prevbtn4 = new javax.swing.JLabel();
         jLabel96 = new javax.swing.JLabel();
-        jLabel97 = new javax.swing.JLabel();
         jLabel98 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
-        jTextField4 = new javax.swing.JTextField();
-        jTextField7 = new javax.swing.JTextField();
         jLabel99 = new javax.swing.JLabel();
         jLabel100 = new javax.swing.JLabel();
         jLabel101 = new javax.swing.JLabel();
         jLabel102 = new javax.swing.JLabel();
-        jLabel103 = new javax.swing.JLabel();
+        patientFullName = new javax.swing.JLabel();
         jLabel104 = new javax.swing.JLabel();
+        dentistNAME = new javax.swing.JLabel();
+        SPECIALTY = new javax.swing.JLabel();
+        summaryFulldate = new javax.swing.JLabel();
+        serviceSummary = new javax.swing.JLabel();
+        jLabel97 = new javax.swing.JLabel();
+        moneytopay = new javax.swing.JLabel();
+        cash = new javax.swing.JRadioButton();
+        debitcard = new javax.swing.JRadioButton();
+        gcash = new javax.swing.JRadioButton();
+        jPanel16 = new javax.swing.JPanel();
+        jLabel103 = new javax.swing.JLabel();
         jLabel105 = new javax.swing.JLabel();
         jLabel106 = new javax.swing.JLabel();
-        jLabel107 = new javax.swing.JLabel();
-        jPanel16 = new javax.swing.JPanel();
         jLabel109 = new javax.swing.JLabel();
         jLabel92 = new javax.swing.JLabel();
-
-        checkbox1.setLabel("checkbox1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
@@ -607,17 +742,17 @@ private boolean isPersonalInfoValid() {
 
         jLabel20.setFont(new java.awt.Font("Tw Cen MT", 0, 15)); // NOI18N
         jLabel20.setText("Phone Number");
-        jPanel1.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 160, 90, 30));
+        jPanel1.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 160, 130, 30));
 
         book_contact.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         jPanel1.add(book_contact, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 190, 510, 30));
 
         jLabel21.setFont(new java.awt.Font("Tw Cen MT", 0, 15)); // NOI18N
-        jLabel21.setText("Address");
-        jPanel1.add(jLabel21, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 230, -1, 30));
+        jLabel21.setText("Street Address");
+        jPanel1.add(jLabel21, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 230, -1, 30));
 
-        jTextField6.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255)));
-        jPanel1.add(jTextField6, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 260, 510, 30));
+        streetAddress.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255)));
+        jPanel1.add(streetAddress, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 260, 250, 30));
 
         nextpane.setBackground(new java.awt.Color(0, 102, 255));
         nextpane.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -647,7 +782,7 @@ private boolean isPersonalInfoValid() {
         });
         nextpane.add(nextsign, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 0, 30, 30));
 
-        jPanel1.add(nextpane, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 310, 90, 30));
+        jPanel1.add(nextpane, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 320, 90, 30));
 
         prevpane.setBackground(new java.awt.Color(255, 255, 255));
         prevpane.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 102, 255)));
@@ -661,6 +796,7 @@ private boolean isPersonalInfoValid() {
         prevbtn.setBackground(new java.awt.Color(0, 0, 0));
         prevbtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         prevbtn.setForeground(new java.awt.Color(0, 102, 255));
+        prevbtn.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         prevbtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-back-24 (1).png"))); // NOI18N
         prevbtn.setText("Back ");
         prevbtn.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -674,9 +810,9 @@ private boolean isPersonalInfoValid() {
                 prevbtnMouseExited(evt);
             }
         });
-        prevpane.add(prevbtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 90, 30));
+        prevpane.add(prevbtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 100, 30));
 
-        jPanel1.add(prevpane, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 310, 100, 30));
+        jPanel1.add(prevpane, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 320, 100, 30));
 
         jLabel25.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel25.setForeground(new java.awt.Color(255, 0, 0));
@@ -687,7 +823,7 @@ private boolean isPersonalInfoValid() {
         jLabel26.setForeground(new java.awt.Color(204, 0, 0));
         jLabel26.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel26.setText("*");
-        jPanel1.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 80, 40, 30));
+        jPanel1.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 80, 30, 40));
 
         jLabel27.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel27.setForeground(new java.awt.Color(204, 0, 0));
@@ -697,7 +833,7 @@ private boolean isPersonalInfoValid() {
         jLabel28.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel28.setForeground(new java.awt.Color(204, 0, 0));
         jLabel28.setText("*");
-        jPanel1.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 80, 10, 20));
+        jPanel1.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 80, -1, 30));
 
         jLabel29.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel29.setForeground(new java.awt.Color(204, 0, 0));
@@ -708,7 +844,7 @@ private boolean isPersonalInfoValid() {
         jLabel30.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel30.setForeground(new java.awt.Color(204, 0, 0));
         jLabel30.setText("*");
-        jPanel1.add(jLabel30, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 210, 30, 50));
+        jPanel1.add(jLabel30, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 210, 40, 50));
 
         book_gender.setFont(new java.awt.Font("Tw Cen MT", 0, 15)); // NOI18N
         book_gender.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Male", "Female" }));
@@ -720,6 +856,20 @@ private boolean isPersonalInfoValid() {
         });
         jPanel1.add(book_gender, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 120, 250, 30));
         jPanel1.add(age_spinner, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 120, 70, 30));
+
+        jLabel108.setFont(new java.awt.Font("Tw Cen MT", 0, 15)); // NOI18N
+        jLabel108.setText("State Province");
+        jPanel1.add(jLabel108, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 230, -1, 30));
+
+        streetprovince_combobox.setFont(new java.awt.Font("Tw Cen MT", 0, 15)); // NOI18N
+        streetprovince_combobox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Cebu", "Bohol", "Negros Oriental", "Leyte", "Others" }));
+        streetprovince_combobox.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        jPanel1.add(streetprovince_combobox, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 262, 250, 30));
+
+        jLabel111.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel111.setForeground(new java.awt.Color(204, 0, 0));
+        jLabel111.setText("*");
+        jPanel1.add(jLabel111, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 210, 40, 50));
 
         jLabel47.setBackground(new java.awt.Color(204, 255, 255));
         jLabel47.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -814,22 +964,22 @@ private boolean isPersonalInfoValid() {
         nextpane1.setBackground(new java.awt.Color(0, 102, 255));
         nextpane1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        nextbtn1.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
-        nextbtn1.setForeground(new java.awt.Color(255, 255, 255));
-        nextbtn1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        nextbtn1.setText("Next");
-        nextbtn1.addMouseListener(new java.awt.event.MouseAdapter() {
+        nextbtn_selectservicepart.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        nextbtn_selectservicepart.setForeground(new java.awt.Color(255, 255, 255));
+        nextbtn_selectservicepart.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        nextbtn_selectservicepart.setText("Next");
+        nextbtn_selectservicepart.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                nextbtn1MouseClicked(evt);
+                nextbtn_selectservicepartMouseClicked(evt);
             }
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                nextbtn1MouseEntered(evt);
+                nextbtn_selectservicepartMouseEntered(evt);
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                nextbtn1MouseExited(evt);
+                nextbtn_selectservicepartMouseExited(evt);
             }
         });
-        nextpane1.add(nextbtn1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 30));
+        nextpane1.add(nextbtn_selectservicepart, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 30));
 
         nextsign1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-forward-24 (1).png"))); // NOI18N
         nextsign1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -1173,7 +1323,7 @@ private boolean isPersonalInfoValid() {
 
         jLabel50.setFont(new java.awt.Font("Times New Roman", 0, 13)); // NOI18N
         jLabel50.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel50.setText("Serivice & Dentist");
+        jLabel50.setText("Service & Dentist");
         jPanel13.add(jLabel50, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 40, 100, 20));
 
         jLabel56.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -1192,28 +1342,29 @@ private boolean isPersonalInfoValid() {
         jPanel3.setBackground(new java.awt.Color(204, 255, 255));
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        jLabel59.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
         jLabel59.setText("Select Dentist");
-        jPanel3.add(jLabel59, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 80, -1));
+        jPanel3.add(jLabel59, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 100, -1));
 
         nextpane2.setBackground(new java.awt.Color(0, 153, 153));
         nextpane2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        nextbtn2.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
-        nextbtn2.setForeground(new java.awt.Color(255, 255, 255));
-        nextbtn2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        nextbtn2.setText("Next");
-        nextbtn2.addMouseListener(new java.awt.event.MouseAdapter() {
+        next_thisisSelectdentistPart.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        next_thisisSelectdentistPart.setForeground(new java.awt.Color(255, 255, 255));
+        next_thisisSelectdentistPart.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        next_thisisSelectdentistPart.setText("Next");
+        next_thisisSelectdentistPart.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                nextbtn2MouseClicked(evt);
+                next_thisisSelectdentistPartMouseClicked(evt);
             }
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                nextbtn2MouseEntered(evt);
+                next_thisisSelectdentistPartMouseEntered(evt);
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                nextbtn2MouseExited(evt);
+                next_thisisSelectdentistPartMouseExited(evt);
             }
         });
-        nextpane2.add(nextbtn2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 80, 30));
+        nextpane2.add(next_thisisSelectdentistPart, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 80, 30));
 
         nextsign2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-forward-24 (1).png"))); // NOI18N
         nextsign2.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -1257,7 +1408,7 @@ private boolean isPersonalInfoValid() {
         jLabel60.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel60.setForeground(new java.awt.Color(255, 0, 0));
         jLabel60.setText("*");
-        jPanel3.add(jLabel60, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 0, 20, 40));
+        jPanel3.add(jLabel60, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 0, 20, 40));
 
         table_dentist.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -1271,11 +1422,11 @@ private boolean isPersonalInfoValid() {
 
         jPanel3.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 50, 530, 220));
 
-        jLabel95.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Copilot_20260322_145831.png"))); // NOI18N
+        jLabel95.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/a.jpg"))); // NOI18N
         jLabel95.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
-        jPanel3.add(jLabel95, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -4, 550, 350));
+        jPanel3.add(jLabel95, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -4, 550, 360));
 
-        bg2.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 100, 550, 340));
+        bg2.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 90, 550, -1));
 
         jLabel94.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Copilot_20260322_145831.png"))); // NOI18N
         bg2.add(jLabel94, new org.netbeans.lib.awtextra.AbsoluteConstraints(-2, -10, 810, 480));
@@ -1397,6 +1548,7 @@ private boolean isPersonalInfoValid() {
         prevbtn3.setBackground(new java.awt.Color(0, 0, 0));
         prevbtn3.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         prevbtn3.setForeground(new java.awt.Color(0, 102, 255));
+        prevbtn3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         prevbtn3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-back-24 (1).png"))); // NOI18N
         prevbtn3.setText("Back ");
         prevbtn3.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -1410,24 +1562,40 @@ private boolean isPersonalInfoValid() {
                 prevbtn3MouseExited(evt);
             }
         });
-        prevpane3.add(prevbtn3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 90, 30));
+        prevpane3.add(prevbtn3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 100, 30));
 
         jPanel8.add(prevpane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 300, 100, 30));
 
-        appointment_date.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        appointment_date.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
         appointment_date.setText("Select Appointment Date & Time");
-        jPanel8.add(appointment_date, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 250, -1));
+        jPanel8.add(appointment_date, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 250, 30));
 
         jLabel72.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel72.setForeground(new java.awt.Color(255, 0, 0));
         jLabel72.setText("*");
         jPanel8.add(jLabel72, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 0, 40, 30));
-        jPanel8.add(Jpanel_date_time, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 60, 440, 180));
+        jPanel8.add(Jpanel_date_time, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 140, 380, 40));
+
+        selectedDentist.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+
+            }
+        ));
+        jScrollPane2.setViewportView(selectedDentist);
+
+        jPanel8.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 70, 490, 60));
+
+        jLabel112.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/a.jpg"))); // NOI18N
+        jLabel112.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
+        jPanel8.add(jLabel112, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 550, 350));
 
         jLabel110.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/a.jpg"))); // NOI18N
         jPanel8.add(jLabel110, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -4, 550, 350));
 
-        bg3.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 100, 550, 340));
+        bg3.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 90, 550, 350));
 
         jLabel93.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         jLabel93.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Copilot_20260322_145831.png"))); // NOI18N
@@ -1534,7 +1702,7 @@ private boolean isPersonalInfoValid() {
         });
         nextpane4.add(nextsign4, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 30, 30));
 
-        jPanel10.add(nextpane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 300, 160, 30));
+        jPanel10.add(nextpane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 310, 160, 30));
 
         prevpane4.setBackground(new java.awt.Color(255, 255, 255));
         prevpane4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 102, 255)));
@@ -1563,73 +1731,121 @@ private boolean isPersonalInfoValid() {
         });
         prevpane4.add(prevbtn4, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 90, 30));
 
-        jPanel10.add(prevpane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 300, 100, 30));
+        jPanel10.add(prevpane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 310, 100, 30));
 
         jLabel96.setForeground(new java.awt.Color(204, 204, 204));
-        jLabel96.setText("____________________________________________________________________________");
-        jPanel10.add(jLabel96, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 130, -1, -1));
+        jLabel96.setText("_________________________________________________________________________");
+        jPanel10.add(jLabel96, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 174, -1, 20));
 
-        jLabel97.setForeground(new java.awt.Color(204, 204, 204));
-        jLabel97.setText("____________________________________________________________________________");
-        jPanel10.add(jLabel97, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, -1, 20));
-
+        jLabel98.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         jLabel98.setForeground(new java.awt.Color(204, 204, 204));
-        jLabel98.setText("____________________________________________________________________________");
-        jPanel10.add(jLabel98, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 70, 540, 30));
+        jLabel98.setText("________________________________________________________________________");
+        jPanel10.add(jLabel98, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 520, 20));
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        jPanel10.add(jComboBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 180, 180, 28));
-        jPanel10.add(jTextField4, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 220, 180, 28));
-        jPanel10.add(jTextField7, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 260, 180, 28));
-
+        jLabel99.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
         jLabel99.setForeground(new java.awt.Color(0, 51, 102));
         jLabel99.setText("Payment Method");
-        jPanel10.add(jLabel99, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 176, 110, 30));
+        jPanel10.add(jLabel99, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 190, 110, 30));
 
+        jLabel100.setFont(new java.awt.Font("Times New Roman", 1, 16)); // NOI18N
         jLabel100.setForeground(new java.awt.Color(0, 51, 102));
-        jLabel100.setText("GCash Number");
-        jPanel10.add(jLabel100, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 220, 110, 30));
+        jLabel100.setText("Treatment/Service Summary");
+        jPanel10.add(jLabel100, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 0, 220, 40));
 
+        jLabel101.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         jLabel101.setForeground(new java.awt.Color(0, 51, 102));
-        jLabel101.setText("Ammount to Pay");
-        jPanel10.add(jLabel101, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 260, 110, 30));
+        jLabel101.setText("Ammount to Pay:");
+        jPanel10.add(jLabel101, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 260, 110, 30));
 
+        jLabel102.setFont(new java.awt.Font("Times New Roman", 1, 16)); // NOI18N
         jLabel102.setForeground(new java.awt.Color(0, 51, 102));
-        jLabel102.setText("Consultation Fee");
-        jPanel10.add(jLabel102, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, -1, -1));
+        jLabel102.setText("Patient Info");
+        jPanel10.add(jLabel102, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
 
-        jLabel103.setForeground(new java.awt.Color(0, 51, 102));
-        jLabel103.setText("jLabel103");
-        jPanel10.add(jLabel103, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, -1, -1));
+        patientFullName.setFont(new java.awt.Font("Times New Roman", 0, 15)); // NOI18N
+        patientFullName.setForeground(new java.awt.Color(0, 51, 102));
+        patientFullName.setText("jLabel103");
+        jPanel10.add(patientFullName, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, -1, 40));
 
+        jLabel104.setFont(new java.awt.Font("Times New Roman", 1, 16)); // NOI18N
         jLabel104.setForeground(new java.awt.Color(0, 51, 102));
-        jLabel104.setText("Service Fee");
-        jPanel10.add(jLabel104, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, -1, 30));
+        jLabel104.setText("Dentist & Appointment Info");
+        jPanel10.add(jLabel104, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, -1, 20));
 
-        jLabel105.setForeground(new java.awt.Color(0, 51, 102));
-        jLabel105.setText("jLabel105");
-        jPanel10.add(jLabel105, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 90, -1, 30));
+        dentistNAME.setForeground(new java.awt.Color(0, 51, 102));
+        dentistNAME.setText("Dentist Name");
+        jPanel10.add(dentistNAME, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 100, -1, 30));
 
-        jLabel106.setForeground(new java.awt.Color(0, 51, 102));
-        jLabel106.setText("Total Amount");
-        jPanel10.add(jLabel106, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 120, -1, -1));
+        SPECIALTY.setForeground(new java.awt.Color(0, 51, 102));
+        SPECIALTY.setText("Specialty");
+        jPanel10.add(SPECIALTY, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 130, -1, 30));
 
-        jLabel107.setForeground(new java.awt.Color(0, 51, 102));
-        jLabel107.setText("jLabel107");
-        jPanel10.add(jLabel107, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 150, -1, -1));
+        summaryFulldate.setForeground(new java.awt.Color(0, 51, 102));
+        summaryFulldate.setText("Date");
+        jPanel10.add(summaryFulldate, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 160, 40, 30));
+
+        serviceSummary.setFont(new java.awt.Font("Times New Roman", 0, 15)); // NOI18N
+        serviceSummary.setForeground(new java.awt.Color(0, 51, 102));
+        serviceSummary.setText("Services");
+        jPanel10.add(serviceSummary, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 30, -1, 40));
+
+        jLabel97.setFont(new java.awt.Font("Times New Roman", 0, 15)); // NOI18N
+        jLabel97.setForeground(new java.awt.Color(0, 51, 102));
+        jLabel97.setText("Subtotal");
+        jPanel10.add(jLabel97, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 80, -1, -1));
+
+        moneytopay.setForeground(new java.awt.Color(0, 51, 102));
+        moneytopay.setText("moneytopay");
+        jPanel10.add(moneytopay, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 110, -1, -1));
+
+        cash.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        cash.setForeground(new java.awt.Color(0, 51, 102));
+        cash.setText("Cash");
+        cash.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cashActionPerformed(evt);
+            }
+        });
+        jPanel10.add(cash, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 220, -1, -1));
+
+        debitcard.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        debitcard.setForeground(new java.awt.Color(0, 51, 102));
+        debitcard.setText("Debit Card");
+        jPanel10.add(debitcard, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 220, -1, -1));
+
+        gcash.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        gcash.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                gcashActionPerformed(evt);
+            }
+        });
+        jPanel10.add(gcash, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 220, -1, -1));
 
         jPanel16.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel16.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         jPanel16.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        jPanel10.add(jPanel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 220, 40, 30));
+
+        jLabel103.setText("jLabel103");
+        jPanel16.add(jLabel103, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 0, -1, 30));
+
+        jPanel10.add(jPanel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 260, 160, 30));
+
+        jLabel105.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/OIP (1).jpg"))); // NOI18N
+        jPanel10.add(jLabel105, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 210, 30, 40));
+
+        jLabel106.setFont(new java.awt.Font("Times New Roman", 1, 12)); // NOI18N
+        jLabel106.setForeground(new java.awt.Color(0, 51, 102));
+        jLabel106.setText("GCash");
+        jPanel10.add(jLabel106, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 220, 60, 20));
 
         jLabel109.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/a.jpg"))); // NOI18N
-        jPanel10.add(jLabel109, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -4, 550, 350));
+        jPanel10.add(jLabel109, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -14, 550, 360));
 
-        bg4.add(jPanel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 100, 550, 340));
+        bg4.add(jPanel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 94, 550, -1));
 
         jLabel92.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Copilot_20260322_145831.png"))); // NOI18N
         jLabel92.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-        bg4.add(jLabel92, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 470));
+        bg4.add(jLabel92, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -10, 810, 480));
 
         taab.addTab("book5", bg4);
 
@@ -1729,6 +1945,7 @@ private boolean isPersonalInfoValid() {
     }//GEN-LAST:event_nextbtn3MouseEntered
 
     private void nextbtn3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtn3MouseClicked
+                                   
     Date selectedDate = dateChooser.getDate();
     String selectedTime = (String) timeCombo.getSelectedItem();
 
@@ -1757,8 +1974,47 @@ private boolean isPersonalInfoValid() {
 
     Date appointmentDateTime = cal.getTime(); // ready to save in DB
 
-    // Move to next booking page
-    taab.setSelectedIndex(4);
+    try (Connection conn = DriverManager.getConnection("jdbc:sqlite:dentalcare.db")) {
+        // Get patientId from last insert
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery("SELECT last_insert_rowid()");
+        int patientId = -1;
+        if (rs.next()) {
+            patientId = rs.getInt(1);
+        }
+        rs.close();
+        stmt.close();
+
+        double priceValue = Double.parseDouble(
+            selectedPrice.replace("₱", "").replace(",", "").trim()
+        );
+
+        PreparedStatement psApp = conn.prepareStatement(
+            "INSERT INTO tbl_appointments (pat_id, dentist_id, app_date, app_time, app_service, app_service_price, app_status, payment_method, payment_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        );
+        psApp.setInt(1, patientId);
+        psApp.setInt(2, internal.session.getDentistId()); // dentist from Tab 2
+        psApp.setString(3, selectedDate.toString());      // store date
+        psApp.setString(4, selectedTime);                 // store time
+        psApp.setString(5, selectedService);
+        psApp.setDouble(6, priceValue);
+        psApp.setString(7, "Scheduled");
+        psApp.setString(8, "Walk-in");
+        psApp.setString(9, "Pending");
+
+        psApp.executeUpdate();
+        psApp.close();
+
+        // ✅ Update dentist status to Booked immediately after saving appointment
+config cfg = new config();
+cfg.updateRecord("UPDATE dentist SET status=? WHERE dentist_id=?", 
+                 "Booked", internal.session.getDentistId());
+
+        JOptionPane.showMessageDialog(this, "Appointment saved successfully!");
+        taab.setSelectedIndex(4); // move to Billing tab
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error saving appointment: " + e.getMessage());
+    }
     }//GEN-LAST:event_nextbtn3MouseClicked
 
     private void prevpane2MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_prevpane2MouseEntered
@@ -1782,18 +2038,30 @@ private boolean isPersonalInfoValid() {
 
     }//GEN-LAST:event_nextsign2MouseClicked
 
-    private void nextbtn2MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtn2MouseExited
+    private void next_thisisSelectdentistPartMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_next_thisisSelectdentistPartMouseExited
         nextpane2.setBackground(new Color(0,153,153)); // original color
-    }//GEN-LAST:event_nextbtn2MouseExited
+    }//GEN-LAST:event_next_thisisSelectdentistPartMouseExited
 
-    private void nextbtn2MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtn2MouseEntered
+    private void next_thisisSelectdentistPartMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_next_thisisSelectdentistPartMouseEntered
         Color baseColor = new Color(0,102,102);
         nextpane2.setBackground(new Color(0,102,102)); // darker on hover
-    }//GEN-LAST:event_nextbtn2MouseEntered
+    }//GEN-LAST:event_next_thisisSelectdentistPartMouseEntered
 
-    private void nextbtn2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtn2MouseClicked
-        taab.setSelectedIndex(3);
-    }//GEN-LAST:event_nextbtn2MouseClicked
+    private void next_thisisSelectdentistPartMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_next_thisisSelectdentistPartMouseClicked
+          if (selectedService == null || selectedService.isEmpty() ||
+        selectedPrice == null || selectedPrice.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Please select a service before proceeding.");
+        return;
+    }
+
+    if (internal.session.getDentistId() == 0) {
+        JOptionPane.showMessageDialog(this, "Please select a dentist before proceeding.");
+        return;
+    }
+
+    // ✅ If both are set, move to Date & Time tab
+    taab.setSelectedIndex(3);
+    }//GEN-LAST:event_next_thisisSelectdentistPartMouseClicked
 
     private void bcMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bcMouseExited
         bc.setBackground(new Color(255, 255, 255));
@@ -1994,20 +2262,65 @@ private boolean isPersonalInfoValid() {
 
     }//GEN-LAST:event_nextsign1MouseClicked
 
-    private void nextbtn1MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtn1MouseExited
+    private void nextbtn_selectservicepartMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtn_selectservicepartMouseExited
         nextpane1.setBackground(new Color(0,153,153)); // original color
-    }//GEN-LAST:event_nextbtn1MouseExited
+    }//GEN-LAST:event_nextbtn_selectservicepartMouseExited
 
-    private void nextbtn1MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtn1MouseEntered
+    private void nextbtn_selectservicepartMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtn_selectservicepartMouseEntered
         Color baseColor = new Color(0,102,102);
         nextpane1.setBackground(new Color(0,102,102)); // darker on hover
-    }//GEN-LAST:event_nextbtn1MouseEntered
+    }//GEN-LAST:event_nextbtn_selectservicepartMouseEntered
 
-    private void nextbtn1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtn1MouseClicked
+    private void nextbtn_selectservicepartMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtn_selectservicepartMouseClicked
+ if (selectedService == null || selectedService.isEmpty() ||
+        selectedPrice == null || selectedPrice.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Please select a service before proceeding.");
+        return;
+    }
 
+    if (internal.session.getDentistId() == 0) {
+        JOptionPane.showMessageDialog(this, "Please select a dentist before proceeding.");
+        return;
+    }
 
-      taab.setSelectedIndex(2);
-    }//GEN-LAST:event_nextbtn1MouseClicked
+    try (Connection conn = DriverManager.getConnection("jdbc:sqlite:dentalcare.db")) {
+        // Get patientId from last insert
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery("SELECT last_insert_rowid()");
+        int patientId = -1;
+        if (rs.next()) {
+            patientId = rs.getInt(1);
+        }
+        rs.close();
+        stmt.close();
+
+        // Parse price string safely
+        double priceValue = Double.parseDouble(
+            selectedPrice.replace("₱", "").replace(",", "").trim()
+        );
+
+        PreparedStatement psApp = conn.prepareStatement(
+            "INSERT INTO tbl_appointments (pat_id, dentist_id, app_date, app_time, app_service, app_service_price, app_status, payment_method, payment_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        );
+        psApp.setInt(1, patientId);
+        psApp.setInt(2, internal.session.getDentistId()); // ✅ dentist from session
+        psApp.setString(3, dateChooser.getDate().toString());
+        psApp.setString(4, timeCombo.getSelectedItem().toString());
+        psApp.setString(5, selectedService);
+        psApp.setDouble(6, priceValue);
+        psApp.setString(7, "Scheduled");
+        psApp.setString(8, "Walk-in");
+        psApp.setString(9, "Pending");
+
+        psApp.executeUpdate();
+        psApp.close();
+
+        JOptionPane.showMessageDialog(this, "Service and appointment saved successfully!");
+        taab.setSelectedIndex(2); // move to Date & Time tab
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error saving appointment: " + e.getMessage());
+    }
+    }//GEN-LAST:event_nextbtn_selectservicepartMouseClicked
 
     private void book_genderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_book_genderActionPerformed
         // TODO add your handling code here:
@@ -2048,9 +2361,66 @@ private boolean isPersonalInfoValid() {
     }//GEN-LAST:event_nextbtnMouseEntered
 
     private void nextbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtnMouseClicked
-    if (isPersonalInfoValid()) {
-        // ✅ Only proceed if valid
-        taab.setSelectedIndex(1); // move to Service & Dentist tab
+ if (isPersonalInfoValid()) {
+        // ✅ Collect street + province
+        String street = streetAddress.getText().trim();
+        String province = streetprovince_combobox.getSelectedItem().toString();
+        String fullAddress = street + ", " + province;
+
+        try {
+            Connection conn = DriverManager.getConnection("jdbc:sqlite:dentalcare.db");
+
+            // --- Save patient info ---
+            PreparedStatement ps = conn.prepareStatement(
+                "INSERT INTO tbl_patients (pat_name, pat_email, pat_age, pat_sex, pat_contact, pat_address) VALUES (?, ?, ?, ?, ?, ?)",
+                Statement.RETURN_GENERATED_KEYS // so we can get pat_id
+            );
+            ps.setString(1, booking_fullname.getText().trim());
+            ps.setString(2, book_email.getText().trim());
+            ps.setInt(3, (Integer) age_spinner.getValue());
+            ps.setString(4, book_gender.getSelectedItem().toString());
+            ps.setString(5, book_contact.getText().trim());
+            ps.setString(6, fullAddress);
+            ps.executeUpdate();
+
+            // --- Get generated patient ID ---
+            ResultSet rs = ps.getGeneratedKeys();
+            int patientId = -1;
+            if (rs.next()) {
+                patientId = rs.getInt(1);
+            }
+            rs.close();
+            ps.close();
+
+            // --- Save appointment info ---
+            if (selectedService != null && !selectedService.isEmpty()) {
+                PreparedStatement psApp = conn.prepareStatement(
+                    "INSERT INTO tbl_appointments (pat_id, dentist_id, app_date, app_time, app_service, app_service_price, app_status, payment_method, payment_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                );
+
+                psApp.setInt(1, patientId);
+                psApp.setInt(2, 1); // Example dentist_id, replace with actual selection
+                psApp.setString(3, dateChooser.getDate().toString());
+                psApp.setString(4, timeCombo.getSelectedItem().toString());
+                psApp.setString(5, selectedService);
+                psApp.setDouble(6, getServicePrice(selectedService));
+                psApp.setString(7, "Scheduled");
+                psApp.setString(8, "Walk-in"); // or Online
+                psApp.setString(9, "Pending");
+
+                psApp.executeUpdate();
+                psApp.close();
+            }
+
+            conn.close();
+
+            JOptionPane.showMessageDialog(this, "Patient and appointment saved successfully!");
+            
+            // ✅ Move to Service & Dentist tab
+            taab.setSelectedIndex(1); 
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error saving patient/appointment: " + e.getMessage());
+        }
     } else {
         // ❌ Block navigation if invalid
         JOptionPane.showMessageDialog(
@@ -2059,21 +2429,31 @@ private boolean isPersonalInfoValid() {
             "Missing Information",
             JOptionPane.WARNING_MESSAGE
         );
-        // Do NOT switch tabs here
     }
     }//GEN-LAST:event_nextbtnMouseClicked
 
-    private void loadDentistData() {
+    private void cashActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cashActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cashActionPerformed
 
-
-    String sql = "SELECT acc_name AS Dentist, acc_role AS Role " +
-                 "FROM tbl_accounts " +
-                 "WHERE acc_role = 'dentist'";
-
-    // Use your config helper to load results into the table
-    new config().displayData(sql, table_dentist);
-
-
+    private void gcashActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gcashActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_gcashActionPerformed
+ 
+ private void loadDentistData() {
+    String sql = "SELECT d.dentist_id AS 'ID', " +
+                 "'Dr. ' || a.acc_name AS 'Dentist Name', " +
+                 "d.specialty AS 'Specialty', " +
+                 "d.work_days AS 'Work Days', " +
+                 "d.work_start AS 'Start Time', " +
+                 "d.work_end AS 'End Time', " +
+                 "CASE a.acc_status " +
+                 "   WHEN 1 THEN 'Available' " +
+                 "   ELSE 'Unavailable' " +
+                 "END AS 'Status' " +
+                 "FROM tbl_dentists d " +
+                 "JOIN tbl_accounts a ON d.acc_id = a.acc_id " +
+                 "WHERE a.acc_role = 'dentist'";
 
     try (Connection con = config.connectDB();
          PreparedStatement pst = con.prepareStatement(sql);
@@ -2096,19 +2476,52 @@ private boolean isPersonalInfoValid() {
         header.setOpaque(true);
         header.repaint();
 
-        // ✅ Alternate row colors
+        // ✅ Column widths (guard against empty model)
+        if (table_dentist.getColumnCount() > 0) {
+            table_dentist.getColumnModel().getColumn(0).setPreferredWidth(40);   // ID
+            table_dentist.getColumnModel().getColumn(1).setPreferredWidth(150);  // Name
+            table_dentist.getColumnModel().getColumn(2).setPreferredWidth(150);  // Specialty
+            table_dentist.getColumnModel().getColumn(3).setPreferredWidth(200);  // Work Days
+            table_dentist.getColumnModel().getColumn(4).setPreferredWidth(100);  // Start
+            table_dentist.getColumnModel().getColumn(5).setPreferredWidth(100);  // End
+            table_dentist.getColumnModel().getColumn(6).setPreferredWidth(100);  // Status
+        }
+
+        // ✅ Alternate row colors + status color coding
         table_dentist.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
                     boolean isSelected, boolean hasFocus, int row, int column) {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                // Background striping
                 if (!isSelected) {
-                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(245, 245, 245));
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(245, 250, 255)); // soft clinic blue
                     c.setForeground(new Color(30, 30, 30));
                 } else {
                     c.setBackground(new Color(184, 207, 229)); // selection blue
                     c.setForeground(Color.BLACK);
                 }
+
+                // Status column color coding
+                int statusCol = table.getColumn("Status").getModelIndex();
+                if (column == statusCol && value != null) {
+                    String status = value.toString();
+                    if ("Available".equals(status)) {
+                        c.setForeground(new Color(0, 128, 0)); // green
+                        ((JLabel)c).setFont(new Font("Segoe UI", Font.BOLD, 13));
+                    } else if ("Booked".equals(status)) {
+                        c.setForeground(new Color(0, 0, 255)); // blue
+                        ((JLabel)c).setFont(new Font("Segoe UI", Font.BOLD, 13));
+                    } else if ("In Consultation".equals(status)) {
+                        c.setForeground(new Color(255, 140, 0)); // orange
+                        ((JLabel)c).setFont(new Font("Segoe UI", Font.BOLD, 13));
+                    } else if ("Unavailable".equals(status)) {
+                        c.setForeground(Color.RED);
+                        ((JLabel)c).setFont(new Font("Segoe UI", Font.BOLD, 13));
+                    }
+                }
+
                 if (c instanceof JLabel) {
                     ((JLabel) c).setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // padding
                 }
@@ -2124,6 +2537,8 @@ private boolean isPersonalInfoValid() {
             JOptionPane.ERROR_MESSAGE);
     }
 }
+
+
 
     /**
      * @param args the command line arguments
@@ -2162,6 +2577,7 @@ private boolean isPersonalInfoValid() {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel Jpanel_date_time;
+    private javax.swing.JLabel SPECIALTY;
     private javax.swing.JSpinner age_spinner;
     private javax.swing.JLabel appointment_date;
     private javax.swing.JPanel bc;
@@ -2175,19 +2591,21 @@ private boolean isPersonalInfoValid() {
     private javax.swing.JComboBox<String> book_gender;
     private javax.swing.JTextField booking_fullname;
     private javax.swing.JLabel braceconsultation;
+    private javax.swing.JRadioButton cash;
     private javax.swing.JLabel check1;
-    private java.awt.Checkbox checkbox1;
     private javax.swing.JPanel dc;
+    private javax.swing.JRadioButton debitcard;
     private javax.swing.JPanel denc;
     private javax.swing.JLabel dentalcheckup;
     private javax.swing.JLabel dentalcleaning;
     private javax.swing.JLabel dentalcrown;
     private javax.swing.JLabel dentalfilling;
+    private javax.swing.JLabel dentistNAME;
     private javax.swing.JPanel df;
     private javax.swing.JPanel gc;
+    private javax.swing.JRadioButton gcash;
     private javax.swing.JLabel hdrpic;
     private javax.swing.JPanel header;
-    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel100;
@@ -2197,10 +2615,12 @@ private boolean isPersonalInfoValid() {
     private javax.swing.JLabel jLabel104;
     private javax.swing.JLabel jLabel105;
     private javax.swing.JLabel jLabel106;
-    private javax.swing.JLabel jLabel107;
+    private javax.swing.JLabel jLabel108;
     private javax.swing.JLabel jLabel109;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel110;
+    private javax.swing.JLabel jLabel111;
+    private javax.swing.JLabel jLabel112;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
@@ -2314,15 +2734,14 @@ private boolean isPersonalInfoValid() {
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField6;
-    private javax.swing.JTextField jTextField7;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel logo;
+    private javax.swing.JLabel moneytopay;
+    private javax.swing.JLabel next_thisisSelectdentistPart;
     private javax.swing.JLabel nextbtn;
-    private javax.swing.JLabel nextbtn1;
-    private javax.swing.JLabel nextbtn2;
     private javax.swing.JLabel nextbtn3;
     private javax.swing.JLabel nextbtn4;
+    private javax.swing.JLabel nextbtn_selectservicepart;
     private javax.swing.JPanel nextpane;
     private javax.swing.JPanel nextpane1;
     private javax.swing.JPanel nextpane2;
@@ -2333,6 +2752,7 @@ private boolean isPersonalInfoValid() {
     private javax.swing.JLabel nextsign2;
     private javax.swing.JLabel nextsign3;
     private javax.swing.JLabel nextsign4;
+    private javax.swing.JLabel patientFullName;
     private javax.swing.JLabel prevbtn;
     private javax.swing.JLabel prevbtn1;
     private javax.swing.JLabel prevbtn2;
@@ -2345,6 +2765,11 @@ private boolean isPersonalInfoValid() {
     private javax.swing.JPanel prevpane4;
     private javax.swing.JPanel rc;
     private javax.swing.JLabel rootcanal;
+    private javax.swing.JTable selectedDentist;
+    private javax.swing.JLabel serviceSummary;
+    private javax.swing.JTextField streetAddress;
+    private javax.swing.JComboBox<String> streetprovince_combobox;
+    private javax.swing.JLabel summaryFulldate;
     private javax.swing.JTabbedPane taab;
     private javax.swing.JTable table_dentist;
     private javax.swing.JPanel te;

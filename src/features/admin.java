@@ -1345,7 +1345,7 @@ private void loadAdminProfile() {
         db.add(jScrollPane7, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 340, 300, 120));
 
         jLabel32.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nn.jpg"))); // NOI18N
-        db.add(jLabel32, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -4, 640, 140));
+        db.add(jLabel32, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -4, 650, 140));
 
         tabbed.addTab("db", db);
 
@@ -1388,7 +1388,7 @@ private void loadAdminProfile() {
         });
         jPanel1.add(add, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 160, 30));
 
-        users.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 70, 160, 30));
+        users.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 160, 30));
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
         jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
@@ -1411,7 +1411,7 @@ private void loadAdminProfile() {
         });
         jPanel2.add(edit, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 160, 30));
 
-        users.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 70, 160, 30));
+        users.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 70, 160, 30));
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
         jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
@@ -1435,7 +1435,7 @@ private void loadAdminProfile() {
         });
         jPanel3.add(delete, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 160, 30));
 
-        users.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 70, 160, 30));
+        users.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 70, 160, 30));
 
         search.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255), 2));
         search.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -1446,7 +1446,7 @@ private void loadAdminProfile() {
                 searchKeyTyped(evt);
             }
         });
-        users.add(search, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 110, 250, 30));
+        users.add(search, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 240, 30));
 
         jPanel4.setBackground(new java.awt.Color(0, 51, 255));
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -1466,9 +1466,9 @@ private void loadAdminProfile() {
                 filterAllUsersMouseExited(evt);
             }
         });
-        jPanel4.add(filterAllUsers, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 70, 30));
+        jPanel4.add(filterAllUsers, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 60, 30));
 
-        users.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 110, 70, 30));
+        users.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 110, 60, 30));
 
         jLabel15.setFont(new java.awt.Font("Trebuchet MS", 1, 25)); // NOI18N
         jLabel15.setForeground(new java.awt.Color(0, 51, 102));
@@ -1512,7 +1512,7 @@ private void loadAdminProfile() {
         staff_dentist_table.setGridColor(new java.awt.Color(255, 255, 255));
         jScrollPane2.setViewportView(staff_dentist_table);
 
-        staffmanage.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 170, 630, 290));
+        staffmanage.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 170, 600, 290));
 
         jPanel5.setBackground(new java.awt.Color(255, 255, 255));
         jPanel5.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
@@ -1531,7 +1531,7 @@ private void loadAdminProfile() {
         });
         jPanel5.add(editstaff, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 160, 30));
 
-        staffmanage.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 70, 160, 30));
+        staffmanage.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 70, 160, 30));
 
         jLabel16.setFont(new java.awt.Font("Trebuchet MS", 1, 25)); // NOI18N
         jLabel16.setForeground(new java.awt.Color(0, 51, 102));
@@ -1559,7 +1559,7 @@ private void loadAdminProfile() {
         });
         jPanel6.add(addstaff, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 160, 30));
 
-        staffmanage.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 70, 160, 30));
+        staffmanage.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 70, 160, 30));
 
         jPanel11.setBackground(new java.awt.Color(255, 255, 255));
         jPanel11.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
@@ -1573,7 +1573,7 @@ private void loadAdminProfile() {
         deletestaff.setText("Delete Staff");
         jPanel11.add(deletestaff, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 160, 30));
 
-        staffmanage.add(jPanel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 70, 160, 30));
+        staffmanage.add(jPanel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 70, 160, 30));
 
         staff_dentistSearch.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255), 2));
         staff_dentistSearch.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -1584,7 +1584,7 @@ private void loadAdminProfile() {
                 staff_dentistSearchKeyTyped(evt);
             }
         });
-        staffmanage.add(staff_dentistSearch, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 110, 250, 30));
+        staffmanage.add(staff_dentistSearch, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, 240, 30));
 
         jPanel15.setBackground(new java.awt.Color(0, 51, 255));
         jPanel15.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -1598,9 +1598,9 @@ private void loadAdminProfile() {
                 filter_searchMouseClicked(evt);
             }
         });
-        jPanel15.add(filter_search, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 70, 30));
+        jPanel15.add(filter_search, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 60, 30));
 
-        staffmanage.add(jPanel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 110, 70, 30));
+        staffmanage.add(jPanel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 110, 60, 30));
 
         jLabel49.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-staff-40.png"))); // NOI18N
         staffmanage.add(jLabel49, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 6, 50, 60));
@@ -4326,6 +4326,8 @@ private void saveNewUser() {
 
                 JOptionPane.showMessageDialog(this, "New user created successfully!");
                 acctable(); // refresh accounts table
+                staffDentistTable();    // refresh dentist/staff table in Admin view
+                loadDentistAvailable(); 
             }
         }
     } catch (Exception e) {

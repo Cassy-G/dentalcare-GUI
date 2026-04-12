@@ -2067,9 +2067,9 @@ private void loadprofile() {
     if (sunCheck.isSelected()) days.add("Sunday");
 
     try {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-        LocalTime startTime = LocalTime.parse(start, formatter);
-        LocalTime endTime   = LocalTime.parse(end, formatter);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("h:mm a");
+LocalTime startTime = LocalTime.parse(start, formatter);
+LocalTime endTime   = LocalTime.parse(end, formatter);
 
         if (!startTime.isBefore(endTime)) {
             JOptionPane.showMessageDialog(this, "Start time must be before end time.");
@@ -2123,7 +2123,7 @@ private void loadprofile() {
             loadSchedule();        // reload schedule UI
             loadProfileDisplay();  // reload profile info instantly
         } else {
-            JOptionPane.showMessageDialog(this, "No schedule updated. Dentist not found.");
+            //JOptionPane.showMessageDialog(this, "No schedule updated. Dentist not found.");
         }
 
     } catch (Exception e) {
@@ -2278,7 +2278,7 @@ private void saveSchedule() {
             JOptionPane.showMessageDialog(this, "Schedule updated successfully!");
             loadSchedule(); // reload UI
         } else {
-            JOptionPane.showMessageDialog(this, "No schedule updated. Dentist not found.");
+           //JOptionPane.showMessageDialog(this, "No schedule updated. Dentist not found.");
         }
     } catch (Exception e) {
         JOptionPane.showMessageDialog(this, "Error saving schedule: " + e.getMessage());

@@ -6,17 +6,23 @@
 package features;
 
 import config.config;
+import features.admin.StatusCellRenderer;
 import java.awt.Color;
 import internal.session;
+import java.awt.Component;
+import java.awt.Font;
 import java.awt.Image;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Arrays;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
 
 /**
  *
@@ -24,11 +30,80 @@ import javax.swing.table.DefaultTableCellRenderer;
  */
 public class staff extends javax.swing.JFrame {
  int xMouse, yMouse;
- private void filterDentists(String keyword) {
+ 
+ 
+private void filterDentists(String keyword) {
     javax.swing.table.TableRowSorter<javax.swing.table.DefaultTableModel> sorter =
         new javax.swing.table.TableRowSorter<>((javax.swing.table.DefaultTableModel) dentistAvailabilityTABLE.getModel());
     dentistAvailabilityTABLE.setRowSorter(sorter);
-    sorter.setRowFilter(javax.swing.RowFilter.regexFilter("(?i)" + keyword));
+
+    if (keyword == null || keyword.trim().isEmpty() || keyword.equals("🔎 Search Dentists...")) {
+        sorter.setRowFilter(null); // show all if empty or placeholder
+    } else {
+        sorter.setRowFilter(javax.swing.RowFilter.orFilter(Arrays.asList(
+            javax.swing.RowFilter.regexFilter("(?i)" + keyword, 1), // Dentist Name column
+            javax.swing.RowFilter.regexFilter("(?i)" + keyword, 2)  // Specialty column
+        )));
+    }
+   
+}
+
+private void filterPatients(String keyword) {
+    javax.swing.table.TableRowSorter<javax.swing.table.DefaultTableModel> sorter =
+        new javax.swing.table.TableRowSorter<>((javax.swing.table.DefaultTableModel) ALLPATIENTS.getModel());
+    ALLPATIENTS.setRowSorter(sorter);
+
+    if (keyword == null || keyword.trim().isEmpty() || keyword.equals("🔎 Search Patients...")) {
+        sorter.setRowFilter(null); // show all if empty or placeholder
+    } else {
+        sorter.setRowFilter(javax.swing.RowFilter.orFilter(Arrays.asList(
+            javax.swing.RowFilter.regexFilter("(?i)" + keyword, 1), // Full Name column
+            javax.swing.RowFilter.regexFilter("(?i)" + keyword, 2), // Email Address column
+            javax.swing.RowFilter.regexFilter("(?i)" + keyword, 5)  // Contact Number column
+        )));
+    }
+    
+    ALLPATIENTS.addMouseListener(new java.awt.event.MouseAdapter() {
+    @Override
+    public void mouseClicked(java.awt.event.MouseEvent evt) {
+        int selectedRow = ALLPATIENTS.getSelectedRow();
+        if (selectedRow != -1) {
+            int modelRow = ALLPATIENTS.convertRowIndexToModel(selectedRow);
+            String fullName = ALLPATIENTS.getModel().getValueAt(modelRow, 1).toString();
+            String status = ALLPATIENTS.getModel().getValueAt(modelRow, 7).toString();
+
+            JOptionPane.showMessageDialog(null,
+                "Patient: " + fullName + "\nStatus: " + status,
+                "Patient Status",
+                JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+});
+class StatusCellRenderer extends DefaultTableCellRenderer {
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value,
+            boolean isSelected, boolean hasFocus, int row, int column) {
+        Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+        String status = value != null ? value.toString() : "";
+        setHorizontalAlignment(CENTER);
+        setFont(getFont().deriveFont(Font.BOLD));
+
+        if ("Active".equalsIgnoreCase(status)) {
+            c.setBackground(new Color(220, 255, 220)); // light green
+            c.setForeground(new Color(0, 100, 0));     // dark green text
+        } else if ("Archived".equalsIgnoreCase(status)) {
+            c.setBackground(new Color(255, 220, 220)); // light red
+            c.setForeground(new Color(139, 0, 0));     // dark red text
+        } else {
+            c.setBackground(Color.WHITE);
+            c.setForeground(Color.BLACK);
+        }
+
+        return c;
+    }
+}
+
 }
 
     /**
@@ -38,7 +113,7 @@ public class staff extends javax.swing.JFrame {
         initComponents();
         loadprofile();
         loadDentistAvailability();
-
+        loadAllPatients();
         
     // 🔒 Check if user is logged in
     if (session.getId() == 0) {
@@ -56,8 +131,138 @@ public class staff extends javax.swing.JFrame {
     }
 
     // ✅ If authorized
-    staff.setText("Welcome, " + session.getName()); 
+    stafflabel.setText("Welcome, " + session.getName()); 
+    
+  // ✅ Placeholder setup with emoji
+filterDentists.setText("🔎 Search Dentists...");
+filterDentists.setForeground(Color.GRAY);
+filterDentists.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14)); // ensures emoji renders properly
+
+// ✅ Focus listeners (clear when typing, restore when empty)
+filterDentists.addFocusListener(new java.awt.event.FocusAdapter() {
+    @Override
+    public void focusGained(java.awt.event.FocusEvent evt) {
+        if (filterDentists.getText().equals("🔎 Search Dentists...")) {
+            filterDentists.setText("");              // clear placeholder naturally
+            filterDentists.setForeground(Color.BLACK); // normal typing color
+        }
     }
+    @Override
+    public void focusLost(java.awt.event.FocusEvent evt) {
+        if (filterDentists.getText().trim().isEmpty()) {
+            filterDentists.setText("🔎 Search Dentists...");
+            filterDentists.setForeground(Color.GRAY); // placeholder color
+        }
+    }
+});
+
+// ✅ Single KeyListener (no duplication)
+filterDentists.addKeyListener(new java.awt.event.KeyAdapter() {
+    @Override
+    public void keyReleased(java.awt.event.KeyEvent evt) {
+        String keyword = filterDentists.getText().trim();
+        if (!keyword.equals("🔎 Search Dentists...") && !keyword.isEmpty()) {
+            filterDentists(keyword); // call your filter method
+        }
+    }
+});
+
+// ✅ Search icon click (filters but keeps keyword visible)
+searchbarDentists.addMouseListener(new java.awt.event.MouseAdapter() {
+    @Override
+    public void mouseClicked(java.awt.event.MouseEvent evt) {
+        String keyword = filterDentists.getText().trim();
+        if (!keyword.equals("🔎 Search Dentists...") && !keyword.isEmpty()) {
+            filterDentists(keyword);
+        }
+        // Do NOT clear the text field — keep keyword visible
+        // Placeholder will naturally restore if field is emptied and loses focus
+        searchbarDentists.setForeground(Color.WHITE);
+        searchbarDentists.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+    }
+});
+
+
+
+
+// ✅ Placeholder setup for patient search
+searchPatients.setText("🔎 Search Patients...");
+searchPatients.setForeground(Color.GRAY);
+searchPatients.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
+
+// ✅ Focus listeners
+searchPatients.addFocusListener(new java.awt.event.FocusAdapter() {
+    @Override
+    public void focusGained(java.awt.event.FocusEvent evt) {
+        if (searchPatients.getText().equals("🔎 Search Patients...")) {
+            searchPatients.setText("");
+            searchPatients.setForeground(Color.BLACK);
+        }
+    }
+    @Override
+    public void focusLost(java.awt.event.FocusEvent evt) {
+        if (searchPatients.getText().trim().isEmpty()) {
+            searchPatients.setText("🔎 Search Patients...");
+            searchPatients.setForeground(Color.GRAY);
+        }
+    }
+});
+
+// ✅ Key listener for live filtering
+searchPatients.addKeyListener(new java.awt.event.KeyAdapter() {
+    @Override
+    public void keyReleased(java.awt.event.KeyEvent evt) {
+        String keyword = searchPatients.getText().trim();
+        if (!keyword.equals("🔎 Search Patients...") && !keyword.isEmpty()) {
+            filterPatients(keyword);
+        } else {
+            filterPatients(""); // reset filter
+        }
+    }
+});
+
+    }
+
+ 
+    
+    
+    
+class StatusCellRenderer extends DefaultTableCellRenderer {
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value,
+            boolean isSelected, boolean hasFocus, int row, int column) {
+        Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+        String status = value != null ? value.toString() : "";
+        setHorizontalAlignment(CENTER);
+        setFont(getFont().deriveFont(Font.BOLD));
+
+        switch (status) {
+            case "Available":
+                c.setBackground(new Color(220, 255, 220));
+                c.setForeground(new Color(0, 100, 0));
+                setText("Available");
+                break;
+            case "Booked":
+                c.setBackground(new Color(255, 220, 220));
+                c.setForeground(new Color(139, 0, 0));
+                setText("Booked");
+                break;
+            case "In Consultation":
+                c.setBackground(new Color(220, 235, 255));
+                c.setForeground(new Color(0, 70, 140));
+                setText("In Consultation");
+                break;
+            default:
+                c.setBackground(new Color(255, 245, 200));
+                c.setForeground(new Color(102, 51, 0));
+                setText(status);
+                break;
+        }
+        return c;
+    }
+}
+
 
  
     @SuppressWarnings("unchecked")
@@ -84,7 +289,7 @@ public class staff extends javax.swing.JFrame {
         XPNL = new javax.swing.JPanel();
         XBTN = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        staff = new javax.swing.JLabel();
+        stafflabel = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
         jLabel14 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
@@ -136,22 +341,18 @@ public class staff extends javax.swing.JFrame {
         jPanel8 = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-        jTextField1 = new javax.swing.JTextField();
+        ALLPATIENTS = new javax.swing.JTable();
+        searchPatients = new javax.swing.JTextField();
         jPanel15 = new javax.swing.JPanel();
-        jLabel47 = new javax.swing.JLabel();
-        jScrollPane8 = new javax.swing.JScrollPane();
-        jTable3 = new javax.swing.JTable();
+        filterPATIENTS = new javax.swing.JLabel();
         jPanel7 = new javax.swing.JPanel();
+        editPatients = new javax.swing.JLabel();
         jPanel10 = new javax.swing.JPanel();
-        jLabel12 = new javax.swing.JLabel();
-        jPanel18 = new javax.swing.JPanel();
-        jLabel13 = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
-        jPanel9 = new javax.swing.JPanel();
-        jLabel11 = new javax.swing.JLabel();
+        archive_patients = new javax.swing.JLabel();
+        jPanel37 = new javax.swing.JPanel();
+        restoreArchive = new javax.swing.JLabel();
         jLabel46 = new javax.swing.JLabel();
+        jPanel9 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         dentistAvailabilityTABLE = new javax.swing.JTable();
@@ -159,7 +360,7 @@ public class staff extends javax.swing.JFrame {
         jLabel25 = new javax.swing.JLabel();
         filterDentists = new javax.swing.JTextField();
         jPanel32 = new javax.swing.JPanel();
-        searchbar = new javax.swing.JLabel();
+        searchbarDentists = new javax.swing.JLabel();
         jLabel73 = new javax.swing.JLabel();
         jLabel49 = new javax.swing.JLabel();
         mp = new javax.swing.JPanel();
@@ -227,6 +428,31 @@ public class staff extends javax.swing.JFrame {
         jPanel29 = new javax.swing.JPanel();
         save = new javax.swing.JLabel();
         jLabel64 = new javax.swing.JLabel();
+        jPanel18 = new javax.swing.JPanel();
+        jPanel33 = new javax.swing.JPanel();
+        jPanel34 = new javax.swing.JPanel();
+        jLabel77 = new javax.swing.JLabel();
+        jLabel79 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        jLabel47 = new javax.swing.JLabel();
+        jLabel74 = new javax.swing.JLabel();
+        jLabel75 = new javax.swing.JLabel();
+        jLabel76 = new javax.swing.JLabel();
+        PATIENTID = new javax.swing.JPanel();
+        patientIDlabel = new javax.swing.JLabel();
+        FULLNAME = new javax.swing.JTextField();
+        EMAIL = new javax.swing.JTextField();
+        AGE = new javax.swing.JTextField();
+        CONTACT = new javax.swing.JTextField();
+        ADDRESS = new javax.swing.JTextField();
+        GENDER = new javax.swing.JComboBox<>();
+        jPanel35 = new javax.swing.JPanel();
+        saveEditPatients = new javax.swing.JLabel();
+        jPanel36 = new javax.swing.JPanel();
+        cancelEditPatients = new javax.swing.JLabel();
+        jLabel78 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setUndecorated(true);
@@ -493,7 +719,7 @@ public class staff extends javax.swing.JFrame {
         jLabel2.setForeground(new java.awt.Color(0, 102, 255));
         jLabel2.setText("Dental");
         hdr.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 0, 60, 50));
-        hdr.add(staff, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 0, 130, 30));
+        hdr.add(stafflabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 0, 130, 30));
 
         jLabel16.setFont(new java.awt.Font("Modern No. 20", 3, 17)); // NOI18N
         jLabel16.setForeground(new java.awt.Color(0, 0, 255));
@@ -567,7 +793,7 @@ public class staff extends javax.swing.JFrame {
         jLabel50.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Copilot_20260322_145831.png"))); // NOI18N
         jPanel6.add(jLabel50, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -4, 640, 500));
 
-        dashTb.addTab("dashboard", jPanel6);
+        dashTb.addTab("db", jPanel6);
 
         jPanel4.setBackground(new java.awt.Color(255, 255, 255));
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -713,7 +939,7 @@ public class staff extends javax.swing.JFrame {
         jLabel20.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         jPanel4.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -4, 640, 510));
 
-        dashTb.addTab("appointments", jPanel4);
+        dashTb.addTab("app", jPanel4);
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -721,26 +947,25 @@ public class staff extends javax.swing.JFrame {
         jLabel6.setFont(new java.awt.Font("Times New Roman", 1, 20)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(0, 51, 102));
         jLabel6.setText("Manage Patient Records");
-        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 260, 40));
+        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 260, 50));
 
         jLabel7.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         jLabel7.setForeground(new java.awt.Color(204, 204, 204));
-        jLabel7.setText("________________________________________________________________________________________");
-        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 50, -1, 30));
+        jLabel7.setText("______________________________________________________________________________________");
+        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, -1, 20));
 
         jPanel8.setBackground(new java.awt.Color(0, 51, 255));
         jPanel8.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel8.setFont(new java.awt.Font("Times New Roman", 1, 12)); // NOI18N
         jLabel8.setForeground(new java.awt.Color(255, 255, 255));
         jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-plus-sign-20.png"))); // NOI18N
         jLabel8.setText("  Add New Patient ");
-        jPanel8.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 130, 30));
+        jPanel8.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 150, 30));
 
-        jPanel1.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 30, 150, 30));
+        jPanel1.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 150, 30));
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        ALLPATIENTS.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -748,86 +973,119 @@ public class staff extends javax.swing.JFrame {
 
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(ALLPATIENTS);
 
-        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 120, 390, 260));
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 140, 600, 330));
 
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+        searchPatients.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
+                searchPatientsActionPerformed(evt);
             }
         });
-        jPanel1.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 290, 30));
+        searchPatients.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                searchPatientsKeyReleased(evt);
+            }
+        });
+        jPanel1.add(searchPatients, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 40, 250, 30));
 
         jPanel15.setBackground(new java.awt.Color(0, 51, 255));
         jPanel15.setForeground(new java.awt.Color(0, 51, 255));
         jPanel15.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel47.setFont(new java.awt.Font("Times New Roman", 1, 15)); // NOI18N
-        jLabel47.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel47.setText("Filter");
-        jPanel15.add(jLabel47, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 0, -1, 30));
-
-        jPanel1.add(jPanel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 80, 90, 30));
-
-        jTable3.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-
+        filterPATIENTS.setFont(new java.awt.Font("Times New Roman", 1, 15)); // NOI18N
+        filterPATIENTS.setForeground(new java.awt.Color(255, 255, 255));
+        filterPATIENTS.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        filterPATIENTS.setText("Filter");
+        filterPATIENTS.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                filterPATIENTSMouseClicked(evt);
             }
-        ));
-        jScrollPane8.setViewportView(jTable3);
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                filterPATIENTSMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                filterPATIENTSMouseExited(evt);
+            }
+        });
+        jPanel15.add(filterPATIENTS, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 30));
 
-        jPanel1.add(jScrollPane8, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 81, 220, 400));
+        jPanel1.add(jPanel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 40, 90, 30));
 
         jPanel7.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel7.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
+        jPanel7.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
         jPanel7.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel10.setBackground(new java.awt.Color(0, 153, 0));
+        editPatients.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        editPatients.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-edit-20.png"))); // NOI18N
+        editPatients.setText("Edit Patient");
+        editPatients.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                editPatientsMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                editPatientsMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                editPatientsMouseExited(evt);
+            }
+        });
+        jPanel7.add(editPatients, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 150, 30));
+
+        jPanel1.add(jPanel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 90, 150, 30));
+
+        jPanel10.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel10.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
         jPanel10.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel12.setFont(new java.awt.Font("Times New Roman", 0, 12)); // NOI18N
-        jLabel12.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel12.setText("Returning Patients");
-        jPanel10.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 0, 100, 30));
+        archive_patients.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        archive_patients.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-archive-folder-22.png"))); // NOI18N
+        archive_patients.setText("Archive Patient");
+        archive_patients.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                archive_patientsMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                archive_patientsMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                archive_patientsMouseExited(evt);
+            }
+        });
+        jPanel10.add(archive_patients, new org.netbeans.lib.awtextra.AbsoluteConstraints(-1, 0, 150, 30));
 
-        jPanel7.add(jPanel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 50, 120, 30));
+        jPanel1.add(jPanel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 90, 150, 30));
 
-        jPanel18.setBackground(new java.awt.Color(204, 153, 0));
-        jPanel18.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        jPanel37.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel37.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(102, 204, 255), 2));
+        jPanel37.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel13.setFont(new java.awt.Font("Times New Roman", 0, 12)); // NOI18N
-        jLabel13.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel13.setText("New Registrations");
-        jPanel18.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 0, 100, 30));
+        restoreArchive.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        restoreArchive.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-restore-22.png"))); // NOI18N
+        restoreArchive.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                restoreArchiveMouseClicked(evt);
+            }
+        });
+        jPanel37.add(restoreArchive, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 40, 30));
 
-        jPanel7.add(jPanel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(255, 50, 120, 30));
-
-        jLabel9.setForeground(new java.awt.Color(204, 204, 204));
-        jLabel9.setText("____________________________________________________");
-        jPanel7.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, -1, 30));
-
-        jLabel10.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
-        jLabel10.setText("Today's Status");
-        jPanel7.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, 30));
-
-        jPanel9.setBackground(new java.awt.Color(0, 102, 255));
-        jPanel9.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jLabel11.setFont(new java.awt.Font("Times New Roman", 1, 12)); // NOI18N
-        jLabel11.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel11.setText("Total Patients");
-        jPanel9.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 0, -1, 30));
-
-        jPanel7.add(jPanel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 50, 115, -1));
-
-        jPanel1.add(jPanel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 390, 390, 90));
+        jPanel1.add(jPanel37, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 90, 40, 30));
 
         jLabel46.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/Copilot_20260322_145831.png"))); // NOI18N
         jPanel1.add(jLabel46, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 640, 510));
+
+        javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
+        jPanel9.setLayout(jPanel9Layout);
+        jPanel9Layout.setHorizontalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 140, Short.MAX_VALUE)
+        );
+        jPanel9Layout.setVerticalGroup(
+            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 30, Short.MAX_VALUE)
+        );
+
+        jPanel1.add(jPanel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 90, 140, 30));
 
         dashTb.addTab("patients", jPanel1);
 
@@ -860,19 +1118,32 @@ public class staff extends javax.swing.JFrame {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 filterDentistsKeyReleased(evt);
             }
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                filterDentistsKeyTyped(evt);
+            }
         });
         jPanel2.add(filterDentists, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 100, 280, 30));
 
+        jPanel32.setBackground(new java.awt.Color(0, 51, 204));
         jPanel32.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        searchbar.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        searchbar.setText("Search");
-        searchbar.addMouseListener(new java.awt.event.MouseAdapter() {
+        searchbarDentists.setBackground(new java.awt.Color(255, 255, 255));
+        searchbarDentists.setFont(new java.awt.Font("Times New Roman", 1, 15)); // NOI18N
+        searchbarDentists.setForeground(new java.awt.Color(255, 255, 255));
+        searchbarDentists.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        searchbarDentists.setText("Search");
+        searchbarDentists.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                searchbarMouseClicked(evt);
+                searchbarDentistsMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                searchbarDentistsMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                searchbarDentistsMouseExited(evt);
             }
         });
-        jPanel32.add(searchbar, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 0, 50, 30));
+        jPanel32.add(searchbarDentists, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 30));
 
         jPanel2.add(jPanel32, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 100, 90, 30));
 
@@ -1046,7 +1317,7 @@ public class staff extends javax.swing.JFrame {
         jLabel55.setText("________________________________________________________________________________________");
         mp.add(jLabel55, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 306, -1, -1));
 
-        dashTb.addTab("myprofile", mp);
+        dashTb.addTab("mp", mp);
 
         mp1.setBackground(new java.awt.Color(255, 255, 255));
         mp1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -1186,7 +1457,121 @@ public class staff extends javax.swing.JFrame {
         jLabel64.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nn.jpg"))); // NOI18N
         mp1.add(jLabel64, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -10, 640, 510));
 
-        dashTb.addTab("editprofile", mp1);
+        dashTb.addTab("ep", mp1);
+
+        jPanel18.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel33.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel33.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel34.setBackground(new java.awt.Color(0, 51, 255));
+        jPanel34.setForeground(new java.awt.Color(0, 0, 153));
+        jPanel34.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel77.setFont(new java.awt.Font("Trebuchet MS", 1, 18)); // NOI18N
+        jLabel77.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel77.setText("Edit Patient");
+        jPanel34.add(jLabel77, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 0, -1, 50));
+
+        jLabel79.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-edit-pencil-30.png"))); // NOI18N
+        jPanel34.add(jLabel79, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 0, 40, 50));
+
+        jPanel33.add(jPanel34, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 640, 50));
+
+        jLabel11.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
+        jLabel11.setText("Patient ID:");
+        jPanel33.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 90, -1, 30));
+
+        jLabel12.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
+        jLabel12.setText("Full Name:");
+        jPanel33.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 130, -1, 30));
+
+        jLabel13.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
+        jLabel13.setText("Email Address:");
+        jPanel33.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 170, -1, 30));
+
+        jLabel47.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
+        jLabel47.setText("Age:");
+        jPanel33.add(jLabel47, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 210, -1, 30));
+
+        jLabel74.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
+        jLabel74.setText("Gender:");
+        jPanel33.add(jLabel74, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 250, -1, 30));
+
+        jLabel75.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
+        jLabel75.setText("Contact Number:");
+        jPanel33.add(jLabel75, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 290, -1, 30));
+
+        jLabel76.setFont(new java.awt.Font("Tahoma", 0, 16)); // NOI18N
+        jLabel76.setText("Address:");
+        jPanel33.add(jLabel76, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 330, -1, -1));
+
+        PATIENTID.setBackground(new java.awt.Color(255, 255, 255));
+        PATIENTID.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204), 2));
+        PATIENTID.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        patientIDlabel.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        patientIDlabel.setText("jLabel9");
+        PATIENTID.add(patientIDlabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 0, 60, 30));
+
+        jPanel33.add(PATIENTID, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 90, 210, 30));
+
+        FULLNAME.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204), 2));
+        jPanel33.add(FULLNAME, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 130, 390, 30));
+
+        EMAIL.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204), 2));
+        jPanel33.add(EMAIL, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 170, 390, 30));
+
+        AGE.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204), 2));
+        jPanel33.add(AGE, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 210, 410, 30));
+
+        CONTACT.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204), 2));
+        jPanel33.add(CONTACT, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 290, 380, 30));
+
+        ADDRESS.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204), 2));
+        jPanel33.add(ADDRESS, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 330, 340, 80));
+
+        GENDER.setFont(new java.awt.Font("Trebuchet MS", 0, 14)); // NOI18N
+        GENDER.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Male", "Female" }));
+        GENDER.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204), 2));
+        jPanel33.add(GENDER, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 250, 170, 30));
+
+        jPanel35.setBackground(new java.awt.Color(51, 204, 0));
+        jPanel35.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        saveEditPatients.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        saveEditPatients.setForeground(new java.awt.Color(255, 255, 255));
+        saveEditPatients.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        saveEditPatients.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-check-24.png"))); // NOI18N
+        saveEditPatients.setText("Save");
+        saveEditPatients.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                saveEditPatientsMouseClicked(evt);
+            }
+        });
+        jPanel35.add(saveEditPatients, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 100, 30));
+
+        jPanel33.add(jPanel35, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 440, 100, 30));
+
+        jPanel36.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel36.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
+        jPanel36.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        cancelEditPatients.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        cancelEditPatients.setForeground(new java.awt.Color(102, 102, 102));
+        cancelEditPatients.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        cancelEditPatients.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-cancel-24.png"))); // NOI18N
+        cancelEditPatients.setText("Cancel");
+        jPanel36.add(cancelEditPatients, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 100, 30));
+
+        jPanel33.add(jPanel36, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 440, 100, 30));
+
+        jLabel78.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nn.jpg"))); // NOI18N
+        jPanel33.add(jLabel78, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 50, 640, 440));
+
+        jPanel18.add(jPanel33, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 640, 490));
+
+        dashTb.addTab("editp", jPanel18);
 
         bg.add(dashTb, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 0, 640, 520));
 
@@ -1491,18 +1876,265 @@ public class staff extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_saveMouseClicked
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+    private void searchPatientsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchPatientsActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
+    }//GEN-LAST:event_searchPatientsActionPerformed
 
     private void filterDentistsKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_filterDentistsKeyReleased
-       filterDentists(searchbar.getText());
+       filterDentists(searchbarDentists.getText());
 
     }//GEN-LAST:event_filterDentistsKeyReleased
 
-    private void searchbarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchbarMouseClicked
-     searchbar.setText("");
-    }//GEN-LAST:event_searchbarMouseClicked
+    private void searchbarDentistsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchbarDentistsMouseClicked
+     // Get the keyword from the text field
+    String keyword = filterDentists.getText().trim();
+
+    // Run the search filter
+    if (!keyword.equals("🔎 Search Dentists...") && !keyword.isEmpty()) {
+        filterDentists(keyword);
+    }
+
+    // ✅ Do NOT clear the text field — keep the keyword visible
+    // filterDentists.setText("");  <-- remove this line
+
+    // Reset label styling if needed
+    searchbarDentists.setForeground(Color.WHITE);
+    searchbarDentists.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+    }//GEN-LAST:event_searchbarDentistsMouseClicked
+
+    private void filterDentistsKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_filterDentistsKeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_filterDentistsKeyTyped
+
+    private void searchbarDentistsMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchbarDentistsMouseExited
+         // Reset background color to original white
+    searchbarDentists.setBackground(new java.awt.Color(255, 255, 255));
+    }//GEN-LAST:event_searchbarDentistsMouseExited
+
+    private void searchbarDentistsMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchbarDentistsMouseEntered
+        searchbarDentists.setForeground(new Color(102, 204, 255)); // light aqua/sky blue
+        searchbarDentists.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+    }//GEN-LAST:event_searchbarDentistsMouseEntered
+
+    private void filterPATIENTSMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filterPATIENTSMouseClicked
+      String keyword = searchPatients.getText().trim();
+
+    // Validation: empty or placeholder
+    if (keyword.isEmpty() || keyword.equals("🔎 Search Patients...")) {
+        JOptionPane.showMessageDialog(this, 
+            "Please enter a patient name, email, or contact number before filtering.",
+            "Invalid Search", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    // Apply filter
+    filterPatients(keyword);
+
+    // Validation: check if any rows are visible after filtering
+    if (ALLPATIENTS.getRowCount() == 0) {
+        JOptionPane.showMessageDialog(this, 
+            "No patients found matching: " + keyword,
+            "Search Result", JOptionPane.INFORMATION_MESSAGE);
+        // Reset filter so staff can see all patients again
+        filterPatients("");
+    }
+    }//GEN-LAST:event_filterPATIENTSMouseClicked
+
+    private void filterPATIENTSMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filterPATIENTSMouseEntered
+// Blue text with blue background when hovered
+    filterPATIENTS.setForeground(new Color(0, 51, 204)); // clinic blue
+    filterPATIENTS.setOpaque(true);
+    filterPATIENTS.setBackground(new Color(204, 229, 255)); // light blue background
+    filterPATIENTS.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR)); // optional: hand pointer
+    }//GEN-LAST:event_filterPATIENTSMouseEntered
+
+    private void filterPATIENTSMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filterPATIENTSMouseExited
+           // Reset to default styling (white background, blue text)
+    filterPATIENTS.setForeground(Color.WHITE); // original blue
+    filterPATIENTS.setOpaque(true);
+    filterPATIENTS.setBackground(new Color(0, 51, 204)); // back to white
+    }//GEN-LAST:event_filterPATIENTSMouseExited
+
+    private void searchPatientsKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_searchPatientsKeyReleased
+       
+    }//GEN-LAST:event_searchPatientsKeyReleased
+
+    private void editPatientsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editPatientsMouseClicked
+   int selectedRow = ALLPATIENTS.getSelectedRow();
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this, "Please select a patient first.");
+        return;
+    }
+
+    int modelRow = ALLPATIENTS.convertRowIndexToModel(selectedRow);
+
+    // Extract patient data from table
+    String patId = ALLPATIENTS.getModel().getValueAt(modelRow, 0).toString();
+    String fullName = ALLPATIENTS.getModel().getValueAt(modelRow, 1).toString();
+    String email = ALLPATIENTS.getModel().getValueAt(modelRow, 2).toString();
+    String age = ALLPATIENTS.getModel().getValueAt(modelRow, 3).toString();
+    String gender = ALLPATIENTS.getModel().getValueAt(modelRow, 4).toString();
+    String contact = ALLPATIENTS.getModel().getValueAt(modelRow, 5).toString();
+    String address = ALLPATIENTS.getModel().getValueAt(modelRow, 6).toString();
+
+    // Sync into edit form
+    patientIDlabel.setText(patId);
+    FULLNAME.setText(fullName);
+    EMAIL.setText(email);
+    AGE.setText(age);
+    CONTACT.setText(contact);
+    ADDRESS.setText(address);
+    GENDER.setSelectedItem(gender);
+
+    // Redirect to Tab 6
+    dashTb.setSelectedIndex(6);
+    }//GEN-LAST:event_editPatientsMouseClicked
+
+    private void saveEditPatientsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveEditPatientsMouseClicked
+      String patId = patientIDlabel.getText();
+    if (patId == null || patId.trim().isEmpty()) {
+        JOptionPane.showMessageDialog(this, "No patient ID found.");
+        return;
+    }
+
+    try {
+        config cfg = new config();
+        String sql = "UPDATE tbl_patients SET pat_name=?, pat_email=?, pat_age=?, pat_sex=?, pat_contact=?, pat_address=? WHERE pat_id=?";
+
+        cfg.updateRecord(sql,
+            FULLNAME.getText(),
+            EMAIL.getText(),
+            Integer.parseInt(AGE.getText()),
+            GENDER.getSelectedItem().toString(),
+            CONTACT.getText(),
+            ADDRESS.getText(),
+            Integer.parseInt(patId)
+        );
+
+        JOptionPane.showMessageDialog(this, "Patient record updated successfully.");
+
+        // 🔄 Refresh table to sync changes
+        loadAllPatients();
+
+        // Optional: redirect back to Patients tab
+        dashTb.setSelectedIndex(2);
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error updating patient: " + e.getMessage());
+    }
+    }//GEN-LAST:event_saveEditPatientsMouseClicked
+
+    private void archive_patientsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_archive_patientsMouseClicked
+     int selectedRow = ALLPATIENTS.getSelectedRow();
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this, "Please select a patient to archive.");
+        return;
+    }
+
+    int modelRow = ALLPATIENTS.convertRowIndexToModel(selectedRow);
+    String patId = ALLPATIENTS.getModel().getValueAt(modelRow, 0).toString();
+
+    int confirm = JOptionPane.showConfirmDialog(this,
+        "Are you sure you want to archive this patient?",
+        "Confirm Archive",
+        JOptionPane.YES_NO_OPTION);
+
+    if (confirm == JOptionPane.YES_OPTION) {
+        try {
+            config cfg = new config();
+            String sql = "UPDATE tbl_patients SET pat_archive = 0 WHERE pat_id = ?";
+            cfg.updateRecord(sql, Integer.parseInt(patId));
+
+            JOptionPane.showMessageDialog(this, "Patient archived successfully.");
+            loadAllPatientsWithStatus(); // reload ALL users (active + archived)
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error archiving patient: " + e.getMessage());
+        }
+    }
+    }//GEN-LAST:event_archive_patientsMouseClicked
+
+    private void editPatientsMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editPatientsMouseEntered
+        // TODO add your handling code here:
+    }//GEN-LAST:event_editPatientsMouseEntered
+
+    private void editPatientsMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editPatientsMouseExited
+        // TODO add your handling code here:
+    }//GEN-LAST:event_editPatientsMouseExited
+
+    private void archive_patientsMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_archive_patientsMouseEntered
+        // TODO add your handling code here:
+    }//GEN-LAST:event_archive_patientsMouseEntered
+
+    private void archive_patientsMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_archive_patientsMouseExited
+        // TODO add your handling code here:
+    }//GEN-LAST:event_archive_patientsMouseExited
+
+    private void restoreArchiveMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_restoreArchiveMouseClicked
+      int selectedRow = ALLPATIENTS.getSelectedRow();
+
+    // If no row is selected, just load archived patients
+    if (selectedRow == -1) {
+        try {
+            String sql = "SELECT pat_id, pat_name, pat_email, pat_age, pat_sex, pat_contact, pat_address, " +
+                         "CASE WHEN pat_archive = 1 OR pat_archive IS NULL THEN 'Active' ELSE 'Archived' END AS status " +
+                         "FROM tbl_patients WHERE pat_archive = 0";
+
+            config cfg = new config();
+            cfg.displayData(sql, ALLPATIENTS);
+
+            String[] newHeaders = {
+                "Patient ID",
+                "Full Name",
+                "Email",
+                "Age",
+                "Gender",
+                "Contact Number",
+                "Address",
+                "Status"
+            };
+
+            for (int i = 0; i < newHeaders.length; i++) {
+                ALLPATIENTS.getColumnModel().getColumn(i).setHeaderValue(newHeaders[i]);
+            }
+
+            ALLPATIENTS.getTableHeader().repaint();
+            javax.swing.table.JTableHeader header = ALLPATIENTS.getTableHeader();
+            header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            ALLPATIENTS.setRowHeight(25);
+
+            // Hide internal ID column
+            ALLPATIENTS.getColumnModel().getColumn(0).setMinWidth(0);
+            ALLPATIENTS.getColumnModel().getColumn(0).setMaxWidth(0);
+
+            JOptionPane.showMessageDialog(this, "Archived patients loaded successfully.");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error loading archived patients: " + e.getMessage());
+        }
+        return;
+    }
+
+    // If a row is selected, restore that patient
+    int modelRow = ALLPATIENTS.convertRowIndexToModel(selectedRow);
+    String patId = ALLPATIENTS.getModel().getValueAt(modelRow, 0).toString();
+
+    int confirm = JOptionPane.showConfirmDialog(this,
+        "Do you want to restore this patient?",
+        "Confirm Restore",
+        JOptionPane.YES_NO_OPTION);
+
+    if (confirm == JOptionPane.YES_OPTION) {
+        try {
+            config cfg = new config();
+            String sql = "UPDATE tbl_patients SET pat_archive = 1 WHERE pat_id = ?";
+            cfg.updateRecord(sql, Integer.parseInt(patId));
+
+            JOptionPane.showMessageDialog(this, "Patient restored successfully.");
+            loadAllPatients(); // reload active patients
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error restoring patient: " + e.getMessage());
+        }
+    }
+    }//GEN-LAST:event_restoreArchiveMouseClicked
 private void loadprofile() {
 
     String sql = "SELECT acc_id, acc_name, acc_email,acc_contact, acc_role, acc_pic FROM tbl_accounts WHERE acc_id = ?";
@@ -1551,80 +2183,165 @@ private void loadprofile() {
     
 }
 
+
 private void loadDentistAvailability() {
-    try (Connection conn = config.connectDB()) {  // ✅ use connectDB()
-        String sql = "SELECT a.acc_name, d.specialty, d.work_start, d.work_end, d.work_days " +
+    try (Connection conn = config.connectDB()) {
+        String sql = "SELECT d.dentist_id AS 'ID', " +
+                     "a.acc_name AS 'Dentist Name', " +
+                     "d.specialty AS 'Specialty', " +
+                     "d.work_days AS 'Work Days', " +
+                     "d.work_start AS 'Start Time', " +
+                     "d.work_end AS 'End Time', " +
+                     "d.dentist_stat AS 'Status' " +
                      "FROM tbl_dentists d " +
                      "JOIN tbl_accounts a ON d.acc_id = a.acc_id";
+
         PreparedStatement pst = conn.prepareStatement(sql);
         ResultSet rs = pst.executeQuery();
 
-        javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(
-            new Object[]{"Dentist Name", "Specialty", "Available Days", "Start Time", "End Time"}, 0
-        );
+        dentistAvailabilityTABLE.setModel(net.proteanit.sql.DbUtils.resultSetToTableModel(rs));
 
-        while (rs.next()) {
-            model.addRow(new Object[]{
-                rs.getString("acc_name"),
-                rs.getString("specialty"),
-                rs.getString("work_days"),
-                rs.getString("work_start"),
-                rs.getString("work_end")
-            });
-        }
-
-        dentistAvailabilityTABLE.setModel(model); // ✅ attach model to JTable
-        styleDentistTable(); // optional styling
+        // ✅ Apply styling and column widths after model reset
+        styleDentistTable();
+        adjustColumnWidths();
     } catch (Exception e) {
+        e.printStackTrace();
         JOptionPane.showMessageDialog(this, "Error loading dentist availability: " + e.getMessage());
     }
 }
 
-
 private void styleDentistTable() {
-    dentistAvailabilityTABLE.setRowHeight(30);
+    dentistAvailabilityTABLE.setRowHeight(32);
+    dentistAvailabilityTABLE.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+    dentistAvailabilityTABLE.setGridColor(new Color(220, 220, 220));
     dentistAvailabilityTABLE.setShowGrid(true);
-    dentistAvailabilityTABLE.setGridColor(new Color(200, 200, 200));
-    dentistAvailabilityTABLE.getTableHeader().setBackground(new Color(0, 102, 204));
-    dentistAvailabilityTABLE.getTableHeader().setForeground(Color.WHITE);
-    dentistAvailabilityTABLE.getTableHeader().setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
+    dentistAvailabilityTABLE.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 
-    // Alternate row colors + selection highlight + specialty color coding
-    dentistAvailabilityTABLE.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
-        @Override
-        public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, Object value,
-                boolean isSelected, boolean hasFocus, int row, int column) {
-            java.awt.Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+    JTableHeader header = dentistAvailabilityTABLE.getTableHeader();
+    header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+    header.setBackground(new Color(180, 220, 240)); // soft healthcare blue
+    header.setForeground(new Color(50, 50, 70));    // dark slate text
+    header.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 2, 0, new Color(100, 150, 200)));
 
-            if (isSelected) {
-                c.setBackground(new Color(173, 216, 230)); // light sky blue highlight
-                c.setForeground(Color.BLACK);
-            } else {
-                c.setBackground(row % 2 == 0 ? new Color(240, 248, 255) : Color.WHITE);
-                c.setForeground(Color.BLACK);
-            }
+    // ✅ Attach custom renderer to Status column
+    try {
+        int statusIndex = dentistAvailabilityTABLE.getColumnModel().getColumnIndex("Status");
+        dentistAvailabilityTABLE.getColumnModel().getColumn(statusIndex).setCellRenderer(new StatusCellRenderer());
+    } catch (IllegalArgumentException ex) {
+        // Status column not found
+    }
+}
 
-            // Specialty column color coding (column index 1)
-            if (column == 1 && value != null) {
-                String specialty = value.toString();
-                switch (specialty) {
-                    case "Orthodontist": c.setForeground(new Color(0, 102, 204)); break;
-                    case "Endodontist": c.setForeground(new Color(0, 153, 0)); break;
-                    case "Pediatric Dentist": c.setForeground(new Color(255, 140, 0)); break;
-                    case "Periodontist": c.setForeground(new Color(153, 0, 153)); break;
-                    default: c.setForeground(Color.BLACK);
-                }
-            }
 
-            return c;
+
+
+private void adjustColumnWidths() {
+    // ID column small
+    dentistAvailabilityTABLE.getColumnModel().getColumn(0).setPreferredWidth(50);
+
+    // Dentist Name column wide
+    dentistAvailabilityTABLE.getColumnModel().getColumn(1).setPreferredWidth(160);
+
+    // Specialty column medium
+    dentistAvailabilityTABLE.getColumnModel().getColumn(2).setPreferredWidth(200);
+
+    // Work Days column medium
+    dentistAvailabilityTABLE.getColumnModel().getColumn(3).setPreferredWidth(225);
+
+    // Start Time column small
+    dentistAvailabilityTABLE.getColumnModel().getColumn(4).setPreferredWidth(120);
+
+    // End Time column small
+    dentistAvailabilityTABLE.getColumnModel().getColumn(5).setPreferredWidth(120);
+
+    // Status column medium
+    dentistAvailabilityTABLE.getColumnModel().getColumn(6).setPreferredWidth(130);
+}
+
+private void loadAllPatients() {
+    String sql = "SELECT pat_id, pat_name, pat_email, pat_age, pat_sex, pat_contact, pat_address, " +
+             "CASE " +
+             "   WHEN pat_archive = 1 OR pat_archive IS NULL THEN 'Active' " +
+             "   ELSE 'Archived' " +
+             "END AS status " +
+             "FROM tbl_patients";
+
+    try {
+        config cfg = new config();
+        cfg.displayData(sql, ALLPATIENTS);
+
+  String[] newHeaders = {
+    "Patient ID",
+    "Full Name",
+    "Email",
+    "Age",
+    "Gender",
+    "Contact",
+    "Address",
+    "Status"
+};
+
+
+        for (int i = 0; i < newHeaders.length; i++) {
+            ALLPATIENTS.getColumnModel().getColumn(i).setHeaderValue(newHeaders[i]);
         }
-    });
 
-    // Center align Start Time and End Time columns (index 3 and 4)
-    DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-    centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-    dentistAvailabilityTABLE.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
-    dentistAvailabilityTABLE.getColumnModel().getColumn(4).setCellRenderer(centerRenderer);
+        ALLPATIENTS.getTableHeader().repaint();
+        javax.swing.table.JTableHeader header = ALLPATIENTS.getTableHeader();
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        ALLPATIENTS.setRowHeight(25);
+
+        // Hide internal ID column
+        ALLPATIENTS.getColumnModel().getColumn(0).setMinWidth(0);
+        ALLPATIENTS.getColumnModel().getColumn(0).setMaxWidth(0);
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error loading patients: " + e.getMessage());
+    }
+}
+
+
+
+private void loadAllPatientsWithStatus() {
+    String sql = "SELECT pat_id, pat_name, pat_email, pat_age, pat_sex, pat_contact, pat_address, " +
+                 "CASE " +
+                 "   WHEN pat_archive = 1 OR pat_archive IS NULL THEN 'Active' " +
+                 "   ELSE 'Archived' " +
+                 "END AS status " +
+                 "FROM tbl_patients";
+
+    try {
+        config cfg = new config();
+        cfg.displayData(sql, ALLPATIENTS);
+
+        String[] newHeaders = {
+            "Patient ID",
+            "Full Name",
+            "Email",
+            "Age",
+            "Gender",
+            "Contact Number",
+            "Address",
+            "Status"
+        };
+
+        for (int i = 0; i < newHeaders.length; i++) {
+            ALLPATIENTS.getColumnModel().getColumn(i).setHeaderValue(newHeaders[i]);
+        }
+
+        ALLPATIENTS.getTableHeader().repaint();
+        javax.swing.table.JTableHeader header = ALLPATIENTS.getTableHeader();
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        ALLPATIENTS.setRowHeight(25);
+
+        // Hide internal ID column
+        ALLPATIENTS.getColumnModel().getColumn(0).setMinWidth(0);
+        ALLPATIENTS.getColumnModel().getColumn(0).setMaxWidth(0);
+          // ✅ Apply custom renderer to Status column (index 7)
+        ALLPATIENTS.getColumnModel().getColumn(7).setCellRenderer(new StatusCellRenderer());
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error loading patients: " + e.getMessage());
+    }
 }
 
 
@@ -1671,6 +2388,14 @@ private void styleDentistTable() {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField ADDRESS;
+    private javax.swing.JTextField AGE;
+    private javax.swing.JTable ALLPATIENTS;
+    private javax.swing.JTextField CONTACT;
+    private javax.swing.JTextField EMAIL;
+    private javax.swing.JTextField FULLNAME;
+    private javax.swing.JComboBox<String> GENDER;
+    private javax.swing.JPanel PATIENTID;
     private javax.swing.JLabel XBTN;
     private javax.swing.JPanel XPNL;
     private javax.swing.JLabel acc_pic;
@@ -1678,7 +2403,9 @@ private void styleDentistTable() {
     private javax.swing.JPanel addpicture1;
     private javax.swing.JLabel appbtn;
     private javax.swing.JPanel apppnl;
+    private javax.swing.JLabel archive_patients;
     private javax.swing.JPanel bg;
+    private javax.swing.JLabel cancelEditPatients;
     private javax.swing.JTextField contact;
     private javax.swing.JLabel contacttxt;
     private javax.swing.JTabbedPane dashTb;
@@ -1688,13 +2415,14 @@ private void styleDentistTable() {
     private javax.swing.JTable dentistAvailabilityTABLE;
     private javax.swing.JLabel docbtn;
     private javax.swing.JPanel docpnl;
+    private javax.swing.JLabel editPatients;
     private javax.swing.JLabel editprofile;
     private javax.swing.JTextField email;
     private javax.swing.JLabel emailtxt;
     private javax.swing.JTextField filterDentists;
+    private javax.swing.JLabel filterPATIENTS;
     private javax.swing.JPanel hdr;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
@@ -1764,8 +2492,13 @@ private void styleDentistTable() {
     private javax.swing.JLabel jLabel71;
     private javax.swing.JLabel jLabel72;
     private javax.swing.JLabel jLabel73;
+    private javax.swing.JLabel jLabel74;
+    private javax.swing.JLabel jLabel75;
+    private javax.swing.JLabel jLabel76;
+    private javax.swing.JLabel jLabel77;
+    private javax.swing.JLabel jLabel78;
+    private javax.swing.JLabel jLabel79;
     private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel11;
@@ -1792,6 +2525,11 @@ private void styleDentistTable() {
     private javax.swing.JPanel jPanel30;
     private javax.swing.JPanel jPanel31;
     private javax.swing.JPanel jPanel32;
+    private javax.swing.JPanel jPanel33;
+    private javax.swing.JPanel jPanel34;
+    private javax.swing.JPanel jPanel35;
+    private javax.swing.JPanel jPanel36;
+    private javax.swing.JPanel jPanel37;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
@@ -1805,13 +2543,9 @@ private void styleDentistTable() {
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JScrollPane jScrollPane7;
-    private javax.swing.JScrollPane jScrollPane8;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTable jTable3;
     private javax.swing.JTable jTable4;
     private javax.swing.JTable jTable5;
     private javax.swing.JTable jTable6;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
     private javax.swing.JTextField jTextField5;
@@ -1822,16 +2556,20 @@ private void styleDentistTable() {
     private javax.swing.JLabel nametxt;
     private javax.swing.JLabel newAppointments;
     private javax.swing.JTextField password;
+    private javax.swing.JLabel patientIDlabel;
     private javax.swing.JLabel patientbtn;
     private javax.swing.JPanel patientpnl;
     private javax.swing.JLabel pic;
+    private javax.swing.JLabel restoreArchive;
     private javax.swing.JLabel role;
     private javax.swing.JLabel save;
+    private javax.swing.JLabel saveEditPatients;
     private javax.swing.JLabel schedbtn;
     private javax.swing.JPanel schedpnl;
-    private javax.swing.JLabel searchbar;
+    private javax.swing.JTextField searchPatients;
+    private javax.swing.JLabel searchbarDentists;
     private javax.swing.JTextField searchbar_appointments;
-    private javax.swing.JLabel staff;
+    private javax.swing.JLabel stafflabel;
     private javax.swing.JTable tbl_AppointmentList;
     private javax.swing.JTable tbl_appDetails;
     // End of variables declaration//GEN-END:variables
