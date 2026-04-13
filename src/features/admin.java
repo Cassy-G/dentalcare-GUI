@@ -76,14 +76,27 @@ private int mapStatusToInt(String status) {
 
     
 }
-// --- Map Role ComboBox (with emoji) to DB values ---
-private String mapRoleToDb(String roleWithEmoji) {
-    switch (roleWithEmoji) {
-        case "👑 Admin": return "admin";
-        case "🦷 Dentist": return "dentist";
-        case "👤 Staff": return "staff";
-        case "🧑‍ Patient": return "patient";
-        default: return "staff"; // sensible fallback
+
+// ✅ Corrected role mapping
+private String mapRoleToDb(String role) {
+    switch (role.toLowerCase()) {
+        case "admin": return "admin";
+        case "dentist": return "dentist";
+        case "staff": return "staff";
+        case "patient": return "patient";
+        default: return "staff";
+    }
+}
+    // ✅ Centralized logging helper
+private void logAction(Connection conn, int accId, String role, String action, String details) throws SQLException {
+    String logSql = "INSERT INTO tbl_logs (actor_id, actor_role, action, details, created_at) " +
+                    "VALUES (?, ?, ?, ?, datetime('now'))";
+    try (PreparedStatement logPst = conn.prepareStatement(logSql)) {
+        logPst.setInt(1, accId);
+        logPst.setString(2, role);
+        logPst.setString(3, action);
+        logPst.setString(4, details);
+        logPst.executeUpdate();
     }
 }
 
@@ -94,6 +107,7 @@ private String mapRoleToDb(String roleWithEmoji) {
     public admin() {
         initComponents();
        acctable();
+       appointmentTable(); // ✅ load appointments
        profilePic.setPreferredSize(new Dimension(150, 150));
       
        loadSystemLogs();
@@ -110,6 +124,46 @@ private String mapRoleToDb(String roleWithEmoji) {
        
        
        
+    // Add placeholders
+    addPlaceholder(addname_staff, "Enter staff name");
+    addPlaceholder(addemail_staff, "Enter staff email");
+    addPlaceholder(addpass_staff, "Enter staff password");
+    addPlaceholder(addcontact_staff, "Enter contact number");
+
+       
+          // ✅ Add placeholders after components are initialized
+        addPlaceholder(name_newUser, "Enter full name");
+        addPlaceholder(email_newUser, "Enter email address");
+        addPlaceholder(password_newUser, "Enter password");
+        addPlaceholder(contact_newUser, "Enter Phone number");
+    }
+
+   // --- Placeholder helper method ---
+    private void addPlaceholder(JTextField field, String placeholder) {
+        field.setText(placeholder);
+        field.setForeground(Color.GRAY);
+
+        field.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusGained(java.awt.event.FocusEvent e) {
+                if (field.getText().equals(placeholder)) {
+                    field.setText("");
+                    field.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                if (field.getText().isEmpty()) {
+                    field.setText(placeholder);
+                    field.setForeground(Color.GRAY);
+                }
+            }
+        });
+        
+        
+        
+        
       setDentist_specialty.setModel(new DefaultComboBoxModel<>(
     new String[] {
         "General Dentistry",
@@ -121,6 +175,8 @@ private String mapRoleToDb(String roleWithEmoji) {
     }
 ));
 
+      
+      
     // ✅ Insert here — after initComponents()
     editUser_status.setModel(new DefaultComboBoxModel<>(
         new String[] { "active", "inactive", "suspended" }
@@ -186,16 +242,6 @@ statusAllUsers.addItemListener(e -> {
     }
 });
 
-
-
-       
-       delete.addMouseListener(new java.awt.event.MouseAdapter() {
-    @Override
-    public void mouseClicked(java.awt.event.MouseEvent evt) {
-        deleteUser();
-    }
-});
-
        
 edit_email.addFocusListener(new java.awt.event.FocusAdapter() {
     @Override
@@ -206,10 +252,18 @@ edit_email.addFocusListener(new java.awt.event.FocusAdapter() {
     }
 });
 
-       status_newUser.setModel(new DefaultComboBoxModel<>(new String[] { "Active", "Inactive", "Suspended" }));
-       role_newUser.setModel(new DefaultComboBoxModel<>(new String[] { "Admin", "Dentist", "Staff", "Patient" }));
+  // ✅ Status dropdown aligned with mapStatusToInt
+status_newUser.setModel(new DefaultComboBoxModel<>(
+    new String[] { "active", "inactive", "suspended" }
+));
 
-       save_newUser.addMouseListener(new java.awt.event.MouseAdapter() {
+// ✅ Role dropdown aligned with mapRoleToDb
+role_newUser.setModel(new DefaultComboBoxModel<>(
+    new String[] { "admin", "dentist", "staff", "patient" }
+));
+
+// ✅ Save button listener stays the same
+save_newUser.addMouseListener(new java.awt.event.MouseAdapter() {
     @Override
     public void mouseClicked(java.awt.event.MouseEvent evt) {
         saveNewUser();
@@ -217,17 +271,6 @@ edit_email.addFocusListener(new java.awt.event.FocusAdapter() {
 });
 
        
-    saveEditUser.addMouseListener(new java.awt.event.MouseAdapter() {
-    @Override
-    public void mouseClicked(java.awt.event.MouseEvent evt) {
-        saveEditedUserRoleStatus();
-    }
-});
-
-
-
-
-
        
 filterAllUsers.setText("Search"); // emoji on button
 
@@ -810,13 +853,10 @@ private void loadAdminProfile() {
         jPanel32 = new javax.swing.JPanel();
         jLabel58 = new javax.swing.JLabel();
         jScrollPane8 = new javax.swing.JScrollPane();
-        jTable5 = new javax.swing.JTable();
+        TABLEAPPOINTMENT = new javax.swing.JTable();
         jLabel59 = new javax.swing.JLabel();
         app_search = new javax.swing.JTextField();
         jLabel60 = new javax.swing.JLabel();
-        jComboBox3 = new javax.swing.JComboBox<>();
-        jComboBox4 = new javax.swing.JComboBox<>();
-        jComboBox5 = new javax.swing.JComboBox<>();
         jPanel33 = new javax.swing.JPanel();
         jLabel61 = new javax.swing.JLabel();
         jLabel35 = new javax.swing.JLabel();
@@ -1364,7 +1404,7 @@ private void loadAdminProfile() {
         tbl.setGridColor(new java.awt.Color(204, 204, 204));
         jScrollPane1.setViewportView(tbl);
 
-        users.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 180, 610, 280));
+        users.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 180, 590, 280));
 
         jPanel1.setBackground(new java.awt.Color(0, 51, 255));
         jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
@@ -1492,7 +1532,7 @@ private void loadAdminProfile() {
         users.add(statusAllUsers, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 110, 140, 30));
 
         jLabel33.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nn.jpg"))); // NOI18N
-        users.add(jLabel33, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -4, 650, 170));
+        users.add(jLabel33, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -4, 640, 170));
 
         tabbed.addTab("users", users);
 
@@ -2353,7 +2393,7 @@ private void loadAdminProfile() {
         jPanel47.add(jLabel111, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 200, 80, 30));
 
         editUser_role.setFont(new java.awt.Font("Trebuchet MS", 0, 16)); // NOI18N
-        editUser_role.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "patient", "dentist", "staff", "admin" }));
+        editUser_role.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "admin", "dentist", "staff", "patient" }));
         editUser_role.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255), 2));
         jPanel47.add(editUser_role, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 160, 260, 30));
 
@@ -2599,7 +2639,7 @@ private void loadAdminProfile() {
 
         jPanel29.add(jPanel32, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 90, 160, 30));
 
-        jTable5.setModel(new javax.swing.table.DefaultTableModel(
+        TABLEAPPOINTMENT.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -2607,7 +2647,7 @@ private void loadAdminProfile() {
 
             }
         ));
-        jScrollPane8.setViewportView(jTable5);
+        jScrollPane8.setViewportView(TABLEAPPOINTMENT);
 
         jPanel29.add(jScrollPane8, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 200, 620, 260));
 
@@ -2618,32 +2658,23 @@ private void loadAdminProfile() {
         jPanel29.add(jLabel59, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 126, 610, 20));
 
         app_search.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
-        jPanel29.add(app_search, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 150, 220, 30));
+        jPanel29.add(app_search, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 150, 490, 30));
 
         jLabel60.setForeground(new java.awt.Color(204, 204, 204));
         jLabel60.setText("_______________________________________________________________________________________");
         jLabel60.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         jPanel29.add(jLabel60, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 174, 610, -1));
 
-        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        jPanel29.add(jComboBox3, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 150, 90, 30));
-
-        jComboBox4.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        jPanel29.add(jComboBox4, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 150, 100, 30));
-
-        jComboBox5.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        jPanel29.add(jComboBox5, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 150, 100, 30));
-
         jPanel33.setBackground(new java.awt.Color(0, 51, 255));
         jPanel33.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel61.setFont(new java.awt.Font("Trebuchet MS", 0, 14)); // NOI18N
+        jLabel61.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
         jLabel61.setForeground(new java.awt.Color(255, 255, 255));
         jLabel61.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel61.setText("Filter");
-        jPanel33.add(jLabel61, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 60, 30));
+        jPanel33.add(jLabel61, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 90, 30));
 
-        jPanel29.add(jPanel33, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 150, 60, 30));
+        jPanel29.add(jPanel33, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 150, 90, 30));
 
         jLabel35.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nn.jpg"))); // NOI18N
         jPanel29.add(jLabel35, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -10, 640, 200));
@@ -3263,27 +3294,33 @@ private void loadAdminProfile() {
     }//GEN-LAST:event_appbtnMouseClicked
 
     private void saveEditUserMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveEditUserMouseClicked
-      int accId = selectedAccId;
+ int accId = selectedAccId;
     String role = editUser_role.getSelectedItem().toString();
     String status = editUser_status.getSelectedItem().toString();
 
-    String roleDb = mapRoleToDb(role);
+    String roleDb = mapRoleToDb(role);   // normalize role
     int statusDb = mapStatusToInt(status);
 
     try (Connection conn = config.connectDB()) {
         conn.setAutoCommit(false);
 
         try {
-            // Update account
+            // ✅ Update account
             String sql = "UPDATE tbl_accounts SET acc_role=?, acc_status=? WHERE acc_id=?";
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, roleDb);
                 ps.setInt(2, statusDb);
                 ps.setInt(3, accId);
-                ps.executeUpdate();
+
+                int rows = ps.executeUpdate();
+                if (rows == 0) {
+                    JOptionPane.showMessageDialog(this, "No record found for acc_id=" + accId);
+                    conn.rollback();
+                    return;
+                }
             }
 
-            // Dentist logic
+            // ✅ Dentist handling
             if ("dentist".equalsIgnoreCase(roleDb)) {
                 String checkSql = "SELECT 1 FROM tbl_dentists WHERE acc_id=?";
                 boolean exists;
@@ -3295,27 +3332,38 @@ private void loadAdminProfile() {
                 }
 
                 if (!exists) {
-                    String insertSql = "INSERT INTO tbl_dentists (acc_id, specialty, work_start, work_end) VALUES (?, ?, ?, ?)";
+                    String insertSql = "INSERT INTO tbl_dentists (acc_id, specialty, work_start, work_end, work_days, dentist_stat) " +
+                                       "VALUES (?, 'General Dentistry', '09:00', '17:00', 'Monday,Tuesday,Wednesday,Thursday,Friday', 'Available')";
                     try (PreparedStatement insertPs = conn.prepareStatement(insertSql)) {
                         insertPs.setInt(1, accId);
-                        insertPs.setString(2, "");
-                        insertPs.setString(3, "");
-                        insertPs.setString(4, "");
                         insertPs.executeUpdate();
+                    }
+
+                    // ✅ Log dentist creation
+                    logAction(conn, accId, "dentist", "Dentist Created",
+                              "New dentist record created for acc_id=" + accId);
+                } else {
+                    // ✅ Log dentist update
+                    logAction(conn, accId, "dentist", "Dentist Updated",
+                              "Dentist record confirmed/updated for acc_id=" + accId);
+                }
+            } else {
+                // ✅ If role is changed away from dentist, deactivate dentist record
+                String updateDentSql = "UPDATE tbl_dentists SET dentist_stat='Inactive' WHERE acc_id=?";
+                try (PreparedStatement updDent = conn.prepareStatement(updateDentSql)) {
+                    updDent.setInt(1, accId);
+                    int affected = updDent.executeUpdate();
+                    if (affected > 0) {
+                        // ✅ Log dentist deactivation
+                        logAction(conn, accId, roleDb, "Dentist Deactivated",
+                                  "Dentist record set to Inactive for acc_id=" + accId);
                     }
                 }
             }
 
-            // Audit log
-            String logSql = "INSERT INTO tbl_logs (actor_id, actor_role, action, details, created_at) " +
-                            "VALUES (?, ?, ?, ?, datetime('now'))";
-            try (PreparedStatement logPst = conn.prepareStatement(logSql)) {
-                logPst.setInt(1, accId);
-                logPst.setString(2, roleDb);
-                logPst.setString(3, "Update User");
-                logPst.setString(4, "Role set to " + roleDb + ", status set to " + statusDb);
-                logPst.executeUpdate();
-            }
+            // ✅ General audit log for role/status change
+            logAction(conn, accId, roleDb, "Update User",
+                      "Role set to " + roleDb + ", status set to " + statusDb);
 
             conn.commit();
 
@@ -3339,13 +3387,13 @@ private void loadAdminProfile() {
     }//GEN-LAST:event_save_newUserMouseClicked
 
     private void role_newUserMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_role_newUserMouseClicked
-        // Example: force the combo box to only show valid roles
-        role_newUser.setModel(new DefaultComboBoxModel<>(
-            new String[] {"patient", "dentist", "staff", "admin"}
-        ));
+    // ✅ Force the combo box to only show valid roles
+    role_newUser.setModel(new DefaultComboBoxModel<>(
+        new String[] {"admin", "dentist", "staff", "patient"}
+    ));
 
-        // Optional: show a tooltip or message when clicked
-        role_newUser.setToolTipText("Choose one of: patient, dentist, staff, admin");
+    // ✅ Tooltip for clarity
+    role_newUser.setToolTipText("Choose one of: admin, dentist, staff, patient");
     }//GEN-LAST:event_role_newUserMouseClicked
 
     private void editprofile2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editprofile2MouseClicked
@@ -3400,36 +3448,43 @@ private void loadAdminProfile() {
     }//GEN-LAST:event_change_photoMouseClicked
 
     private void savechanges_profileMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_savechanges_profileMouseClicked
-        try (Connection con = config.connectDB();
-            PreparedStatement pst = con.prepareStatement(
-                "UPDATE tbl_accounts SET acc_pic=? WHERE acc_id=?")) {
+     try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(
+             "UPDATE tbl_accounts SET acc_pic=? WHERE acc_id=?")) {
 
-            int userId = session.getId();
-            pst.setString(1, selectedPhotoPath);
-            pst.setInt(2, userId);
+        int userId = session.getId();
+        pst.setString(1, selectedPhotoPath);
+        pst.setInt(2, userId);
 
-            int updated = pst.executeUpdate();
-            if (updated > 0) {
-                JOptionPane.showMessageDialog(this, "Profile photo updated successfully!");
+        int updated = pst.executeUpdate();
+        if (updated > 0) {
+            JOptionPane.showMessageDialog(this, "Profile photo updated successfully!");
 
-                // Refresh circular images everywhere
-                if (selectedPhotoPath != null && !selectedPhotoPath.isEmpty()) {
-                    File imgFile = new File(selectedPhotoPath);
-                    if (imgFile.exists()) {
-                        setCircularProfilePic(imgFile);   // profile panel
-                        setCircularAdminPic(imgFile);     // header dashboard
-                    } else {
-                        profilePic.setIcon(new ImageIcon(getClass().getResource("/img/default-user.png")));
-                        circle_adminPic.setIcon(new ImageIcon(getClass().getResource("/img/default-user.png")));
-                    }
+            // ✅ Log profile photo update
+            logAction(con, userId, "user", "Update Profile Photo",
+                      "Profile photo updated for acc_id=" + userId);
+
+            // ✅ Refresh logs table
+            loadSystemLogs();
+
+            // Refresh circular images everywhere
+            if (selectedPhotoPath != null && !selectedPhotoPath.isEmpty()) {
+                File imgFile = new File(selectedPhotoPath);
+                if (imgFile.exists()) {
+                    setCircularProfilePic(imgFile);   // profile panel
+                    setCircularAdminPic(imgFile);     // header dashboard
+                } else {
+                    profilePic.setIcon(new ImageIcon(getClass().getResource("/img/default-user.png")));
+                    circle_adminPic.setIcon(new ImageIcon(getClass().getResource("/img/default-user.png")));
                 }
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error updating photo: " + e.getMessage(),
-                "Error", JOptionPane.ERROR_MESSAGE);
         }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error updating photo: " + e.getMessage(),
+            "Error", JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_savechanges_profileMouseClicked
 
     private void search_systemlogsMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_search_systemlogsMouseExited
@@ -3695,7 +3750,54 @@ private void loadAdminProfile() {
     }//GEN-LAST:event_deleteMouseEntered
 
     private void deleteMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_deleteMouseClicked
+      int selectedRow = tbl.getSelectedRow();
 
+    // Validation: make sure a row is selected
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this,
+            "Please select a user to delete.",
+            "Validation",
+            JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    String userId = tbl.getValueAt(selectedRow, 0).toString(); // acc_id column
+    String name   = tbl.getValueAt(selectedRow, 1).toString(); // acc_name column
+    String role   = tbl.getValueAt(selectedRow, 4).toString(); // acc_role column
+    String email  = tbl.getValueAt(selectedRow, 2).toString(); // acc_email column
+
+    // Confirmation dialog
+    int confirm = JOptionPane.showConfirmDialog(this,
+        "Are you sure you want to permanently delete this user?",
+        "Confirm Delete",
+        JOptionPane.YES_NO_OPTION);
+
+    if (confirm == JOptionPane.YES_OPTION) {
+        try (Connection con = config.connectDB();
+             PreparedStatement pst = con.prepareStatement(
+                 "DELETE FROM tbl_accounts WHERE acc_id = ?")) {
+
+            pst.setString(1, userId);
+            int deleted = pst.executeUpdate();
+
+            if (deleted > 0) {
+                // ✅ Log deletion
+                logAction(con, Integer.parseInt(userId), role.toLowerCase(), "Delete User",
+                          "User deleted: name=" + name + ", email=" + email + ", role=" + role + ", acc_id=" + userId);
+
+                // Refresh tables
+                performSearch(""); 
+                loadSystemLogs(); // ✅ refresh logs table
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                "Error deleting user: " + e.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+        }
+    }
     }//GEN-LAST:event_deleteMouseClicked
 
     private void editMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_editMouseExited
@@ -3782,7 +3884,7 @@ private void loadAdminProfile() {
     }//GEN-LAST:event_addemail_staffActionPerformed
 
     private void saveNewstaffMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveNewstaffMouseClicked
-  // Collect input values
+      // Collect input values
     String name = addname_staff.getText().trim();
     String email = addemail_staff.getText().trim();
     String password = addpass_staff.getText().trim();
@@ -3790,7 +3892,7 @@ private void loadAdminProfile() {
     String role = role_staff.getSelectedItem().toString();
     String status = status_staff.getSelectedItem().toString();
 
-    // ✅ Validation
+    // Validation
     if (name.isEmpty() || email.isEmpty() || password.isEmpty() || contact.isEmpty()) {
         JOptionPane.showMessageDialog(this, "All fields are required.", "Validation Error", JOptionPane.WARNING_MESSAGE);
         return;
@@ -3800,7 +3902,7 @@ private void loadAdminProfile() {
         return;
     }
 
-    // ✅ Map role to DB values
+    // Map role to DB values
     String dbRole;
     switch (role.toLowerCase()) {
         case "admin": dbRole = "admin"; break;
@@ -3809,7 +3911,7 @@ private void loadAdminProfile() {
         default: dbRole = "staff";
     }
 
-    // ✅ Map status to DB values
+    // Map status to DB values
     int dbStatus;
     switch (status.toLowerCase()) {
         case "active": dbStatus = 1; break;
@@ -3817,10 +3919,10 @@ private void loadAdminProfile() {
         default: dbStatus = 0;
     }
 
-    // ✅ Hash the password before saving
+    // Hash the password before saving
     String hashedPass = config.hashPassword(password);
 
-    // ✅ Insert into DB
+    // Insert into DB
     String sql = "INSERT INTO tbl_accounts (acc_name, acc_email, acc_pass, acc_contact, acc_role, acc_status) VALUES (?, ?, ?, ?, ?, ?)";
     try (Connection con = config.connectDB();
          PreparedStatement pst = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -3834,7 +3936,7 @@ private void loadAdminProfile() {
 
         int rows = pst.executeUpdate();
         if (rows > 0) {
-            // ✅ Get generated acc_id
+            // Get generated acc_id
             int newAccId = -1;
             try (ResultSet rs = pst.getGeneratedKeys()) {
                 if (rs.next()) {
@@ -3842,7 +3944,7 @@ private void loadAdminProfile() {
                 }
             }
 
-            // ✅ Insert into tbl_dentists if role is dentist
+            // Insert into tbl_dentists if role is dentist
             if ("dentist".equalsIgnoreCase(dbRole)) {
                 String dentistSql = "INSERT INTO tbl_dentists (acc_id, specialty, work_start, work_end, work_days) VALUES (?, ?, ?, ?, ?)";
                 try (PreparedStatement dentistPst = con.prepareStatement(dentistSql)) {
@@ -3853,10 +3955,19 @@ private void loadAdminProfile() {
                     dentistPst.setString(5, "");   // placeholder work_days
                     dentistPst.executeUpdate();
                 }
+
+                // ✅ Log dentist creation
+                logAction(con, newAccId, "dentist", "Dentist Created",
+                          "New dentist account created with acc_id=" + newAccId);
             }
+
+            // ✅ Log general user creation
+            logAction(con, newAccId, dbRole, "Create User",
+                      "New " + dbRole + " created: name=" + name + ", email=" + email + ", status=" + status);
 
             JOptionPane.showMessageDialog(this, "New staff user added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             staffDentistTable(); // refresh table view
+            loadSystemLogs();    // ✅ refresh logs table
 
             // Clear fields after save
             addname_staff.setText("");
@@ -4241,7 +4352,7 @@ private void loadSystemLogs() {
         e.printStackTrace();
     }
   }
-  
+
 private void saveNewUser() {
     String name = name_newUser.getText().trim();
     String email = email_newUser.getText().trim().toLowerCase();
@@ -4251,91 +4362,108 @@ private void saveNewUser() {
     String statusText = status_newUser.getSelectedItem().toString();
     int statusValue = mapStatusToInt(statusText);
 
-    // Required fields
-    if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
-        JOptionPane.showMessageDialog(this,
-            "Name, Email, and Password are required.",
-            "Validation",
-            JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-
-    // Email format
-    if (!isValidEmail(email)) {
-        JOptionPane.showMessageDialog(this,
-            "Invalid email format.",
-            "Validation",
-            JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-
     try (Connection con = config.connectDB()) {
-        // Duplicate check
-        String checkSql = "SELECT COUNT(*) FROM tbl_accounts WHERE TRIM(LOWER(acc_email)) = ?";
-        try (PreparedStatement checkPst = con.prepareStatement(checkSql)) {
-            checkPst.setString(1, email);
-            try (ResultSet rs = checkPst.executeQuery()) {
-                if (rs.next() && rs.getInt(1) > 0) {
-                    JOptionPane.showMessageDialog(this,
-                        "Email already exists. Please use a different one.",
-                        "Validation",
-                        JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-            }
-        }
+        con.setAutoCommit(false); // ✅ Start transaction
 
-        // Insert new user with default photo path
-        String insertSql = "INSERT INTO tbl_accounts (acc_name, acc_email, acc_contact, acc_role, acc_status, acc_pass, acc_pic) "
-                         + "VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement pst = con.prepareStatement(insertSql, PreparedStatement.RETURN_GENERATED_KEYS)) {
-            pst.setString(1, name);
-            pst.setString(2, email);
-            pst.setString(3, contact);
-            pst.setString(4, roleValue);
-            pst.setInt(5, statusValue);
-
-            // Hash password before saving
-            String hashedPassword = config.hashPassword(password);
-            pst.setString(6, hashedPassword);
-
-            // Default photo path
-            pst.setString(7, "/img/default-user.png");
-
-            int inserted = pst.executeUpdate();
-            if (inserted > 0) {
-                // Get generated acc_id
-                ResultSet rsAcc = pst.getGeneratedKeys();
-                int accId = -1;
-                if (rsAcc.next()) {
-                    accId = rsAcc.getInt(1);
-                }
-
-                // If dentist, insert into tbl_dentists automatically
-                if ("Dentist".equalsIgnoreCase(roleValue)) {
-                    String sqlDent = "INSERT INTO tbl_dentists (acc_id, specialty, work_start, work_end, work_days) VALUES (?, ?, ?, ?, ?)";
-                    try (PreparedStatement pstDent = con.prepareStatement(sqlDent)) {
-                        pstDent.setInt(1, accId);
-                        pstDent.setString(2, "General Dentistry"); // or from a field
-                        pstDent.setString(3, "08:00");
-                        pstDent.setString(4, "17:00");
-                        pstDent.setString(5, "Monday,Tuesday,Wednesday,Thursday,Friday");
-                        pstDent.executeUpdate();
+        try {
+            // ✅ Duplicate check
+            String checkSql = "SELECT COUNT(*) FROM tbl_accounts WHERE TRIM(LOWER(acc_email)) = ?";
+            try (PreparedStatement checkPst = con.prepareStatement(checkSql)) {
+                checkPst.setString(1, email);
+                try (ResultSet rs = checkPst.executeQuery()) {
+                    if (rs.next() && rs.getInt(1) > 0) {
+                        clearForm();
+                        con.rollback(); // rollback if duplicate
+                        return;
                     }
                 }
-
-                JOptionPane.showMessageDialog(this, "New user created successfully!");
-                acctable(); // refresh accounts table
-                staffDentistTable();    // refresh dentist/staff table in Admin view
-                loadDentistAvailable(); 
             }
+
+            // ✅ Insert new user into tbl_accounts
+            String insertSql = "INSERT INTO tbl_accounts (acc_name, acc_email, acc_contact, acc_role, acc_status, acc_pass, acc_pic) "
+                             + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+            int accId = -1;
+            try (PreparedStatement pst = con.prepareStatement(insertSql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+                pst.setString(1, name);
+                pst.setString(2, email);
+                pst.setString(3, contact);
+                pst.setString(4, roleValue.toLowerCase()); // normalize role
+                pst.setInt(5, statusValue);
+
+                String hashedPassword = config.hashPassword(password);
+                pst.setString(6, hashedPassword);
+                pst.setString(7, "/img/default-user.png");
+
+                int inserted = pst.executeUpdate();
+                if (inserted > 0) {
+                    try (ResultSet rsAcc = pst.getGeneratedKeys()) {
+                        if (rsAcc.next()) {
+                            accId = rsAcc.getInt(1);
+                        }
+                    }
+                }
+            }
+            
+              // ✅ Log user creation
+            if (accId > 0) {
+                logAction(con, accId, roleValue.toLowerCase(), "Create User",
+                          "New user created: role=" + roleValue.toLowerCase() + ", status=" + statusValue);
+            }
+            
+// ✅ Dentist auto-insert into tbl_dentists
+if ("dentist".equalsIgnoreCase(roleValue) && accId > 0) {
+    String sqlDent = "INSERT INTO tbl_dentists (acc_id, specialty, work_start, work_end, work_days, dentist_stat) "
+                   + "VALUES (?, ?, ?, ?, ?, ?)";
+    try (PreparedStatement pstDent = con.prepareStatement(sqlDent)) {
+        pstDent.setInt(1, accId);
+        pstDent.setString(2, "General Dentistry");
+        pstDent.setString(3, "08:00"); // matches work_start column
+        pstDent.setString(4, "17:00"); // matches work_end column
+        pstDent.setString(5, "Monday,Tuesday,Wednesday,Thursday,Friday");
+        pstDent.setString(6, "Available"); // ✅ set dentist_stat
+        pstDent.executeUpdate();
+    }
+    
+       // ✅ Log dentist creation
+    logAction(con, accId, "dentist", "Dentist Created",
+              "Dentist record created with default schedule for acc_id=" + accId);
+}
+
+            // ✅ Audit log entry in tbl_logs
+            if (accId > 0) {
+                String logSql = "INSERT INTO tbl_logs (actor_id, actor_role, action, details, created_at) "
+                              + "VALUES (?, ?, ?, ?, datetime('now'))";
+                try (PreparedStatement logPst = con.prepareStatement(logSql)) {
+                    logPst.setInt(1, accId);
+                    logPst.setString(2, roleValue.toLowerCase());
+                    logPst.setString(3, "Create User");
+                    logPst.setString(4, "New user created: role=" + roleValue.toLowerCase() + ", status=" + statusValue);
+                    logPst.executeUpdate();
+                }
+            }
+
+            con.commit(); // ✅ Commit transaction
+
+            JOptionPane.showMessageDialog(this, "New user created successfully!");
+            acctable();
+            staffDentistTable();
+            loadDentistAvailable();
+            loadSystemLogs(); // refresh logs
+            clearForm(); // reset fields
+
+        } catch (Exception inner) {
+            con.rollback(); // rollback if any step fails
+            throw inner;
         }
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error saving new user: " + e.getMessage(),
-                                      "Error", JOptionPane.ERROR_MESSAGE);
-        e.printStackTrace();
+    } catch (SQLException e) {
+        if (e.getMessage().contains("UNIQUE constraint failed")) {
+            clearForm(); // silently reset form on duplicate
+            return;
+        }
+        e.printStackTrace(); // log other errors
     }
 }
+
 
 
   
@@ -4433,47 +4561,6 @@ staff_dentist_table.addMouseListener(new java.awt.event.MouseAdapter() {
     }
 });
 
-}
-private void deleteUser() {
-    int selectedRow = tbl.getSelectedRow();
-    if (selectedRow == -1) {
-        JOptionPane.showMessageDialog(this,
-            "Please select a user to delete.",
-            "Validation",
-            JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-
-    String userId = tbl.getValueAt(selectedRow, 0).toString(); // acc_id column
-
-    int confirm = JOptionPane.showConfirmDialog(this,
-        "Are you sure you want to permanently delete this user?",
-        "Confirm Delete",
-        JOptionPane.YES_NO_OPTION);
-
-    if (confirm == JOptionPane.YES_OPTION) {
-        try (Connection con = config.connectDB();
-             PreparedStatement pst = con.prepareStatement(
-                 "DELETE FROM tbl_accounts WHERE acc_id = ?")) {
-
-            pst.setString(1, userId);
-            pst.executeUpdate();
-
-            JOptionPane.showMessageDialog(this,
-                "User deleted successfully.",
-                "Success",
-                JOptionPane.INFORMATION_MESSAGE);
-
-            performSearch(""); // refresh table
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this,
-                "Error deleting user: " + e.getMessage(),
-                "Error",
-                JOptionPane.ERROR_MESSAGE);
-        }
-    }
 }
 private void saveProfileChanges() {
     String newName = edit_fullname.getText().trim();
@@ -4729,6 +4816,12 @@ private void saveNewStaffUser() {
             addcontact_staff.setText("");
             role_staff.setSelectedIndex(0);
             status_staff.setSelectedIndex(0);
+            
+                // ✅ Restore placeholders
+    addPlaceholder(addname_staff, "Enter staff name");
+    addPlaceholder(addemail_staff, "Enter staff email");
+    addPlaceholder(addpass_staff, "Enter staff password");
+    addPlaceholder(addcontact_staff, "Enter contact number");
         }
     } catch (Exception e) {
         JOptionPane.showMessageDialog(this, "Error saving user: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
@@ -4763,8 +4856,7 @@ private void loadAllUsers() {
     }
 }
 
-private void editStaffStatus(int accId, String newStatus) {
-    int statusDb = mapStatusToInt(newStatus);
+private void editStaffStatus(int accId, String newStatus) {    int statusDb = mapStatusToInt(newStatus);
 
     if (statusDb == -1) {
         JOptionPane.showMessageDialog(this, "Invalid status selected.");
@@ -4772,19 +4864,34 @@ private void editStaffStatus(int accId, String newStatus) {
     }
 
     try (Connection conn = config.connectDB()) {
-        String sql = "UPDATE tbl_accounts SET acc_status=? WHERE acc_id=?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, statusDb);
-            ps.setInt(2, accId);
+        conn.setAutoCommit(false); // ✅ transaction start
 
-            int updated = ps.executeUpdate();
-            if (updated > 0) {
-                JOptionPane.showMessageDialog(this, "Staff/Dentist status updated!");
-                staffDentistTable();  // refresh workforce table
-                loadAllUsers();       // refresh all users table
-            } else {
-                JOptionPane.showMessageDialog(this, "No rows updated. Check acc_id.");
+        try {
+            String sql = "UPDATE tbl_accounts SET acc_status=? WHERE acc_id=?";
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setInt(1, statusDb);
+                ps.setInt(2, accId);
+
+                int updated = ps.executeUpdate();
+                if (updated > 0) {
+                    // ✅ Log staff/dentist status update
+                    logAction(conn, accId, "staff", "Update Staff",
+                              "Staff/Dentist status set to " + newStatus + " for acc_id=" + accId);
+
+                    conn.commit(); // ✅ commit transaction
+
+                    JOptionPane.showMessageDialog(this, "Staff/Dentist status updated!");
+                    staffDentistTable();  // refresh workforce table
+                    loadAllUsers();       // refresh all users table
+                    loadSystemLogs();     // refresh logs table
+                } else {
+                    JOptionPane.showMessageDialog(this, "No rows updated. Check acc_id.");
+                    conn.rollback();
+                }
             }
+        } catch (Exception inner) {
+            conn.rollback(); // rollback if any step fails
+            throw inner;
         }
     } catch (Exception e) {
         JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage(),
@@ -4794,7 +4901,7 @@ private void editStaffStatus(int accId, String newStatus) {
 }
 
 private void editDentistStatusAndSpecialty(int accId, String newStatus, String newSpecialty) {
-    int statusDb = mapStatusToInt(newStatus);
+   int statusDb = mapStatusToInt(newStatus);
 
     if (statusDb == -1) {
         JOptionPane.showMessageDialog(this, "Invalid status selected.");
@@ -4802,25 +4909,40 @@ private void editDentistStatusAndSpecialty(int accId, String newStatus, String n
     }
 
     try (Connection conn = config.connectDB()) {
-        // Update status in tbl_accounts
-        String sqlAcc = "UPDATE tbl_accounts SET acc_status=? WHERE acc_id=?";
-        try (PreparedStatement psAcc = conn.prepareStatement(sqlAcc)) {
-            psAcc.setInt(1, statusDb);
-            psAcc.setInt(2, accId);
-            psAcc.executeUpdate();
-        }
+        conn.setAutoCommit(false); // ✅ transaction start
 
-        // Update specialty in tbl_dentists
-        String sqlDentist = "UPDATE tbl_dentists SET specialty=? WHERE acc_id=?";
-        try (PreparedStatement psDentist = conn.prepareStatement(sqlDentist)) {
-            psDentist.setString(1, newSpecialty);
-            psDentist.setInt(2, accId);
-            psDentist.executeUpdate();
-        }
+        try {
+            // Update status in tbl_accounts
+            String sqlAcc = "UPDATE tbl_accounts SET acc_status=? WHERE acc_id=?";
+            try (PreparedStatement psAcc = conn.prepareStatement(sqlAcc)) {
+                psAcc.setInt(1, statusDb);
+                psAcc.setInt(2, accId);
+                psAcc.executeUpdate();
+            }
 
-        JOptionPane.showMessageDialog(this, "Dentist status and specialty updated!");
-        staffDentistTable();  // refresh workforce table
-        loadAllUsers();       // refresh all users table
+            // Update specialty in tbl_dentists
+            String sqlDentist = "UPDATE tbl_dentists SET specialty=? WHERE acc_id=?";
+            try (PreparedStatement psDentist = conn.prepareStatement(sqlDentist)) {
+                psDentist.setString(1, newSpecialty);
+                psDentist.setInt(2, accId);
+                psDentist.executeUpdate();
+            }
+
+            // ✅ Log the update
+            logAction(conn, accId, "dentist", "Update Dentist",
+                      "Dentist status set to " + newStatus + ", specialty updated to " + newSpecialty);
+
+            conn.commit(); // ✅ commit transaction
+
+            JOptionPane.showMessageDialog(this, "Dentist status and specialty updated!");
+            staffDentistTable();  // refresh workforce table
+            loadAllUsers();       // refresh all users table
+            loadSystemLogs();     // refresh logs table
+
+        } catch (Exception inner) {
+            conn.rollback(); // rollback if any step fails
+            throw inner;
+        }
     } catch (Exception e) {
         JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage(),
                                       "Error", JOptionPane.ERROR_MESSAGE);
@@ -4872,6 +4994,86 @@ private void loadDentistAvailable() {
 }
 
 
+private void clearForm() {
+    name_newUser.setText("");
+    email_newUser.setText("");
+    password_newUser.setText("");
+    contact_newUser.setText("");
+    role_newUser.setSelectedIndex(0);
+    status_newUser.setSelectedIndex(0);
+
+    addPlaceholder(name_newUser, "Enter full name");
+    addPlaceholder(email_newUser, "Enter email address");
+    addPlaceholder(password_newUser, "Enter password");
+    addPlaceholder(contact_newUser, "Enter contact number");
+}
+
+private void appointmentTable() {
+    String sql =
+        "SELECT app_id AS ID, " +
+        "pat_id AS PatientID, " +      // ✅ show patient ID
+        "dentist_id AS DentistID, " +  // ✅ show dentist ID
+        "app_date AS Date, " +
+        "app_time AS Time, " +
+        "app_service AS Service, " +
+        "app_service_price AS Price, " +
+        "app_status AS Status, " +
+        "payment_method AS PaymentMethod, " +
+        "payment_status AS PaymentStatus, " +
+        "created_at AS CreatedAt " +
+        "FROM tbl_appointments " +
+        "ORDER BY created_at DESC";
+
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(sql);
+         ResultSet rs = pst.executeQuery()) {
+
+        // Load DB results into TABLEAPPOINTMENT
+        TABLEAPPOINTMENT.setModel(DbUtils.resultSetToTableModel(rs));
+
+        // Styling
+        TABLEAPPOINTMENT.setRowHeight(28);
+        TABLEAPPOINTMENT.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        TABLEAPPOINTMENT.setGridColor(new Color(220, 220, 220));
+        TABLEAPPOINTMENT.setShowGrid(true);
+
+        JTableHeader header = TABLEAPPOINTMENT.getTableHeader();
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        header.setBackground(new Color(200, 230, 240));
+        header.setForeground(Color.DARK_GRAY);
+
+        // Alternate row colors
+        TABLEAPPOINTMENT.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(245, 245, 245));
+                } else {
+                    c.setBackground(new Color(184, 207, 229));
+                }
+                return c;
+            }
+        });
+
+        // Highlight Status column (index 6 now, since PatientID/DentistID shifted columns)
+        TABLEAPPOINTMENT.getColumnModel().getColumn(6).setCellRenderer(new StatusCellRenderer());
+
+        // Debug: print how many rows were loaded
+        System.out.println("Appointments loaded: " + TABLEAPPOINTMENT.getRowCount());
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this,
+            "Error loading appointments: " + e.getMessage(),
+            "Database Error",
+            JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+
+
 
     /**
      * @param args the command line arguments
@@ -4918,6 +5120,7 @@ private void loadDentistAvailable() {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel Dentist_available;
+    private javax.swing.JTable TABLEAPPOINTMENT;
     private javax.swing.JLabel XBTN;
     private javax.swing.JPanel XPNL;
     private javax.swing.JLabel add;
@@ -4980,9 +5183,6 @@ private void loadDentistAvailable() {
     private javax.swing.JLabel filter_search;
     private javax.swing.JPanel hdr;
     private javax.swing.JComboBox<String> jComboBox10;
-    private javax.swing.JComboBox<String> jComboBox3;
-    private javax.swing.JComboBox<String> jComboBox4;
-    private javax.swing.JComboBox<String> jComboBox5;
     private javax.swing.JComboBox<String> jComboBox8;
     private javax.swing.JComboBox<String> jComboBox9;
     private javax.swing.JLabel jLabel1;
@@ -5226,7 +5426,6 @@ private void loadDentistAvailable() {
     private javax.swing.JTable jTable2;
     private javax.swing.JTable jTable3;
     private javax.swing.JTable jTable4;
-    private javax.swing.JTable jTable5;
     private javax.swing.JTable jTable6;
     private javax.swing.JTable jTable7;
     private javax.swing.JTable jTable8;

@@ -105,6 +105,7 @@ public class patient extends javax.swing.JFrame {
         XPNL = new javax.swing.JPanel();
         XBTN = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        jLabel17 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         tab = new javax.swing.JTabbedPane();
         ovtab = new javax.swing.JPanel();
@@ -135,8 +136,14 @@ public class patient extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         apptbl = new javax.swing.JTable();
         jLabel7 = new javax.swing.JLabel();
+        jPanel6 = new javax.swing.JPanel();
         jLabel10 = new javax.swing.JLabel();
-        searchapp = new javax.swing.JTextField();
+        jLabel25 = new javax.swing.JLabel();
+        jLabel27 = new javax.swing.JLabel();
+        jLabel28 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jLabel26 = new javax.swing.JLabel();
         bill_tab = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         jTable3 = new javax.swing.JTable();
@@ -428,9 +435,15 @@ public class patient extends javax.swing.JFrame {
 
         jLabel2.setBackground(new java.awt.Color(51, 102, 255));
         jLabel2.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(51, 51, 51));
-        jLabel2.setText("Patient Portal");
-        hdr.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(52, 0, 110, 50));
+        jLabel2.setForeground(new java.awt.Color(0, 102, 255));
+        jLabel2.setText(" Dental");
+        hdr.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(52, 0, 70, 50));
+
+        jLabel17.setFont(new java.awt.Font("Modern No. 20", 3, 17)); // NOI18N
+        jLabel17.setForeground(new java.awt.Color(0, 0, 255));
+        jLabel17.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel17.setText("Care");
+        hdr.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 0, 50, 50));
 
         jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/5046faad4a4c9af72bcf4fe75c8a11d0.jpg"))); // NOI18N
         hdr.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
@@ -560,6 +573,7 @@ public class patient extends javax.swing.JFrame {
 
         tab.addTab("overview", ovtab);
 
+        app_tab.setBackground(new java.awt.Color(255, 255, 255));
         app_tab.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         apptbl.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -573,23 +587,52 @@ public class patient extends javax.swing.JFrame {
         ));
         jScrollPane1.setViewportView(apptbl);
 
-        app_tab.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 120, 620, 340));
+        app_tab.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 170, 610, 170));
 
-        jLabel7.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
-        jLabel7.setText("Dental Appointments");
-        app_tab.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, -1, -1));
+        jLabel7.setFont(new java.awt.Font("Times New Roman", 1, 21)); // NOI18N
+        jLabel7.setForeground(new java.awt.Color(0, 51, 102));
+        jLabel7.setText("Manage your Appointments");
+        app_tab.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, -1, 50));
 
+        jPanel6.setBackground(new java.awt.Color(0, 102, 204));
+        jPanel6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel10.setBackground(new java.awt.Color(255, 255, 255));
         jLabel10.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
-        jLabel10.setForeground(new java.awt.Color(102, 102, 102));
-        jLabel10.setText("View and manage your appointments");
-        app_tab.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, -1, -1));
+        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel10.setText("Add Appointment");
+        jPanel6.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 0, 120, 30));
 
-        searchapp.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                searchappKeyTyped(evt);
+        app_tab.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 50, 170, 30));
+
+        jLabel25.setForeground(new java.awt.Color(204, 204, 204));
+        jLabel25.setText("_____________________________________________________________________________________");
+        app_tab.add(jLabel25, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, -1, 20));
+
+        jLabel27.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel27.setForeground(new java.awt.Color(0, 51, 153));
+        jLabel27.setText("Upcoming Appointments");
+        app_tab.add(jLabel27, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 130, -1, -1));
+
+        jLabel28.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel28.setForeground(new java.awt.Color(0, 51, 153));
+        jLabel28.setText("Past Appointments");
+        app_tab.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 350, -1, 50));
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+
             }
-        });
-        app_tab.add(searchapp, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 82, 160, 30));
+        ));
+        jScrollPane2.setViewportView(jTable1);
+
+        app_tab.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 400, 610, 80));
+
+        jLabel26.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nn.jpg"))); // NOI18N
+        app_tab.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 640, 510));
 
         tab.addTab("app", app_tab);
 
@@ -2020,12 +2063,6 @@ pas.setText("");
         // TODO add your handling code here:
     }//GEN-LAST:event_dcMouseClicked
 
-    private void searchappKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_searchappKeyTyped
-            javax.swing.SwingUtilities.invokeLater(() -> {
-                searchAppointments();
-            });
-    }//GEN-LAST:event_searchappKeyTyped
-
     private void jLabel20MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel20MouseClicked
         tab.setSelectedIndex(3);
     }//GEN-LAST:event_jLabel20MouseClicked
@@ -2805,6 +2842,7 @@ private void searchAppointments() {
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
@@ -2813,6 +2851,10 @@ private void searchAppointments() {
     private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
+    private javax.swing.JLabel jLabel25;
+    private javax.swing.JLabel jLabel26;
+    private javax.swing.JLabel jLabel27;
+    private javax.swing.JLabel jLabel28;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel36;
     private javax.swing.JLabel jLabel37;
@@ -2875,11 +2917,14 @@ private void searchAppointments() {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable3;
     private javax.swing.JLabel lblDateTime;
     private javax.swing.JLabel lblDentist;
@@ -2913,7 +2958,6 @@ private void searchAppointments() {
     private javax.swing.JPanel rc;
     private javax.swing.JLabel rootcanal;
     private javax.swing.JLabel save;
-    private javax.swing.JTextField searchapp;
     private javax.swing.JTabbedPane taab;
     private javax.swing.JTabbedPane tab;
     private javax.swing.JTable tblDentists;

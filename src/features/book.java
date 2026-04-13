@@ -34,6 +34,7 @@ import net.proteanit.sql.DbUtils;
 import com.toedter.calendar.JDateChooser;
 import java.awt.FlowLayout;
 import javax.swing.JComboBox;
+import javax.swing.JScrollPane;
 /**
  *
  * @author Cassandra Gallera
@@ -46,6 +47,22 @@ private JComboBox<String> timeCombo;
 private String selectedService;
 private String selectedPrice;
 
+
+
+// Utility method to record actions into tbl_logs
+private void logAction(Connection con, int actorId, String actorRole, String action, String details) {
+    String sql = "INSERT INTO tbl_logs (actor_id, actor_role, action, details, created_at) " +
+                 "VALUES (?, ?, ?, ?, datetime('now'))";
+    try (PreparedStatement ps = con.prepareStatement(sql)) {
+        ps.setInt(1, actorId);       // who performed the action
+        ps.setString(2, actorRole);  // role: "patient", "staff", or "dentist"
+        ps.setString(3, action);     // short action name, e.g. "Book Appointment"
+        ps.setString(4, details);    // descriptive details
+        ps.executeUpdate();
+    } catch (Exception e) {
+        e.printStackTrace(); // optional: don’t block the user if logging fails
+    }
+}
     /**
      * Creates new form book
      */
@@ -79,28 +96,88 @@ private String selectedPrice;
     Jpanel_date_time.setLayout(new FlowLayout());
     Jpanel_date_time.add(dateChooser);
     Jpanel_date_time.add(timeCombo);
-  
-
  table_dentist.addMouseListener(new MouseAdapter() {
     public void mouseClicked(MouseEvent e) {
         int row = table_dentist.getSelectedRow();
         if (row != -1) {
-            int dentistId = Integer.parseInt(table_dentist.getValueAt(row, 0).toString());
-            internal.session.setDentistId(dentistId);
-            JOptionPane.showMessageDialog(book.this,
-                "Dentist selected: " + dentistId);
+            String dentistName = table_dentist.getValueAt(row, 0).toString(); // column 0 = Dentist Name
 
-            // ✅ Once dentist is chosen, move to Tab 3
-            taab.setSelectedIndex(3);
+            try (Connection conn = config.connectDB()) {
+                // ✅ Get dentist_id from name
+                String sqlId = "SELECT dentist_id FROM tbl_dentists d " +
+                               "JOIN tbl_accounts a ON d.acc_id = a.acc_id " +
+                               "WHERE 'Dr. ' || a.acc_name = ?";
+                PreparedStatement pstId = conn.prepareStatement(sqlId);
+                pstId.setString(1, dentistName);
+                ResultSet rsId = pstId.executeQuery();
 
-            // 🔗 Load available times for this dentist
-            if (dateChooser.getDate() != null) {
-                loadAvailableTimes(dentistId, dateChooser.getDate());
+                if (rsId.next()) {
+                    int dentistId = rsId.getInt("dentist_id");
+                    internal.session.setDentistId(dentistId);
+
+                    JOptionPane.showMessageDialog(book.this,
+                        "Dentist selected: " + dentistName);
+
+                    // ✅ Populate selectedDentist table with Work Days, Start, End
+                    String sql = "SELECT d.work_days AS 'Work Days', " +
+                                 "d.work_start AS 'Start Time', " +
+                                 "d.work_end AS 'End Time' " +
+                                 "FROM tbl_dentists d WHERE d.dentist_id = ?";
+                    PreparedStatement pst = conn.prepareStatement(sql);
+                    pst.setInt(1, dentistId);
+                    ResultSet rs = pst.executeQuery();
+                    selectedDentist.setModel(DbUtils.resultSetToTableModel(rs));
+
+                    // ✅ Style the selectedDentist table
+                    selectedDentist.setRowHeight(28);
+                    selectedDentist.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+                    JTableHeader header2 = selectedDentist.getTableHeader();
+                    header2.setFont(new Font("Segoe UI", Font.BOLD, 14));
+                    header2.setBackground(new Color(200, 230, 240));
+                    header2.setForeground(Color.DARK_GRAY);
+
+                    // ✅ Move to Tab 3
+                    taab.setSelectedIndex(3);
+
+                    // 🔗 Load available times
+                    if (dateChooser.getDate() != null) {
+                        loadAvailableTimes(dentistId, dateChooser.getDate());
+                    }
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(book.this,
+                    "Error fetching dentist data: " + ex.getMessage());
             }
         }
     }
 });
 
+
+nextbtn3.addMouseListener(new MouseAdapter() {
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        // ✅ Collect values from your form/session
+        String fullName = booking_fullname.getText().trim();
+        String dentist = selectedDentist.getValueAt(0, 1).toString(); // assuming column 1 = dentist name
+        String specialty = selectedDentist.getValueAt(0, 2).toString(); // assuming column 2 = specialty
+        String date = new java.text.SimpleDateFormat("MMMM dd, yyyy")
+                          .format(dateChooser.getDate());
+        String time = (String) timeCombo.getSelectedItem();
+        String service = selectedService;
+        double price = getServicePrice(service);
+
+        // ✅ Assign values to summary labels
+        patientFullName.setText(fullName);
+        dentistNAME.setText(dentist);
+        SPECIALTY.setText(specialty);
+        summaryFulldate.setText(date + " " + time);
+        serviceSummary.setText(service);
+        moneytopay.setText("₱ " + price);
+
+        // ✅ Switch to Tab 4 (Billing/Summary)
+        taab.setSelectedIndex(4);
+    }
+});
 
 
 
@@ -276,31 +353,30 @@ private void hideOldPanels() {
 
 private void loadAvailableTimes(int dentistId, Date selectedDate) {
     try (Connection conn = config.connectDB()) {
-        String sql = "SELECT work_days, work_start, work_end, dentist_stat " +
-                     "FROM tbl_dentists WHERE dentist_id=?";
+        String sql = "SELECT work_days, work_sta, work_enc, dentist_stat FROM tbl_dentists WHERE dentist_id=?";
         PreparedStatement pst = conn.prepareStatement(sql);
         pst.setInt(1, dentistId);
         ResultSet rs = pst.executeQuery();
 
         if (rs.next()) {
-            String workDays = rs.getString("work_days"); 
-            String startStr = rs.getString("work_start"); 
-            String endStr   = rs.getString("work_end");     
+            String workDays = rs.getString("work_days");
+            String startStr = rs.getString("work_sta");
+            String endStr   = rs.getString("work_enc");
             String status   = rs.getString("dentist_stat");
 
-            // Default to 08:00–17:00 if null
-            java.time.LocalTime start = (startStr != null && !startStr.isEmpty()) 
-                                        ? java.time.LocalTime.parse(startStr) 
-                                        : java.time.LocalTime.of(8, 0);
-            java.time.LocalTime end   = (endStr != null && !endStr.isEmpty()) 
-                                        ? java.time.LocalTime.parse(endStr) 
-                                        : java.time.LocalTime.of(17, 0);
+            // Default times if null
+            java.time.LocalTime start = (startStr != null && !startStr.isEmpty())
+                    ? java.time.LocalTime.parse(startStr)
+                    : java.time.LocalTime.of(8, 0);
+            java.time.LocalTime end = (endStr != null && !endStr.isEmpty())
+                    ? java.time.LocalTime.parse(endStr)
+                    : java.time.LocalTime.of(17, 0);
 
             // Check day availability
             Calendar cal = Calendar.getInstance();
             cal.setTime(selectedDate);
             String dayName = new java.text.DateFormatSymbols()
-                .getWeekdays()[cal.get(Calendar.DAY_OF_WEEK)];
+                    .getWeekdays()[cal.get(Calendar.DAY_OF_WEEK)];
 
             if (workDays == null || !workDays.contains(dayName)) {
                 JOptionPane.showMessageDialog(this, "Dentist not available on " + dayName);
@@ -313,7 +389,7 @@ private void loadAvailableTimes(int dentistId, Date selectedDate) {
                 return;
             }
 
-            // ✅ Populate timeCombo dynamically
+            // Populate timeCombo dynamically
             timeCombo.removeAllItems();
             java.time.LocalTime t = start;
             while (!t.isAfter(end)) {
@@ -326,7 +402,6 @@ private void loadAvailableTimes(int dentistId, Date selectedDate) {
         JOptionPane.showMessageDialog(this, "Error loading dentist schedule: " + ex.getMessage());
     }
 }
-
 
 
 private boolean isPersonalInfoValid() {
@@ -1945,7 +2020,6 @@ private double getServicePrice(String service) {
     }//GEN-LAST:event_nextbtn3MouseEntered
 
     private void nextbtn3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtn3MouseClicked
-                                   
     Date selectedDate = dateChooser.getDate();
     String selectedTime = (String) timeCombo.getSelectedItem();
 
@@ -2005,10 +2079,15 @@ private double getServicePrice(String service) {
         psApp.executeUpdate();
         psApp.close();
 
+        // ✅ Log patient action (only once, right after appointment is saved)
+        logAction(conn, patientId, "patient", "Book Appointment",
+                  "Booked " + selectedService + " with dentist ID=" + internal.session.getDentistId() +
+                  " on " + selectedDate + " at " + selectedTime);
+
         // ✅ Update dentist status to Booked immediately after saving appointment
-config cfg = new config();
-cfg.updateRecord("UPDATE dentist SET status=? WHERE dentist_id=?", 
-                 "Booked", internal.session.getDentistId());
+        config cfg = new config();
+        cfg.updateRecord("UPDATE tbl_dentists SET dentist_stat=? WHERE dentist_id=?", 
+                         "Booked", internal.session.getDentistId());
 
         JOptionPane.showMessageDialog(this, "Appointment saved successfully!");
         taab.setSelectedIndex(4); // move to Billing tab
@@ -2315,6 +2394,11 @@ cfg.updateRecord("UPDATE dentist SET status=? WHERE dentist_id=?",
         psApp.executeUpdate();
         psApp.close();
 
+        // ✅ Log patient action (inside the same try block, right after appointment is saved)
+        logAction(conn, patientId, "patient", "Book Appointment",
+                  "Booked " + selectedService + " with dentist ID=" + internal.session.getDentistId() +
+                  " on " + dateChooser.getDate() + " at " + timeCombo.getSelectedItem().toString());
+
         JOptionPane.showMessageDialog(this, "Service and appointment saved successfully!");
         taab.setSelectedIndex(2); // move to Date & Time tab
     } catch (Exception e) {
@@ -2361,19 +2445,18 @@ cfg.updateRecord("UPDATE dentist SET status=? WHERE dentist_id=?",
     }//GEN-LAST:event_nextbtnMouseEntered
 
     private void nextbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtnMouseClicked
- if (isPersonalInfoValid()) {
+   if (isPersonalInfoValid()) {
         // ✅ Collect street + province
         String street = streetAddress.getText().trim();
         String province = streetprovince_combobox.getSelectedItem().toString();
         String fullAddress = street + ", " + province;
 
-        try {
-            Connection conn = DriverManager.getConnection("jdbc:sqlite:dentalcare.db");
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:dentalcare.db")) {
 
             // --- Save patient info ---
             PreparedStatement ps = conn.prepareStatement(
-                "INSERT INTO tbl_patients (pat_name, pat_email, pat_age, pat_sex, pat_contact, pat_address) VALUES (?, ?, ?, ?, ?, ?)",
-                Statement.RETURN_GENERATED_KEYS // so we can get pat_id
+                "INSERT INTO tbl_patients (pat_name, pat_email, pat_age, pat_sex, pat_contact, pat_address, pat_archive) VALUES (?, ?, ?, ?, ?, ?, 0)",
+                Statement.RETURN_GENERATED_KEYS
             );
             ps.setString(1, booking_fullname.getText().trim());
             ps.setString(2, book_email.getText().trim());
@@ -2384,13 +2467,18 @@ cfg.updateRecord("UPDATE dentist SET status=? WHERE dentist_id=?",
             ps.executeUpdate();
 
             // --- Get generated patient ID ---
-            ResultSet rs = ps.getGeneratedKeys();
             int patientId = -1;
+            ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
                 patientId = rs.getInt(1);
             }
             rs.close();
             ps.close();
+
+            // ✅ Log patient registration
+            logAction(conn, patientId, "patient", "Register Patient",
+                      "Registered new patient: " + booking_fullname.getText().trim() +
+                      " (ID=" + patientId + "), email=" + book_email.getText().trim());
 
             // --- Save appointment info ---
             if (selectedService != null && !selectedService.isEmpty()) {
@@ -2398,9 +2486,9 @@ cfg.updateRecord("UPDATE dentist SET status=? WHERE dentist_id=?",
                     "INSERT INTO tbl_appointments (pat_id, dentist_id, app_date, app_time, app_service, app_service_price, app_status, payment_method, payment_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
                 );
 
-                psApp.setInt(1, patientId);
-                psApp.setInt(2, 1); // Example dentist_id, replace with actual selection
-                psApp.setString(3, dateChooser.getDate().toString());
+                psApp.setInt(1, patientId); // ✅ use the generated patient ID
+                psApp.setInt(2, internal.session.getDentistId()); // ✅ actual dentist selection
+                psApp.setString(3, new java.text.SimpleDateFormat("yyyy-MM-dd").format(dateChooser.getDate()));
                 psApp.setString(4, timeCombo.getSelectedItem().toString());
                 psApp.setString(5, selectedService);
                 psApp.setDouble(6, getServicePrice(selectedService));
@@ -2410,9 +2498,12 @@ cfg.updateRecord("UPDATE dentist SET status=? WHERE dentist_id=?",
 
                 psApp.executeUpdate();
                 psApp.close();
-            }
 
-            conn.close();
+                // ✅ Log appointment booking
+                logAction(conn, patientId, "patient", "Book Appointment",
+                          "Booked " + selectedService + " with dentist ID=" + internal.session.getDentistId() +
+                          " on " + dateChooser.getDate() + " at " + timeCombo.getSelectedItem().toString());
+            }
 
             JOptionPane.showMessageDialog(this, "Patient and appointment saved successfully!");
             
@@ -2422,7 +2513,6 @@ cfg.updateRecord("UPDATE dentist SET status=? WHERE dentist_id=?",
             JOptionPane.showMessageDialog(this, "Error saving patient/appointment: " + e.getMessage());
         }
     } else {
-        // ❌ Block navigation if invalid
         JOptionPane.showMessageDialog(
             this,
             "Please fill in all required fields before proceeding.",
@@ -2439,9 +2529,8 @@ cfg.updateRecord("UPDATE dentist SET status=? WHERE dentist_id=?",
     private void gcashActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gcashActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_gcashActionPerformed
- 
- private void loadDentistData() {
-    String sql = "SELECT d.dentist_id AS 'ID', " +
+private void loadDentistData() {
+    String sql = "SELECT " +
                  "'Dr. ' || a.acc_name AS 'Dentist Name', " +
                  "d.specialty AS 'Specialty', " +
                  "d.work_days AS 'Work Days', " +
@@ -2459,47 +2548,47 @@ cfg.updateRecord("UPDATE dentist SET status=? WHERE dentist_id=?",
          PreparedStatement pst = con.prepareStatement(sql);
          ResultSet rs = pst.executeQuery()) {
 
-        // Load DB results into table
+        // ✅ Load DB results into table
         table_dentist.setModel(DbUtils.resultSetToTableModel(rs));
 
-        // ✅ Professional dental clinic styling
-        table_dentist.setRowHeight(28);
-        table_dentist.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        // ✅ Apply styling
+        table_dentist.setRowHeight(30);
+        table_dentist.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         table_dentist.setGridColor(new Color(220, 220, 220));
         table_dentist.setShowGrid(true);
 
         // ✅ Header styling
         JTableHeader header = table_dentist.getTableHeader();
-        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        header.setBackground(new Color(200, 230, 240)); // soft healthcare blue
+        header.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        header.setBackground(new Color(180, 220, 240)); // soft clinic blue
         header.setForeground(Color.DARK_GRAY);
-        header.setOpaque(true);
-        header.repaint();
 
-        // ✅ Column widths (guard against empty model)
+        // ✅ Disable auto-resize so scrollbars appear
+        table_dentist.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+        // ✅ Column widths (ensures long text is scrollable)
         if (table_dentist.getColumnCount() > 0) {
-            table_dentist.getColumnModel().getColumn(0).setPreferredWidth(40);   // ID
-            table_dentist.getColumnModel().getColumn(1).setPreferredWidth(150);  // Name
-            table_dentist.getColumnModel().getColumn(2).setPreferredWidth(150);  // Specialty
-            table_dentist.getColumnModel().getColumn(3).setPreferredWidth(200);  // Work Days
-            table_dentist.getColumnModel().getColumn(4).setPreferredWidth(100);  // Start
-            table_dentist.getColumnModel().getColumn(5).setPreferredWidth(100);  // End
-            table_dentist.getColumnModel().getColumn(6).setPreferredWidth(100);  // Status
+            table_dentist.getColumnModel().getColumn(0).setPreferredWidth(180); // Dentist Name
+            table_dentist.getColumnModel().getColumn(1).setPreferredWidth(200); // Specialty
+            table_dentist.getColumnModel().getColumn(2).setPreferredWidth(250); // Work Days
+            table_dentist.getColumnModel().getColumn(3).setPreferredWidth(120); // Start Time
+            table_dentist.getColumnModel().getColumn(4).setPreferredWidth(120); // End Time
+            table_dentist.getColumnModel().getColumn(5).setPreferredWidth(150); // Status
         }
 
-        // ✅ Alternate row colors + status color coding
+        // ✅ Custom renderer for alternating row colors + status highlighting
         table_dentist.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
                     boolean isSelected, boolean hasFocus, int row, int column) {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-                // Background striping
+                // Alternate row colors
                 if (!isSelected) {
-                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(245, 250, 255)); // soft clinic blue
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(245, 250, 255));
                     c.setForeground(new Color(30, 30, 30));
                 } else {
-                    c.setBackground(new Color(184, 207, 229)); // selection blue
+                    c.setBackground(new Color(184, 207, 229));
                     c.setForeground(Color.BLACK);
                 }
 
@@ -2509,25 +2598,20 @@ cfg.updateRecord("UPDATE dentist SET status=? WHERE dentist_id=?",
                     String status = value.toString();
                     if ("Available".equals(status)) {
                         c.setForeground(new Color(0, 128, 0)); // green
-                        ((JLabel)c).setFont(new Font("Segoe UI", Font.BOLD, 13));
-                    } else if ("Booked".equals(status)) {
-                        c.setForeground(new Color(0, 0, 255)); // blue
-                        ((JLabel)c).setFont(new Font("Segoe UI", Font.BOLD, 13));
-                    } else if ("In Consultation".equals(status)) {
-                        c.setForeground(new Color(255, 140, 0)); // orange
-                        ((JLabel)c).setFont(new Font("Segoe UI", Font.BOLD, 13));
+                        ((JLabel)c).setFont(new Font("Segoe UI", Font.BOLD, 14));
                     } else if ("Unavailable".equals(status)) {
                         c.setForeground(Color.RED);
-                        ((JLabel)c).setFont(new Font("Segoe UI", Font.BOLD, 13));
+                        ((JLabel)c).setFont(new Font("Segoe UI", Font.BOLD, 14));
                     }
                 }
 
-                if (c instanceof JLabel) {
-                    ((JLabel) c).setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // padding
-                }
                 return c;
             }
         });
+
+        // ✅ Ensure scrollbars are always visible
+        jScrollPane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        jScrollPane1.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
     } catch (Exception e) {
         e.printStackTrace();

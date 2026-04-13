@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package features;
 
 import config.config;
@@ -23,11 +19,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
+import net.proteanit.sql.DbUtils;
 
-/**
- *
- * @author Cassandra Gallera
- */
+
 public class staff extends javax.swing.JFrame {
  int xMouse, yMouse;
  
@@ -47,6 +41,22 @@ private void filterDentists(String keyword) {
     }
    
 }
+
+
+private void logAction(Connection con, int actorId, String actorRole, String action, String details) {
+    String sql = "INSERT INTO tbl_logs (actor_id, actor_role, action, details, created_at) " +
+                 "VALUES (?, ?, ?, ?, datetime('now'))";
+    try (PreparedStatement ps = con.prepareStatement(sql)) {
+        ps.setInt(1, actorId);
+        ps.setString(2, actorRole);
+        ps.setString(3, action);
+        ps.setString(4, details);
+        ps.executeUpdate();
+    } catch (Exception e) {
+        e.printStackTrace(); // optional: don’t block the user if logging fails
+    }
+}
+
 
 private void filterPatients(String keyword) {
     javax.swing.table.TableRowSorter<javax.swing.table.DefaultTableModel> sorter =
@@ -114,7 +124,7 @@ class StatusCellRenderer extends DefaultTableCellRenderer {
         loadprofile();
         loadDentistAvailability();
         loadAllPatients();
-        
+        loadAppointmentList();
     // 🔒 Check if user is logged in
     if (session.getId() == 0) {
         JOptionPane.showMessageDialog(this, "Please login first.");
@@ -330,8 +340,6 @@ class StatusCellRenderer extends DefaultTableCellRenderer {
         jLabel28 = new javax.swing.JLabel();
         jLabel29 = new javax.swing.JLabel();
         jLabel45 = new javax.swing.JLabel();
-        jScrollPane7 = new javax.swing.JScrollPane();
-        tbl_appDetails = new javax.swing.JTable();
         jPanel20 = new javax.swing.JPanel();
         jLabel48 = new javax.swing.JLabel();
         jLabel20 = new javax.swing.JLabel();
@@ -813,7 +821,7 @@ class StatusCellRenderer extends DefaultTableCellRenderer {
         ));
         jScrollPane3.setViewportView(tbl_AppointmentList);
 
-        jPanel4.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 120, 410, 260));
+        jPanel4.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 120, 600, 260));
 
         jLabel18.setForeground(new java.awt.Color(204, 204, 204));
         jLabel18.setText("______________________________________________________________________________________");
@@ -910,18 +918,6 @@ class StatusCellRenderer extends DefaultTableCellRenderer {
         jPanel12.add(jPanel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 40, 130, 40));
 
         jPanel4.add(jPanel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 390, 590, 90));
-
-        tbl_appDetails.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-
-            }
-        ));
-        jScrollPane7.setViewportView(tbl_appDetails);
-
-        jPanel4.add(jScrollPane7, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 121, 180, 260));
 
         jPanel20.setBackground(new java.awt.Color(0, 51, 255));
         jPanel20.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -1791,89 +1787,97 @@ class StatusCellRenderer extends DefaultTableCellRenderer {
     }//GEN-LAST:event_editprofileMouseClicked
 
     private void saveMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveMouseClicked
-        String newName = name.getText().trim();
-        String newEmail = email.getText().trim();
-        String newContact = contact.getText().trim();
-        String newPass = new String(password.getText()).trim();
+    String newName = name.getText().trim();
+    String newEmail = email.getText().trim();
+    String newContact = contact.getText().trim();
+    String newPass = new String(password.getText()).trim();
 
-        int fieldCount = 0;
+    int fieldCount = 0;
 
-        if (!newName.isEmpty()) fieldCount++;
-        if (!newEmail.isEmpty()) fieldCount++;
-        if (!newContact.isEmpty()) fieldCount++;
-        if (!newPass.isEmpty()) fieldCount++;
+    if (!newName.isEmpty()) fieldCount++;
+    if (!newEmail.isEmpty()) fieldCount++;
+    if (!newContact.isEmpty()) fieldCount++;
+    if (!newPass.isEmpty()) fieldCount++;
 
-        if (fieldCount == 0) {
-            JOptionPane.showMessageDialog(this, "No fields to update!");
-            return;
+    if (fieldCount == 0) {
+        JOptionPane.showMessageDialog(this, "No fields to update!");
+        return;
+    }
+
+    // ===== BUILD SQL DYNAMICALLY =====
+    StringBuilder sql = new StringBuilder("UPDATE tbl_accounts SET ");
+
+    if (!newName.isEmpty()) {
+        sql.append("acc_name=?, ");
+    }
+
+    if (!newEmail.isEmpty()) {
+        sql.append("acc_email=?, ");
+    }
+
+    if (!newContact.isEmpty()) {
+        sql.append("acc_contact=?, ");
+    }
+
+    if (!newPass.isEmpty()) {
+        sql.append("acc_pass=?, ");
+    }
+
+    // remove last ", "
+    sql.setLength(sql.length() - 2);
+    sql.append(" WHERE acc_id=?");
+
+    // ===== PARAMETERS =====
+    Object[] params = new Object[fieldCount + 1];
+    int index = 0;
+
+    if (!newName.isEmpty()) {
+        params[index++] = newName;
+    }
+
+    if (!newEmail.isEmpty()) {
+        params[index++] = newEmail;
+    }
+
+    if (!newContact.isEmpty()) {
+        params[index++] = newContact;
+    }
+
+    if (!newPass.isEmpty()) {
+        params[index++] = config.hashPassword(newPass);
+    }
+
+    params[index] = session.getId();
+
+    // ===== EXECUTE UPDATE =====
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(sql.toString())) {
+
+        for (int i = 0; i < params.length; i++) {
+            pst.setObject(i + 1, params[i]);
         }
 
-        // ===== BUILD SQL DYNAMICALLY =====
-        StringBuilder sql = new StringBuilder("UPDATE tbl_accounts SET ");
+        int updated = pst.executeUpdate();
 
-        if (!newName.isEmpty()) {
-            sql.append("acc_name=?, ");
+        if (updated > 0) {
+            // ✅ Log staff action
+            logAction(con, session.getId(), "staff", "Update Profile",
+                      "Updated profile fields for acc_id=" + session.getId() +
+                      (newName.isEmpty() ? "" : ", name=" + newName) +
+                      (newEmail.isEmpty() ? "" : ", email=" + newEmail) +
+                      (newContact.isEmpty() ? "" : ", contact=" + newContact) +
+                      (newPass.isEmpty() ? "" : ", password changed"));
+
+            JOptionPane.showMessageDialog(this, "Profile updated successfully!");
+            loadprofile(); // refresh UI
+        } else {
+            JOptionPane.showMessageDialog(this, "No changes were made.");
         }
 
-        if (!newEmail.isEmpty()) {
-            sql.append("acc_email=?, ");
-        }
-
-        if (!newContact.isEmpty()) {
-            sql.append("acc_contact=?, ");
-        }
-
-        if (!newPass.isEmpty()) {
-            sql.append("acc_pass=?, ");
-        }
-
-        // remove last ", "
-        sql.setLength(sql.length() - 2);
-        sql.append(" WHERE acc_id=?");
-
-        // ===== PARAMETERS =====
-        Object[] params = new Object[fieldCount + 1];
-        int index = 0;
-
-        if (!newName.isEmpty()) {
-            params[index++] = newName;
-        }
-
-        if (!newEmail.isEmpty()) {
-            params[index++] = newEmail;
-        }
-
-        if (!newContact.isEmpty()) {
-            params[index++] = newContact;
-        }
-
-        if (!newPass.isEmpty()) {
-            params[index++] = config.hashPassword(newPass);
-        }
-
-        params[index] = session.getId();
-
-        // ===== EXECUTE UPDATE =====
-        try (Connection con = config.connectDB();
-             PreparedStatement pst = con.prepareStatement(sql.toString())) {
-
-            for (int i = 0; i < params.length; i++) {
-                pst.setObject(i + 1, params[i]);
-            }
-
-            int updated = pst.executeUpdate();
-
-            if (updated > 0) {
-                JOptionPane.showMessageDialog(this, "Profile updated successfully!");
-                loadprofile(); // refresh UI
-            } else {
-                JOptionPane.showMessageDialog(this, "No changes were made.");
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error updating profile: " + e.getMessage());
-        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error updating profile: " + e.getMessage());
+    }
     }//GEN-LAST:event_saveMouseClicked
 
     private void searchPatientsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchPatientsActionPerformed
@@ -1991,25 +1995,29 @@ class StatusCellRenderer extends DefaultTableCellRenderer {
     }//GEN-LAST:event_editPatientsMouseClicked
 
     private void saveEditPatientsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveEditPatientsMouseClicked
-      String patId = patientIDlabel.getText();
+     String patId = patientIDlabel.getText();
     if (patId == null || patId.trim().isEmpty()) {
         JOptionPane.showMessageDialog(this, "No patient ID found.");
         return;
     }
 
-    try {
-        config cfg = new config();
+    try (Connection con = config.connectDB()) {
         String sql = "UPDATE tbl_patients SET pat_name=?, pat_email=?, pat_age=?, pat_sex=?, pat_contact=?, pat_address=? WHERE pat_id=?";
 
-        cfg.updateRecord(sql,
-            FULLNAME.getText(),
-            EMAIL.getText(),
-            Integer.parseInt(AGE.getText()),
-            GENDER.getSelectedItem().toString(),
-            CONTACT.getText(),
-            ADDRESS.getText(),
-            Integer.parseInt(patId)
-        );
+        try (PreparedStatement pst = con.prepareStatement(sql)) {
+            pst.setString(1, FULLNAME.getText());
+            pst.setString(2, EMAIL.getText());
+            pst.setInt(3, Integer.parseInt(AGE.getText()));
+            pst.setString(4, GENDER.getSelectedItem().toString());
+            pst.setString(5, CONTACT.getText());
+            pst.setString(6, ADDRESS.getText());
+            pst.setInt(7, Integer.parseInt(patId));
+            pst.executeUpdate();
+        }
+
+        // ✅ Log staff action
+        logAction(con, session.getId(), "staff", "Edit Patient",
+                  "Edited patient record: " + FULLNAME.getText() + " (ID=" + patId + ")");
 
         JOptionPane.showMessageDialog(this, "Patient record updated successfully.");
 
@@ -2025,7 +2033,7 @@ class StatusCellRenderer extends DefaultTableCellRenderer {
     }//GEN-LAST:event_saveEditPatientsMouseClicked
 
     private void archive_patientsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_archive_patientsMouseClicked
-     int selectedRow = ALLPATIENTS.getSelectedRow();
+ int selectedRow = ALLPATIENTS.getSelectedRow();
     if (selectedRow == -1) {
         JOptionPane.showMessageDialog(this, "Please select a patient to archive.");
         return;
@@ -2033,6 +2041,7 @@ class StatusCellRenderer extends DefaultTableCellRenderer {
 
     int modelRow = ALLPATIENTS.convertRowIndexToModel(selectedRow);
     String patId = ALLPATIENTS.getModel().getValueAt(modelRow, 0).toString();
+    String fullName = ALLPATIENTS.getModel().getValueAt(modelRow, 1).toString();
 
     int confirm = JOptionPane.showConfirmDialog(this,
         "Are you sure you want to archive this patient?",
@@ -2040,13 +2049,20 @@ class StatusCellRenderer extends DefaultTableCellRenderer {
         JOptionPane.YES_NO_OPTION);
 
     if (confirm == JOptionPane.YES_OPTION) {
-        try {
-            config cfg = new config();
+        try (Connection con = config.connectDB()) {
             String sql = "UPDATE tbl_patients SET pat_archive = 0 WHERE pat_id = ?";
-            cfg.updateRecord(sql, Integer.parseInt(patId));
+            try (PreparedStatement pst = con.prepareStatement(sql)) {
+                pst.setInt(1, Integer.parseInt(patId));
+                pst.executeUpdate();
+
+                // ✅ Log staff action (only once, right after update)
+                logAction(con, session.getId(), "staff", "Archive Patient",
+                          "Archived patient: " + fullName + " (ID=" + patId + ")");
+            }
 
             JOptionPane.showMessageDialog(this, "Patient archived successfully.");
             loadAllPatientsWithStatus(); // reload ALL users (active + archived)
+
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error archiving patient: " + e.getMessage());
         }
@@ -2343,6 +2359,99 @@ private void loadAllPatientsWithStatus() {
         JOptionPane.showMessageDialog(this, "Error loading patients: " + e.getMessage());
     }
 }
+private void loadAppointmentList() {
+    String sql = "SELECT a.app_id AS 'Appointment ID', " +
+                 "a.pat_id AS 'Patient ID', " +   // ✅ show patient ID instead of name
+                 "'Dr. ' || accDent.acc_name AS 'Dentist', " +
+                 "d.specialty AS 'Specialty', " +
+                 "a.app_date AS 'Date', " +
+                 "a.app_time AS 'Time', " +
+                 "a.app_service AS 'Service', " +
+                 "a.app_service_price AS 'Price', " +
+                 "a.app_status AS 'Status', " +
+                 "a.payment_method AS 'Payment Method', " +
+                 "a.payment_status AS 'Payment Status', " +
+                 "a.created_at AS 'Created At' " +
+                 "FROM tbl_appointments a " +
+                 "LEFT JOIN tbl_dentists d ON a.dentist_id = d.dentist_id " +
+                 "LEFT JOIN tbl_accounts accDent ON d.acc_id = accDent.acc_id";
+
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(sql);
+         ResultSet rs = pst.executeQuery()) {
+
+        tbl_AppointmentList.setModel(DbUtils.resultSetToTableModel(rs));
+        styleAppointmentTable();
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this,
+            "Error loading appointments: " + e.getMessage(),
+            "Database Error",
+            JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+
+private void styleAppointmentTable() {
+    tbl_AppointmentList.setRowHeight(30);
+    tbl_AppointmentList.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+    tbl_AppointmentList.setGridColor(new Color(220, 220, 220));
+    tbl_AppointmentList.setShowGrid(true);
+
+    JTableHeader header = tbl_AppointmentList.getTableHeader();
+    header.setFont(new Font("Segoe UI", Font.BOLD, 15));
+    header.setBackground(new Color(180, 220, 240));
+    header.setForeground(Color.DARK_GRAY);
+
+    tbl_AppointmentList.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+    if (tbl_AppointmentList.getColumnCount() > 0) {
+        tbl_AppointmentList.getColumnModel().getColumn(0).setPreferredWidth(150); // Appointment ID
+        tbl_AppointmentList.getColumnModel().getColumn(1).setPreferredWidth(180); // Patient Name
+        tbl_AppointmentList.getColumnModel().getColumn(2).setPreferredWidth(180); // Dentist
+        tbl_AppointmentList.getColumnModel().getColumn(3).setPreferredWidth(150); // Specialty
+        tbl_AppointmentList.getColumnModel().getColumn(4).setPreferredWidth(150); // Date
+        tbl_AppointmentList.getColumnModel().getColumn(5).setPreferredWidth(120); // Time
+        tbl_AppointmentList.getColumnModel().getColumn(6).setPreferredWidth(200); // Service
+        tbl_AppointmentList.getColumnModel().getColumn(7).setPreferredWidth(100); // Price
+        tbl_AppointmentList.getColumnModel().getColumn(8).setPreferredWidth(120); // Status
+        tbl_AppointmentList.getColumnModel().getColumn(9).setPreferredWidth(150); // Payment Method
+        tbl_AppointmentList.getColumnModel().getColumn(10).setPreferredWidth(150); // Payment Status
+        tbl_AppointmentList.getColumnModel().getColumn(11).setPreferredWidth(180); // Created At
+    }
+
+    tbl_AppointmentList.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+            if (!isSelected) {
+                c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(245, 250, 255));
+                c.setForeground(new Color(30, 30, 30));
+            } else {
+                c.setBackground(new Color(184, 207, 229));
+                c.setForeground(Color.BLACK);
+            }
+
+            int statusCol = table.getColumn("Status").getModelIndex();
+            if (column == statusCol && value != null) {
+                String status = value.toString();
+                if ("Confirmed".equalsIgnoreCase(status)) {
+                    c.setForeground(new Color(0, 128, 0));
+                    ((JLabel)c).setFont(new Font("Segoe UI", Font.BOLD, 14));
+                } else if ("Pending".equalsIgnoreCase(status)) {
+                    c.setForeground(new Color(255, 140, 0));
+                    ((JLabel)c).setFont(new Font("Segoe UI", Font.BOLD, 14));
+                } else if ("Cancelled".equalsIgnoreCase(status)) {
+                    c.setForeground(Color.RED);
+                    ((JLabel)c).setFont(new Font("Segoe UI", Font.BOLD, 14));
+                }
+            }
+            return c;
+        }
+    });
+}
 
 
     /**
@@ -2542,7 +2651,6 @@ private void loadAllPatientsWithStatus() {
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
-    private javax.swing.JScrollPane jScrollPane7;
     private javax.swing.JTable jTable4;
     private javax.swing.JTable jTable5;
     private javax.swing.JTable jTable6;
@@ -2571,6 +2679,5 @@ private void loadAllPatientsWithStatus() {
     private javax.swing.JTextField searchbar_appointments;
     private javax.swing.JLabel stafflabel;
     private javax.swing.JTable tbl_AppointmentList;
-    private javax.swing.JTable tbl_appDetails;
     // End of variables declaration//GEN-END:variables
 }

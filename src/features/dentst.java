@@ -58,6 +58,19 @@ private boolean isValidEmail(String email) {
 
 
 
+private void logAction(Connection con, int actorId, String actorRole, String action, String details) {
+    String sql = "INSERT INTO tbl_logs (actor_id, actor_role, action, details, created_at) " +
+                 "VALUES (?, ?, ?, ?, datetime('now'))";
+    try (PreparedStatement ps = con.prepareStatement(sql)) {
+        ps.setInt(1, actorId);
+        ps.setString(2, actorRole);
+        ps.setString(3, action);
+        ps.setString(4, details);
+        ps.executeUpdate();
+    } catch (Exception e) {
+        e.printStackTrace(); // optional: silent fail so dentist isn’t blocked
+    }
+}
 
 
     /**
@@ -271,14 +284,15 @@ sunCheck.setSelected(false);
         jLabel37 = new javax.swing.JLabel();
         patient = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        tbl = new javax.swing.JTable();
+        MYPATIENTS = new javax.swing.JTable();
         jLabel4 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         treatment = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jTable3 = new javax.swing.JTable();
+        MYappointment = new javax.swing.JTable();
         jLabel27 = new javax.swing.JLabel();
         jLabel28 = new javax.swing.JLabel();
+        jLabel56 = new javax.swing.JLabel();
         mp1 = new javax.swing.JPanel();
         jPanel32 = new javax.swing.JPanel();
         addpicture1 = new javax.swing.JPanel();
@@ -894,14 +908,14 @@ sunCheck.setSelected(false);
 
         jLabel37.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel37.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/21.jpg"))); // NOI18N
-        jLabel37.setVerticalAlignment(javax.swing.SwingConstants.BOTTOM);
+        jLabel37.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         sched.add(jLabel37, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 20, 640, 470));
 
         dashTb.addTab("schedule", sched);
 
         patient.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        tbl.setModel(new javax.swing.table.DefaultTableModel(
+        MYPATIENTS.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -909,7 +923,7 @@ sunCheck.setSelected(false);
 
             }
         ));
-        jScrollPane2.setViewportView(tbl);
+        jScrollPane2.setViewportView(MYPATIENTS);
 
         patient.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 120, 620, 360));
 
@@ -926,7 +940,7 @@ sunCheck.setSelected(false);
 
         treatment.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jTable3.setModel(new javax.swing.table.DefaultTableModel(
+        MYappointment.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -934,18 +948,21 @@ sunCheck.setSelected(false);
 
             }
         ));
-        jScrollPane3.setViewportView(jTable3);
+        jScrollPane3.setViewportView(MYappointment);
 
-        treatment.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 140, 620, 300));
+        treatment.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 140, 620, 330));
 
         jLabel27.setFont(new java.awt.Font("Times New Roman", 1, 22)); // NOI18N
         jLabel27.setText("Treamtment Plans");
-        treatment.add(jLabel27, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, -1, -1));
+        treatment.add(jLabel27, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, -1, -1));
 
         jLabel28.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         jLabel28.setForeground(new java.awt.Color(51, 51, 51));
         jLabel28.setText("Monitor Ongoing treatments");
-        treatment.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, -1, 20));
+        treatment.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, -1, 20));
+
+        jLabel56.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nn.jpg"))); // NOI18N
+        treatment.add(jLabel56, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 26, 630, 460));
 
         dashTb.addTab("treatmentp", treatment);
 
@@ -1540,7 +1557,7 @@ sunCheck.setSelected(false);
 
     private void saveMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveMouseClicked
    
-            String newName = change_name.getText().trim();
+       String newName = change_name.getText().trim();
     String newEmail = change_email.getText().trim();
     String newContact = change_contact.getText().trim();
     String newPassVal = newpass.getText().trim();
@@ -1548,20 +1565,17 @@ sunCheck.setSelected(false);
 
     String selectedSpecialty = (String) set_specialization.getSelectedItem();
 
-    // --- Check if nothing was changed ---
     if (newName.isEmpty() && newEmail.isEmpty() && newContact.isEmpty() && newPassVal.isEmpty()
         && (selectedSpecialty == null || selectedSpecialty.trim().isEmpty())) {
         JOptionPane.showMessageDialog(this, "No fields to update!");
         return;
     }
 
-    // --- Validate email ---
     if (!newEmail.isEmpty() && !isValidEmail(newEmail)) {
         JOptionPane.showMessageDialog(this, "Invalid email address.");
         return;
     }
 
-    // --- Validate password ---
     if (!newPassVal.isEmpty() && !newPassVal.equals(confirmPassVal)) {
         JOptionPane.showMessageDialog(this, "Passwords do not match.");
         return;
@@ -1570,7 +1584,6 @@ sunCheck.setSelected(false);
     try (Connection con = config.connectDB()) {
         con.setAutoCommit(false);
 
-        // --- Check email uniqueness only if changed ---
         if (!newEmail.isEmpty()) {
             String checkSql = "SELECT acc_id FROM tbl_accounts WHERE acc_email=? AND acc_id<>?";
             PreparedStatement checkPs = con.prepareStatement(checkSql);
@@ -1600,7 +1613,7 @@ sunCheck.setSelected(false);
         }
 
         if (params.size() > 0) {
-            sql.setLength(sql.length() - 2); // remove last comma
+            sql.setLength(sql.length() - 2);
             sql.append(" WHERE acc_id=?");
             params.add(session.getId());
 
@@ -1610,6 +1623,11 @@ sunCheck.setSelected(false);
                 }
                 pst.executeUpdate();
             }
+
+            // ✅ Log profile info update
+            logAction(con, session.getId(), "dentist", "Update Profile",
+                      "Profile updated: name=" + newName + ", email=" + newEmail +
+                      ", contact=" + newContact);
         }
 
         // --- Update password if provided ---
@@ -1621,6 +1639,10 @@ sunCheck.setSelected(false);
             psPass.setString(1, hashedPass);
             psPass.setInt(2, session.getId());
             psPass.executeUpdate();
+
+            // ✅ Log password update
+            logAction(con, session.getId(), "dentist", "Update Password",
+                      "Password updated for acc_id=" + session.getId());
         }
 
         // --- Update specialization ---
@@ -1629,17 +1651,18 @@ sunCheck.setSelected(false);
                 "UPDATE tbl_dentists SET specialty=? WHERE acc_id=?"
             );
             psSpec.setString(1, selectedSpecialty);
-            psSpec.setInt(2, session.getId());  // ✅ use acc_id
+            psSpec.setInt(2, session.getId());
             psSpec.executeUpdate();
 
-            // Update UI immediately
             displaySpecialty.setText(selectedSpecialty);
+
+            // ✅ Log specialty update
+            logAction(con, session.getId(), "dentist", "Update Specialty",
+                      "Specialty updated to " + selectedSpecialty +
+                      " for acc_id=" + session.getId());
         }
 
-        // --- Update header label with new name ---
         dr.setText(change_name.getText());
-
-        // --- Refresh labels ---
         name.setText(change_name.getText());
         email.setText(change_email.getText());
         contact.setText(change_contact.getText());
@@ -1647,17 +1670,15 @@ sunCheck.setSelected(false);
         con.commit();
 
         JOptionPane.showMessageDialog(this, "Profile updated successfully!");
-        loadprofile();       // refresh My Profile
-        loadProfileEdit();   // refresh Edit Profile
+        loadprofile();
+        loadProfileEdit();
 
-        // --- Clear fields after save ---
         change_name.setText("");
         change_email.setText("");
         change_contact.setText("");
         newpass.setText("");
         confirmnewpass.setText("");
 
-        // --- Lock fields back ---
         change_name.setEditable(false);
         change_email.setEditable(false);
         change_contact.setEditable(false);
@@ -1758,7 +1779,7 @@ sunCheck.setSelected(false);
     }//GEN-LAST:event_changePhotoMouseClicked
 
     private void SAVECHANGESMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_SAVECHANGESMouseClicked
-     try (Connection conn = config.connectDB()) {
+ try (Connection conn = config.connectDB()) {
         conn.setAutoCommit(false);
 
         // --- Handle photo ---
@@ -1774,6 +1795,10 @@ sunCheck.setSelected(false);
                 ps.setString(1, imgPath);
                 ps.setInt(2, session.getId());
                 ps.executeUpdate();
+
+                // ✅ Log photo update
+                logAction(conn, session.getId(), "dentist", "Update Profile Photo",
+                          "Profile photo updated for acc_id=" + session.getId());
             }
         }
 
@@ -1798,6 +1823,10 @@ sunCheck.setSelected(false);
             psPass.setString(1, hashedPass);
             psPass.setInt(2, session.getId());
             psPass.executeUpdate();
+
+            // ✅ Log password update
+            logAction(conn, session.getId(), "dentist", "Update Password",
+                      "Password updated for acc_id=" + session.getId());
         }
 
         conn.commit();
@@ -1986,7 +2015,7 @@ sunCheck.setSelected(false);
     }//GEN-LAST:event_jLabel49MouseClicked
 
     private void saveScheduleMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveScheduleMouseClicked
-    String start = (String) startTimeCombo.getSelectedItem();
+       String start = (String) startTimeCombo.getSelectedItem();
     String end   = (String) endTimeCombo.getSelectedItem();
 
     List<String> days = new ArrayList<>();
@@ -1998,13 +2027,10 @@ sunCheck.setSelected(false);
     if (satCheck.isSelected()) days.add("Saturday");
     if (sunCheck.isSelected()) days.add("Sunday");
 
-//if (evt != null) { // only validate when Save button is clicked
     if (start == null || end == null || days.isEmpty()) {
         JOptionPane.showMessageDialog(this, "Please select valid start/end times and at least one work day.");
         return;
     }
-//}
-
 
     try {
         DateTimeFormatter inputFmt = DateTimeFormatter.ofPattern("h:mm a");
@@ -2035,8 +2061,15 @@ sunCheck.setSelected(false);
             int updated = pst.executeUpdate();
             if (updated > 0) {
                 JOptionPane.showMessageDialog(this, "Schedule updated successfully!");
-                loadSchedule(); // reload UI with fresh DB values
-                 loadScheduleTable();  // ✅ refresh JTable
+                loadSchedule();       // reload UI with fresh DB values
+                loadScheduleTable();  // refresh JTable
+
+                // ✅ Log schedule update (dentist action)
+                logAction(con, session.getDentistId(), "dentist", "Update Schedule",
+                          "Schedule updated: Days=" + workDays +
+                          ", Start=" + startNormalized + ", End=" + endNormalized);
+
+                // ❌ Removed loadSystemLogs() here — only admin should refresh logs table
             } else {
                 JOptionPane.showMessageDialog(this, "No schedule updated. Dentist not found.");
             }
@@ -2689,6 +2722,8 @@ scheduleTable.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTabl
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel Dr_lastname;
+    private javax.swing.JTable MYPATIENTS;
+    private javax.swing.JTable MYappointment;
     private javax.swing.JLabel SAVECHANGES;
     private javax.swing.JLabel XBTN;
     private javax.swing.JPanel XPNL;
@@ -2774,6 +2809,7 @@ scheduleTable.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTabl
     private javax.swing.JLabel jLabel53;
     private javax.swing.JLabel jLabel54;
     private javax.swing.JLabel jLabel55;
+    private javax.swing.JLabel jLabel56;
     private javax.swing.JLabel jLabel59;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel60;
@@ -2825,7 +2861,6 @@ scheduleTable.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTabl
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JTable jTable1;
-    private javax.swing.JTable jTable3;
     private javax.swing.JPanel lg;
     private javax.swing.JLabel logout;
     private javax.swing.JCheckBox monCheck;
@@ -2853,7 +2888,6 @@ scheduleTable.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTabl
     private javax.swing.JComboBox<String> startTimeCombo;
     private javax.swing.JCheckBox sunCheck;
     private javax.swing.JLabel t;
-    private javax.swing.JTable tbl;
     private javax.swing.JCheckBox thurCheck;
     private javax.swing.JLabel tp;
     private javax.swing.JPanel treatment;
