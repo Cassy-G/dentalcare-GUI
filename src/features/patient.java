@@ -1,0 +1,3266 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package features;
+
+import com.toedter.calendar.JCalendar;
+import config.config;
+import internal.session;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import static java.awt.Event.TAB;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.SpinnerDateModel;
+import javax.swing.table.TableColumn;
+import javax.swing.border.Border;
+import javax.swing.event.TableModelEvent;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+
+
+/**
+ *
+ * @author Cassandra Gallera
+ */
+public class patient extends javax.swing.JFrame {
+ int xMouse, yMouse;
+ 
+ 
+ 
+ // ===== TEMPORARY VARIABLES =====
+private String selectedService = "";
+private double selectedPrice = 0.0;
+private int selectedDentist = 0;
+private String selectedDate = "";
+private String selectedTime = "";
+private String notes = "";
+private String paymentMethod = "";
+
+
+
+
+
+private JCalendar calendar;
+private JSpinner timeSpinner; // for time selection
+private int currentPatientId = -1;
+
+private void setupJCalendarAndTime() {
+    calendar = new JCalendar();
+    calendar.setDate(new Date());
+
+    // Time spinner setup
+    SpinnerDateModel timeModel = new SpinnerDateModel();
+    timeSpinner = new JSpinner(timeModel);
+    JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(timeSpinner, "HH:mm");
+    timeSpinner.setEditor(timeEditor);
+    timeSpinner.setValue(new Date()); // default to now
+
+    // Clear panel and add components
+    Jpanel_date_time.removeAll();
+    Jpanel_date_time.setLayout(new BorderLayout());
+
+    // Add calendar (date) at top
+    Jpanel_date_time.add(calendar, BorderLayout.CENTER);
+
+    // Add time spinner at bottom
+    JPanel timePanel = new JPanel(new FlowLayout());
+    timePanel.add(new JLabel("Select Time:"));
+    timePanel.add(timeSpinner);
+    Jpanel_date_time.add(timePanel, BorderLayout.SOUTH);
+
+    // Refresh panel
+    Jpanel_date_time.revalidate();
+    Jpanel_date_time.repaint();
+}
+
+
+private void resetTempSelections() {
+    selectedService = "";
+    selectedPrice = 0.0;
+    selectedDentist = 0;
+    selectedDate = "";
+    selectedTime = "";
+    notes = "";
+    paymentMethod = "";
+}
+
+
+
+    public patient() {
+        initComponents();
+        if (!authorizePatientSession()) {
+            return;
+        }
+        wireAddAppointmentButtons();
+        setupJCalendarAndTime();
+         currentPatientId = resolvePatientId();
+         loadprofile ();
+         setupServiceLabels(); 
+         setupAppointmentsTable();
+         setupDentistTable();
+         loadAppointments();
+         loadPastAppointments();
+         loadBillingTable();
+         updateBillingSummary();
+         setupBillingTabListener(taab);
+         loadTotalVisits();
+         loadNextAppointmentDate();
+       user.setText("Welcome, " + session.getName());
+      
+    }
+
+private boolean authorizePatientSession() {
+    if (session.getId() <= 0) {
+        JOptionPane.showMessageDialog(this, "Please login first.");
+        new login().setVisible(true);
+        dispose();
+        return false;
+    }
+
+    if (session.getRole() == null || !session.getRole().equalsIgnoreCase("patient")) {
+        JOptionPane.showMessageDialog(this, "Access Denied. Patients only.");
+        dispose();
+        return false;
+    }
+
+    return true;
+}
+
+private int resolvePatientId() {
+    String[] queries = {
+        "SELECT pat_id FROM tbl_patients WHERE customer_id = ?",
+        "SELECT pat_id FROM tbl_patients WHERE pat_email = (SELECT acc_email FROM tbl_accounts WHERE acc_id = ?)"
+    };
+
+    try (Connection con = config.connectDB()) {
+        for (String sql : queries) {
+            try (PreparedStatement pst = con.prepareStatement(sql)) {
+                pst.setInt(1, session.getId());
+                try (ResultSet rs = pst.executeQuery()) {
+                    if (rs.next()) {
+                        int patId = rs.getInt(1);
+                        if (patId > 0) {
+                            return patId;
+                        }
+                    }
+                }
+            }
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error resolving patient account: " + e.getMessage());
+    }
+
+    return -1;
+}
+
+private void wireAddAppointmentButtons() {
+    java.awt.event.MouseAdapter addAppointmentClick = new java.awt.event.MouseAdapter() {
+        @Override
+        public void mouseClicked(java.awt.event.MouseEvent evt) {
+            openPatientAddAppointmentWindow();
+        }
+    };
+
+    jPanel6.addMouseListener(addAppointmentClick);
+    jLabel10.addMouseListener(addAppointmentClick);
+}
+
+private void openPatientAddAppointmentWindow() {
+    try {
+        patientAddAppointment bookingWindow = new patientAddAppointment();
+        bookingWindow.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent e) {
+                loadAppointments();
+                loadPastAppointments();
+                loadBillingTable();
+            }
+        });
+        bookingWindow.setVisible(true);
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this,
+            "Error opening booking window: " + e.getMessage());
+    }
+}
+
+private void setupServiceLabels() {
+    dc.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            selectedService = "Dental Cleaning";
+            selectedPrice = 1000.0;
+            taab.setSelectedIndex(1); // move to Doctor tab
+        }
+    });
+    gc.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            selectedService = "General Checkup";
+            selectedPrice = 500.0;
+            taab.setSelectedIndex(1);
+        }
+    });
+    df.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            selectedService = "Cavity Filling";
+            selectedPrice = 800.0;
+            taab.setSelectedIndex(1);
+        }
+    });
+    tw.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            selectedService = "Root Canal";
+            selectedPrice = 2000.0;
+            taab.setSelectedIndex(1);
+        }
+    });
+    te.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            selectedService = "Braces Consultation";
+            selectedPrice = 1000.0;
+            taab.setSelectedIndex(1);
+        }
+    });
+    rc.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            selectedService = "Dental Crown";
+            selectedPrice = 2500.0;
+            taab.setSelectedIndex(1);
+        }
+    });
+    denc.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            selectedService = "Teeth Whitening";
+            selectedPrice = 1200.0;
+            taab.setSelectedIndex(1);
+        }
+    });
+    bc.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            selectedService = "Oral Surgery";
+            selectedPrice = 3000.0;
+            taab.setSelectedIndex(1);
+        }
+    });
+}
+
+private DefaultTableModel tblDentistsModel;
+
+private void setupDentistTable() {
+    String[] columns = {"ID", "Name", "Specialty", "Start Time", "End Time", "Work Days"};
+    tblDentistsModel = new DefaultTableModel(columns, 0) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false; // Read-only
+        }
+    };
+
+    tblDentists.setModel(tblDentistsModel);
+    tblDentists.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+    loadDentists(); // Load the data
+}
+
+private DefaultTableModel apptblModel;
+private boolean isLoading = false; // prevents update loop
+
+private void setupAppointmentsTable() {
+
+    String[] columns = {
+        "Id", "Date", "Time", "Service",
+        "Price", "Status", "Dentist", "Patient", "Cancel"
+    };
+
+    apptblModel = new DefaultTableModel(columns, 0) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            // Editable only these columns
+            return column == 1 || column == 2 || column == 3 || column == 4 || column == 8;
+        }
+    };
+
+    apptbl.setModel(apptblModel);
+    apptbl.setRowHeight(30);
+    apptbl.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+    // Hide ID column visually
+    apptbl.getColumnModel().getColumn(0).setMinWidth(0);
+    apptbl.getColumnModel().getColumn(0).setMaxWidth(0);
+
+    // Cancel button
+    apptbl.getColumn("Cancel").setCellRenderer(new ButtonRenderer());
+    apptbl.getColumn("Cancel").setCellEditor(new ButtonEditor(new JCheckBox()));
+
+    // Auto update when edited
+    apptblModel.addTableModelListener(e -> {
+
+        if (isLoading) return;
+
+        if (e.getType() == TableModelEvent.UPDATE) {
+            updateAppointmentFromTable(e.getFirstRow());
+        }
+    });
+}
+
+
+    
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        bg = new javax.swing.JPanel();
+        dashbox = new javax.swing.JPanel();
+        overview = new javax.swing.JPanel();
+        ov = new javax.swing.JLabel();
+        app_pane = new javax.swing.JPanel();
+        app = new javax.swing.JLabel();
+        billingpane = new javax.swing.JPanel();
+        billing = new javax.swing.JLabel();
+        lg = new javax.swing.JPanel();
+        logout = new javax.swing.JLabel();
+        hdr = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        XPNL = new javax.swing.JPanel();
+        XBTN = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel17 = new javax.swing.JLabel();
+        user = new javax.swing.JLabel();
+        jLabel47 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        tab = new javax.swing.JTabbedPane();
+        ovtab = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel4 = new javax.swing.JLabel();
+        date_next_app = new javax.swing.JLabel();
+        jLabel14 = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        jLabel8 = new javax.swing.JLabel();
+        total_visit = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
+        appoint = new javax.swing.JPanel();
+        appointbtn = new javax.swing.JLabel();
+        jPanel5 = new javax.swing.JPanel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel18 = new javax.swing.JLabel();
+        jLabel19 = new javax.swing.JLabel();
+        jLabel20 = new javax.swing.JLabel();
+        name = new javax.swing.JLabel();
+        contact = new javax.swing.JLabel();
+        email = new javax.swing.JLabel();
+        id = new javax.swing.JLabel();
+        jLabel31 = new javax.swing.JLabel();
+        app_tab = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        apptbl = new javax.swing.JTable();
+        jLabel7 = new javax.swing.JLabel();
+        jPanel6 = new javax.swing.JPanel();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel25 = new javax.swing.JLabel();
+        jLabel27 = new javax.swing.JLabel();
+        jLabel28 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        searchapp = new javax.swing.JTextField();
+        jPanel8 = new javax.swing.JPanel();
+        jLabel29 = new javax.swing.JLabel();
+        jLabel26 = new javax.swing.JLabel();
+        bill_tab = new javax.swing.JPanel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTable3 = new javax.swing.JTable();
+        jLabel48 = new javax.swing.JLabel();
+        jLabel51 = new javax.swing.JLabel();
+        jLabel35 = new javax.swing.JLabel();
+        mp1 = new javax.swing.JPanel();
+        jPanel19 = new javax.swing.JPanel();
+        save = new javax.swing.JLabel();
+        Back = new javax.swing.JLabel();
+        jLabel36 = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
+        jLabel38 = new javax.swing.JLabel();
+        jLabel37 = new javax.swing.JLabel();
+        nam = new javax.swing.JTextField();
+        jLabel39 = new javax.swing.JLabel();
+        ema = new javax.swing.JTextField();
+        jLabel40 = new javax.swing.JLabel();
+        cont = new javax.swing.JTextField();
+        jLabel41 = new javax.swing.JLabel();
+        pas = new javax.swing.JPasswordField();
+        jLabel56 = new javax.swing.JLabel();
+        jLabel57 = new javax.swing.JLabel();
+        jLabel58 = new javax.swing.JLabel();
+        jLabel59 = new javax.swing.JLabel();
+        jLabel60 = new javax.swing.JLabel();
+        jPanel11 = new javax.swing.JPanel();
+        id2 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        jLabel55 = new javax.swing.JLabel();
+        taab = new javax.swing.JTabbedPane();
+        bg3 = new javax.swing.JPanel();
+        jPanel13 = new javax.swing.JPanel();
+        jLabel49 = new javax.swing.JLabel();
+        jLabel52 = new javax.swing.JLabel();
+        jLabel53 = new javax.swing.JLabel();
+        jLabel54 = new javax.swing.JLabel();
+        jLabel85 = new javax.swing.JLabel();
+        jLabel86 = new javax.swing.JLabel();
+        jPanel14 = new javax.swing.JPanel();
+        jLabel50 = new javax.swing.JLabel();
+        jLabel87 = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
+        jLabel88 = new javax.swing.JLabel();
+        nextpane2 = new javax.swing.JPanel();
+        nextbtn2 = new javax.swing.JLabel();
+        nextsign2 = new javax.swing.JLabel();
+        prevpane2 = new javax.swing.JPanel();
+        prevbtn2 = new javax.swing.JLabel();
+        jLabel89 = new javax.swing.JLabel();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        tblDentists = new javax.swing.JTable();
+        jLabel32 = new javax.swing.JLabel();
+        bg4 = new javax.swing.JPanel();
+        jPanel7 = new javax.swing.JPanel();
+        jLabel91 = new javax.swing.JLabel();
+        jLabel92 = new javax.swing.JLabel();
+        jLabel94 = new javax.swing.JLabel();
+        jLabel95 = new javax.swing.JLabel();
+        jLabel96 = new javax.swing.JLabel();
+        jLabel98 = new javax.swing.JLabel();
+        jLabel99 = new javax.swing.JLabel();
+        jLabel100 = new javax.swing.JLabel();
+        jPanel15 = new javax.swing.JPanel();
+        jPanel16 = new javax.swing.JPanel();
+        nextpane3 = new javax.swing.JPanel();
+        nextbtn3 = new javax.swing.JLabel();
+        nextsign3 = new javax.swing.JLabel();
+        prevpane3 = new javax.swing.JPanel();
+        prevbtn3 = new javax.swing.JLabel();
+        appointment_date = new javax.swing.JLabel();
+        jLabel101 = new javax.swing.JLabel();
+        Jpanel_date_time = new javax.swing.JPanel();
+        jLabel33 = new javax.swing.JLabel();
+        bg5 = new javax.swing.JPanel();
+        jPanel17 = new javax.swing.JPanel();
+        jLabel103 = new javax.swing.JLabel();
+        jLabel104 = new javax.swing.JLabel();
+        jLabel106 = new javax.swing.JLabel();
+        jLabel107 = new javax.swing.JLabel();
+        jLabel108 = new javax.swing.JLabel();
+        jLabel110 = new javax.swing.JLabel();
+        jLabel111 = new javax.swing.JLabel();
+        jPanel18 = new javax.swing.JPanel();
+        jLabel112 = new javax.swing.JLabel();
+        jPanel20 = new javax.swing.JPanel();
+        nextpane4 = new javax.swing.JPanel();
+        nextbtn4 = new javax.swing.JLabel();
+        nextsign4 = new javax.swing.JLabel();
+        prevpane4 = new javax.swing.JPanel();
+        prevbtn4 = new javax.swing.JLabel();
+        notesTextArea = new javax.swing.JTextField();
+        paymentComboBox = new javax.swing.JComboBox<>();
+        lblEstimatedFee = new javax.swing.JLabel();
+        lblDateTime = new javax.swing.JLabel();
+        lblDentist = new javax.swing.JLabel();
+        lblService = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel16 = new javax.swing.JLabel();
+        jLabel21 = new javax.swing.JLabel();
+        jLabel23 = new javax.swing.JLabel();
+        jLabel34 = new javax.swing.JLabel();
+        bg1 = new javax.swing.JPanel();
+        jPanel9 = new javax.swing.JPanel();
+        jLabel71 = new javax.swing.JLabel();
+        jLabel24 = new javax.swing.JLabel();
+        jLabel72 = new javax.swing.JLabel();
+        jLabel73 = new javax.swing.JLabel();
+        jLabel75 = new javax.swing.JLabel();
+        jLabel76 = new javax.swing.JLabel();
+        jPanel12 = new javax.swing.JPanel();
+        jLabel77 = new javax.swing.JLabel();
+        jLabel22 = new javax.swing.JLabel();
+        jPanel10 = new javax.swing.JPanel();
+        jLabel78 = new javax.swing.JLabel();
+        jLabel79 = new javax.swing.JLabel();
+        jLabel80 = new javax.swing.JLabel();
+        dc = new javax.swing.JPanel();
+        jLabel81 = new javax.swing.JLabel();
+        dentalcheckup = new javax.swing.JLabel();
+        gc = new javax.swing.JPanel();
+        jLabel82 = new javax.swing.JLabel();
+        dentalcleaning = new javax.swing.JLabel();
+        df = new javax.swing.JPanel();
+        jLabel83 = new javax.swing.JLabel();
+        dentalfilling = new javax.swing.JLabel();
+        tw = new javax.swing.JPanel();
+        jLabel42 = new javax.swing.JLabel();
+        teethwhitening = new javax.swing.JLabel();
+        te = new javax.swing.JPanel();
+        jLabel43 = new javax.swing.JLabel();
+        toothextraction = new javax.swing.JLabel();
+        rc = new javax.swing.JPanel();
+        jLabel44 = new javax.swing.JLabel();
+        rootcanal = new javax.swing.JLabel();
+        denc = new javax.swing.JPanel();
+        jLabel45 = new javax.swing.JLabel();
+        dentalcrown = new javax.swing.JLabel();
+        bc = new javax.swing.JPanel();
+        jLabel46 = new javax.swing.JLabel();
+        braceconsultation = new javax.swing.JLabel();
+        jLabel30 = new javax.swing.JLabel();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setUndecorated(true);
+        setResizable(false);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        bg.setBackground(new java.awt.Color(153, 204, 255));
+        bg.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        dashbox.setBackground(new java.awt.Color(255, 255, 255));
+        dashbox.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        overview.setBackground(new java.awt.Color(255, 255, 255));
+        overview.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                overviewMouseClicked(evt);
+            }
+        });
+        overview.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        ov.setBackground(new java.awt.Color(255, 255, 255));
+        ov.setFont(new java.awt.Font("Times New Roman", 0, 15)); // NOI18N
+        ov.setForeground(new java.awt.Color(0, 51, 204));
+        ov.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-dashboard-layout-24.png"))); // NOI18N
+        ov.setText("Dashboard");
+        ov.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                ovMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                ovMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                ovMouseExited(evt);
+            }
+        });
+        overview.add(ov, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 160, 30));
+
+        dashbox.add(overview, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 30, -1, 30));
+
+        app_pane.setBackground(new java.awt.Color(255, 255, 255));
+        app_pane.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        app.setBackground(new java.awt.Color(255, 255, 255));
+        app.setFont(new java.awt.Font("Times New Roman", 0, 15)); // NOI18N
+        app.setForeground(new java.awt.Color(0, 51, 204));
+        app.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-today-24.png"))); // NOI18N
+        app.setText("Appointments");
+        app.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                appMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                appMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                appMouseExited(evt);
+            }
+        });
+        app_pane.add(app, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 160, 30));
+
+        dashbox.add(app_pane, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 70, 170, 30));
+
+        billingpane.setBackground(new java.awt.Color(255, 255, 255));
+        billingpane.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        billing.setFont(new java.awt.Font("Times New Roman", 0, 15)); // NOI18N
+        billing.setForeground(new java.awt.Color(0, 51, 204));
+        billing.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-billing-24.png"))); // NOI18N
+        billing.setText("Billing");
+        billing.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                billingMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                billingMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                billingMouseExited(evt);
+            }
+        });
+        billingpane.add(billing, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 158, 30));
+
+        dashbox.add(billingpane, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 110, 170, 30));
+
+        lg.setBackground(new java.awt.Color(255, 255, 255));
+        lg.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        logout.setFont(new java.awt.Font("Times New Roman", 0, 15)); // NOI18N
+        logout.setForeground(new java.awt.Color(0, 51, 204));
+        logout.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-logout-24.png"))); // NOI18N
+        logout.setText("Logout");
+        logout.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                logoutMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                logoutMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                logoutMouseExited(evt);
+            }
+        });
+        lg.add(logout, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 160, 30));
+
+        dashbox.add(lg, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 150, 170, 30));
+
+        bg.add(dashbox, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 50, 170, 470));
+
+        hdr.setBackground(new java.awt.Color(255, 255, 255));
+        hdr.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseDragged(java.awt.event.MouseEvent evt) {
+                hdrMouseDragged(evt);
+            }
+        });
+        hdr.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                hdrMousePressed(evt);
+            }
+        });
+        hdr.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/output-onlinepngtools__3_-removebg-preview.png"))); // NOI18N
+        jLabel1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel1MouseClicked(evt);
+            }
+        });
+        hdr.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 50, 50));
+
+        XBTN.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        XBTN.setText("X");
+        XBTN.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                XBTNMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                XBTNMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                XBTNMouseExited(evt);
+            }
+        });
+
+        javax.swing.GroupLayout XPNLLayout = new javax.swing.GroupLayout(XPNL);
+        XPNL.setLayout(XPNLLayout);
+        XPNLLayout.setHorizontalGroup(
+            XPNLLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(XBTN, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE)
+        );
+        XPNLLayout.setVerticalGroup(
+            XPNLLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(XBTN, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
+        );
+
+        hdr.add(XPNL, new org.netbeans.lib.awtextra.AbsoluteConstraints(760, 10, 40, 30));
+
+        jLabel2.setBackground(new java.awt.Color(51, 102, 255));
+        jLabel2.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(0, 102, 255));
+        jLabel2.setText(" Dental");
+        hdr.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(52, 0, 70, 50));
+
+        jLabel17.setFont(new java.awt.Font("Modern No. 20", 3, 17)); // NOI18N
+        jLabel17.setForeground(new java.awt.Color(0, 0, 255));
+        jLabel17.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel17.setText("Care");
+        hdr.add(jLabel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 0, 50, 50));
+
+        user.setText("PP");
+        hdr.add(user, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 0, 160, 20));
+
+        jLabel47.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
+        jLabel47.setForeground(new java.awt.Color(51, 51, 51));
+        jLabel47.setText("Patient");
+        hdr.add(jLabel47, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 26, 160, 20));
+
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/5046faad4a4c9af72bcf4fe75c8a11d0.jpg"))); // NOI18N
+        hdr.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
+
+        bg.add(hdr, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 810, 50));
+
+        ovtab.setBackground(new java.awt.Color(255, 255, 255));
+        ovtab.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel5.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel5.setText("Here's your dental health overview");
+        ovtab.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 50, 280, 50));
+
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255)));
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel4.setFont(new java.awt.Font("Times New Roman", 0, 15)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel4.setText("Next Appointment");
+        jLabel4.setToolTipText("");
+        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 110, 20));
+
+        date_next_app.setFont(new java.awt.Font("Sylfaen", 1, 16)); // NOI18N
+        jPanel1.add(date_next_app, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, 200, 30));
+
+        jLabel14.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-calendar-48 (1).png"))); // NOI18N
+        jPanel1.add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 20, 50, 50));
+
+        ovtab.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 110, 260, 90));
+
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255)));
+        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel8.setFont(new java.awt.Font("Times New Roman", 0, 15)); // NOI18N
+        jLabel8.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel8.setText("Total Visits");
+        jPanel2.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, -1, 40));
+
+        total_visit.setFont(new java.awt.Font("Sylfaen", 1, 16)); // NOI18N
+        jPanel2.add(total_visit, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 40, 170, 30));
+
+        jLabel15.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-note-40.png"))); // NOI18N
+        jPanel2.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 20, 40, 50));
+
+        ovtab.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 110, 280, 90));
+
+        appoint.setBackground(new java.awt.Color(51, 102, 255));
+        appoint.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        appointbtn.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        appointbtn.setForeground(new java.awt.Color(255, 255, 255));
+        appointbtn.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        appointbtn.setText("Add New Appointment");
+        appointbtn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                appointbtnMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                appointbtnMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                appointbtnMouseExited(evt);
+            }
+        });
+        appoint.add(appointbtn, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 580, 50));
+
+        ovtab.add(appoint, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 430, 590, 50));
+
+        jPanel5.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel5.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255), 2));
+        jPanel5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel6.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+        jLabel6.setText("My Profile");
+        jPanel5.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, -1, 20));
+
+        jLabel9.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
+        jLabel9.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel9.setText("Full Name");
+        jPanel5.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 40, -1, -1));
+
+        jLabel12.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
+        jLabel12.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel12.setText("Contact");
+        jPanel5.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 100, -1, -1));
+
+        jLabel18.setBackground(new java.awt.Color(102, 102, 102));
+        jLabel18.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
+        jLabel18.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel18.setText("Email");
+        jPanel5.add(jLabel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 30, -1, 40));
+
+        jLabel19.setFont(new java.awt.Font("Trebuchet MS", 1, 14)); // NOI18N
+        jLabel19.setForeground(new java.awt.Color(102, 102, 102));
+        jLabel19.setText("Id");
+        jPanel5.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 100, -1, -1));
+
+        jLabel20.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        jLabel20.setForeground(new java.awt.Color(51, 51, 255));
+        jLabel20.setText("Edit Profile");
+        jLabel20.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel20MouseClicked(evt);
+            }
+        });
+        jPanel5.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 147, -1, 30));
+
+        name.setFont(new java.awt.Font("Times New Roman", 1, 16)); // NOI18N
+        jPanel5.add(name, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 60, 210, 30));
+
+        contact.setFont(new java.awt.Font("Times New Roman", 1, 16)); // NOI18N
+        jPanel5.add(contact, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 120, 190, 30));
+
+        email.setFont(new java.awt.Font("Times New Roman", 1, 16)); // NOI18N
+        jPanel5.add(email, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 60, 210, 30));
+
+        id.setFont(new java.awt.Font("Times New Roman", 1, 16)); // NOI18N
+        jPanel5.add(id, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 120, 70, 40));
+
+        ovtab.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 240, 590, -1));
+
+        jLabel31.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/a.jpg"))); // NOI18N
+        ovtab.add(jLabel31, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 640, 510));
+
+        tab.addTab("ov", ovtab);
+
+        app_tab.setBackground(new java.awt.Color(255, 255, 255));
+        app_tab.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        apptbl.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        apptbl.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+
+            }
+        ));
+        jScrollPane1.setViewportView(apptbl);
+
+        app_tab.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 190, 600, 150));
+
+        jLabel7.setFont(new java.awt.Font("Times New Roman", 1, 21)); // NOI18N
+        jLabel7.setForeground(new java.awt.Color(0, 51, 102));
+        jLabel7.setText("Manage your Appointments");
+        app_tab.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, -1, 50));
+
+        jPanel6.setBackground(new java.awt.Color(0, 102, 204));
+        jPanel6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel10.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel10.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel10.setText("Add Appointment");
+        jPanel6.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 0, 120, 30));
+
+        app_tab.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 90, 170, 30));
+
+        jLabel25.setForeground(new java.awt.Color(204, 204, 204));
+        jLabel25.setText("_____________________________________________________________________________________");
+        app_tab.add(jLabel25, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, -1, 20));
+
+        jLabel27.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel27.setForeground(new java.awt.Color(0, 51, 153));
+        jLabel27.setText("Upcoming Appointments");
+        app_tab.add(jLabel27, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 150, -1, -1));
+
+        jLabel28.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel28.setForeground(new java.awt.Color(0, 51, 153));
+        jLabel28.setText("Past Appointments");
+        app_tab.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 350, -1, 50));
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+
+            }
+        ));
+        jScrollPane2.setViewportView(jTable1);
+
+        app_tab.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 400, 600, 80));
+        app_tab.add(searchapp, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 270, 30));
+
+        jPanel8.setBackground(new java.awt.Color(0, 102, 204));
+        jPanel8.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
+        jPanel8.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel29.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabel29.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel29.setText("Search");
+        jPanel8.add(jLabel29, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 0, 50, 30));
+
+        app_tab.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 90, 110, 30));
+
+        jLabel26.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nn.jpg"))); // NOI18N
+        app_tab.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 640, 510));
+
+        tab.addTab("app", app_tab);
+
+        bill_tab.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jTable3.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+
+            }
+        ));
+        jScrollPane3.setViewportView(jTable3);
+
+        bill_tab.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 120, 600, 360));
+
+        jLabel48.setFont(new java.awt.Font("Times New Roman", 1, 21)); // NOI18N
+        jLabel48.setForeground(new java.awt.Color(0, 102, 102));
+        jLabel48.setText("Billing Management");
+        bill_tab.add(jLabel48, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, 210, 50));
+
+        jLabel51.setForeground(new java.awt.Color(153, 153, 153));
+        jLabel51.setText("_____________________________________________________________________________________");
+        bill_tab.add(jLabel51, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, -1, -1));
+
+        jLabel35.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/nn.jpg"))); // NOI18N
+        bill_tab.add(jLabel35, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 30, 640, 480));
+
+        tab.addTab("bill", bill_tab);
+
+        mp1.setBackground(new java.awt.Color(255, 255, 255));
+        mp1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel19.setBackground(new java.awt.Color(204, 255, 255));
+        jPanel19.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        save.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        save.setForeground(new java.awt.Color(51, 0, 255));
+        save.setText("Save Changes");
+        save.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                saveMouseClicked(evt);
+            }
+        });
+        jPanel19.add(save, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 370, 90, 40));
+
+        Back.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        Back.setForeground(new java.awt.Color(51, 0, 255));
+        Back.setText("Back to dashboard");
+        Back.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                BackMouseClicked(evt);
+            }
+        });
+        jPanel19.add(Back, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 370, 160, 40));
+
+        jLabel36.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
+        jLabel36.setForeground(new java.awt.Color(0, 51, 255));
+        jLabel36.setText("My Profile");
+        jPanel19.add(jLabel36, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 10, -1, 60));
+
+        jPanel4.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
+        jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel38.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel38.setText("ID:");
+        jPanel4.add(jLabel38, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 50, -1, -1));
+
+        jLabel37.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel37.setText("Name:");
+        jPanel4.add(jLabel37, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 90, -1, 30));
+
+        nam.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
+        jPanel4.add(nam, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 90, 270, 30));
+
+        jLabel39.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel39.setText("Email:");
+        jPanel4.add(jLabel39, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 120, 50, 50));
+
+        ema.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
+        ema.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                emaActionPerformed(evt);
+            }
+        });
+        jPanel4.add(ema, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 130, 270, 30));
+
+        jLabel40.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel40.setText("Contact:");
+        jPanel4.add(jLabel40, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 160, -1, 50));
+
+        cont.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
+        jPanel4.add(cont, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 170, 270, 30));
+
+        jLabel41.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel41.setText("New Password:");
+        jPanel4.add(jLabel41, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 210, 120, 30));
+
+        pas.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
+        jPanel4.add(pas, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 210, 220, 30));
+
+        jLabel56.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-id-verified-24.png"))); // NOI18N
+        jPanel4.add(jLabel56, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 40, 20, 40));
+
+        jLabel57.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-name-24.png"))); // NOI18N
+        jPanel4.add(jLabel57, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 90, 30, 30));
+
+        jLabel58.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-email-24 (1).png"))); // NOI18N
+        jPanel4.add(jLabel58, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 130, 30, 30));
+
+        jLabel59.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-contact-24 (2).png"))); // NOI18N
+        jPanel4.add(jLabel59, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 170, 30, 30));
+
+        jLabel60.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-password-24 (1).png"))); // NOI18N
+        jPanel4.add(jLabel60, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 210, 30, 30));
+
+        jPanel11.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel11.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
+        jPanel11.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        id2.setFont(new java.awt.Font("Trebuchet MS", 1, 15)); // NOI18N
+        jPanel11.add(id2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 90, 30));
+
+        jPanel4.add(jPanel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 50, 110, 30));
+
+        jPanel19.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 70, 440, 290));
+
+        jLabel13.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/output-onlinepngtools__3_-removebg-preview.png"))); // NOI18N
+        jPanel19.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 60, 80));
+
+        jLabel55.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/a.jpg"))); // NOI18N
+        jPanel19.add(jLabel55, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 570, 420));
+
+        mp1.add(jPanel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 30, 570, 410));
+
+        tab.addTab("EP", mp1);
+
+        bg3.setBackground(new java.awt.Color(255, 255, 255));
+        bg3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel13.setBackground(new java.awt.Color(204, 255, 255));
+        jPanel13.setBorder(javax.swing.BorderFactory.createCompoundBorder());
+        jPanel13.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel49.setBackground(new java.awt.Color(153, 204, 255));
+        jLabel49.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel49.setForeground(new java.awt.Color(153, 204, 255));
+        jLabel49.setText("_____");
+        jLabel49.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        jPanel13.add(jLabel49, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 10, -1, -1));
+
+        jLabel52.setFont(new java.awt.Font("Times New Roman", 0, 13)); // NOI18N
+        jLabel52.setText("Date & Time");
+        jPanel13.add(jLabel52, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 50, -1, -1));
+
+        jLabel53.setBackground(new java.awt.Color(153, 204, 255));
+        jLabel53.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel53.setForeground(new java.awt.Color(153, 204, 255));
+        jLabel53.setText("_____");
+        jLabel53.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        jPanel13.add(jLabel53, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 10, -1, -1));
+
+        jLabel54.setFont(new java.awt.Font("Times New Roman", 0, 13)); // NOI18N
+        jLabel54.setText("Billing");
+        jPanel13.add(jLabel54, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 50, -1, -1));
+
+        jLabel85.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-clock-32.png"))); // NOI18N
+        jPanel13.add(jLabel85, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 10, 40, 40));
+
+        jLabel86.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-billing-32.png"))); // NOI18N
+        jPanel13.add(jLabel86, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 10, 40, 40));
+
+        jPanel14.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel50.setFont(new java.awt.Font("Times New Roman", 0, 13)); // NOI18N
+        jLabel50.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel50.setText("Serivice & Dentist");
+        jPanel14.add(jLabel50, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 40, 100, 20));
+
+        jLabel87.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel87.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-calendar-32.png"))); // NOI18N
+        jPanel14.add(jLabel87, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 0, 40, 40));
+
+        jPanel13.add(jPanel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 10, 100, 60));
+
+        bg3.add(jPanel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 20, 550, 80));
+
+        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel88.setText("Select Dentist");
+        jPanel3.add(jLabel88, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 80, -1));
+
+        nextpane2.setBackground(new java.awt.Color(0, 153, 153));
+        nextpane2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        nextbtn2.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        nextbtn2.setForeground(new java.awt.Color(255, 255, 255));
+        nextbtn2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        nextbtn2.setText("Next");
+        nextbtn2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                nextbtn2MouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                nextbtn2MouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                nextbtn2MouseExited(evt);
+            }
+        });
+        nextpane2.add(nextbtn2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 80, 30));
+
+        nextsign2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-forward-24 (1).png"))); // NOI18N
+        nextsign2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                nextsign2MouseClicked(evt);
+            }
+        });
+        nextpane2.add(nextsign2, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 0, 30, 30));
+
+        jPanel3.add(nextpane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 300, 90, 30));
+
+        prevpane2.setBackground(new java.awt.Color(255, 255, 255));
+        prevpane2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 102, 255)));
+        prevpane2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                prevpane2MouseEntered(evt);
+            }
+        });
+        prevpane2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        prevbtn2.setBackground(new java.awt.Color(0, 0, 0));
+        prevbtn2.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        prevbtn2.setForeground(new java.awt.Color(0, 102, 255));
+        prevbtn2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-back-24 (1).png"))); // NOI18N
+        prevbtn2.setText("Back ");
+        prevbtn2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                prevbtn2MouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                prevbtn2MouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                prevbtn2MouseExited(evt);
+            }
+        });
+        prevpane2.add(prevbtn2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 90, 30));
+
+        jPanel3.add(prevpane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 300, 100, 30));
+
+        jLabel89.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel89.setForeground(new java.awt.Color(255, 0, 0));
+        jLabel89.setText("*");
+        jPanel3.add(jLabel89, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 0, 20, 40));
+
+        tblDentists.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+
+            }
+        ));
+        jScrollPane4.setViewportView(tblDentists);
+
+        jPanel3.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 50, -1, 220));
+
+        jLabel32.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/a.jpg"))); // NOI18N
+        jPanel3.add(jLabel32, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -10, 550, 360));
+
+        bg3.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 110, 550, 340));
+
+        taab.addTab("b3", bg3);
+
+        bg4.setBackground(new java.awt.Color(255, 255, 255));
+        bg4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel7.setBackground(new java.awt.Color(204, 255, 255));
+        jPanel7.setBorder(javax.swing.BorderFactory.createCompoundBorder());
+        jPanel7.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel91.setBackground(new java.awt.Color(153, 204, 255));
+        jLabel91.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel91.setForeground(new java.awt.Color(153, 204, 255));
+        jLabel91.setText("_____");
+        jLabel91.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        jPanel7.add(jLabel91, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 10, -1, -1));
+
+        jLabel92.setFont(new java.awt.Font("Times New Roman", 0, 13)); // NOI18N
+        jLabel92.setText("Serivice & Dentist");
+        jPanel7.add(jLabel92, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 50, -1, -1));
+
+        jLabel94.setFont(new java.awt.Font("Times New Roman", 0, 13)); // NOI18N
+        jLabel94.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel94.setText("Date & Time");
+        jPanel7.add(jLabel94, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 50, -1, -1));
+
+        jLabel95.setBackground(new java.awt.Color(153, 204, 255));
+        jLabel95.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel95.setForeground(new java.awt.Color(153, 204, 255));
+        jLabel95.setText("_____");
+        jLabel95.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        jPanel7.add(jLabel95, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 10, -1, -1));
+
+        jLabel96.setFont(new java.awt.Font("Times New Roman", 0, 13)); // NOI18N
+        jLabel96.setText("Billing");
+        jPanel7.add(jLabel96, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 50, -1, -1));
+
+        jLabel98.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-calendar-32.png"))); // NOI18N
+        jPanel7.add(jLabel98, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 10, 50, 40));
+
+        jLabel99.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-clock-32.png"))); // NOI18N
+        jPanel7.add(jLabel99, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 10, 40, 40));
+
+        jLabel100.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-billing-32.png"))); // NOI18N
+        jPanel7.add(jLabel100, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 10, 40, 40));
+
+        jPanel15.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        jPanel7.add(jPanel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 10, 70, 60));
+
+        bg4.add(jPanel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 20, 550, 80));
+
+        jPanel16.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel16.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        nextpane3.setBackground(new java.awt.Color(0, 153, 153));
+        nextpane3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        nextbtn3.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        nextbtn3.setForeground(new java.awt.Color(255, 255, 255));
+        nextbtn3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        nextbtn3.setText("Next");
+        nextbtn3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                nextbtn3MouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                nextbtn3MouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                nextbtn3MouseExited(evt);
+            }
+        });
+        nextpane3.add(nextbtn3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 80, 30));
+
+        nextsign3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-forward-24 (1).png"))); // NOI18N
+        nextsign3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                nextsign3MouseClicked(evt);
+            }
+        });
+        nextpane3.add(nextsign3, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 0, 30, 30));
+
+        jPanel16.add(nextpane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 300, 90, 30));
+
+        prevpane3.setBackground(new java.awt.Color(255, 255, 255));
+        prevpane3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 102, 255)));
+        prevpane3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                prevpane3MouseEntered(evt);
+            }
+        });
+        prevpane3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        prevbtn3.setBackground(new java.awt.Color(0, 0, 0));
+        prevbtn3.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        prevbtn3.setForeground(new java.awt.Color(0, 102, 255));
+        prevbtn3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-back-24 (1).png"))); // NOI18N
+        prevbtn3.setText("Back ");
+        prevbtn3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                prevbtn3MouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                prevbtn3MouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                prevbtn3MouseExited(evt);
+            }
+        });
+        prevpane3.add(prevbtn3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 90, 30));
+
+        jPanel16.add(prevpane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 300, 100, 30));
+
+        appointment_date.setText("Select Appointment Date & Time");
+        jPanel16.add(appointment_date, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 210, -1));
+
+        jLabel101.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel101.setForeground(new java.awt.Color(255, 0, 0));
+        jLabel101.setText("*");
+        jPanel16.add(jLabel101, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 0, 40, 30));
+        jPanel16.add(Jpanel_date_time, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 60, 410, 180));
+
+        jLabel33.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/a.jpg"))); // NOI18N
+        jPanel16.add(jLabel33, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -10, 550, 360));
+
+        bg4.add(jPanel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 110, 550, 340));
+
+        taab.addTab("b4", bg4);
+
+        bg5.setBackground(new java.awt.Color(255, 255, 255));
+        bg5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel17.setBackground(new java.awt.Color(204, 255, 255));
+        jPanel17.setBorder(javax.swing.BorderFactory.createCompoundBorder());
+        jPanel17.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel103.setBackground(new java.awt.Color(153, 204, 255));
+        jLabel103.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel103.setForeground(new java.awt.Color(153, 204, 255));
+        jLabel103.setText("_____");
+        jLabel103.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        jPanel17.add(jLabel103, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 10, -1, -1));
+
+        jLabel104.setFont(new java.awt.Font("Times New Roman", 0, 13)); // NOI18N
+        jLabel104.setText("Serivice & Dentist");
+        jPanel17.add(jLabel104, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 50, -1, -1));
+
+        jLabel106.setFont(new java.awt.Font("Times New Roman", 0, 13)); // NOI18N
+        jLabel106.setText("Date & Time");
+        jPanel17.add(jLabel106, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 50, -1, -1));
+
+        jLabel107.setBackground(new java.awt.Color(153, 204, 255));
+        jLabel107.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel107.setForeground(new java.awt.Color(153, 204, 255));
+        jLabel107.setText("_____");
+        jLabel107.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        jPanel17.add(jLabel107, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 10, -1, -1));
+
+        jLabel108.setFont(new java.awt.Font("Times New Roman", 0, 13)); // NOI18N
+        jLabel108.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel108.setText("Billing");
+        jPanel17.add(jLabel108, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 50, 50, -1));
+
+        jLabel110.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-calendar-32.png"))); // NOI18N
+        jPanel17.add(jLabel110, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 10, 50, 40));
+
+        jLabel111.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-clock-32.png"))); // NOI18N
+        jPanel17.add(jLabel111, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 10, 40, 40));
+
+        jLabel112.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-billing-32.png"))); // NOI18N
+        jPanel18.add(jLabel112);
+
+        jPanel17.add(jPanel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 10, 60, 60));
+
+        bg5.add(jPanel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 20, 550, 80));
+
+        jPanel20.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel20.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        nextpane4.setBackground(new java.awt.Color(0, 153, 153));
+        nextpane4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        nextbtn4.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        nextbtn4.setForeground(new java.awt.Color(255, 255, 255));
+        nextbtn4.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        nextbtn4.setText("Confirm Booking");
+        nextbtn4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                nextbtn4MouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                nextbtn4MouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                nextbtn4MouseExited(evt);
+            }
+        });
+        nextpane4.add(nextbtn4, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 0, 120, 30));
+
+        nextsign4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-done-20.png"))); // NOI18N
+        nextsign4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                nextsign4MouseClicked(evt);
+            }
+        });
+        nextpane4.add(nextsign4, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 30, 30));
+
+        jPanel20.add(nextpane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 300, 160, 30));
+
+        prevpane4.setBackground(new java.awt.Color(255, 255, 255));
+        prevpane4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 102, 255)));
+        prevpane4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                prevpane4MouseEntered(evt);
+            }
+        });
+        prevpane4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        prevbtn4.setBackground(new java.awt.Color(0, 0, 0));
+        prevbtn4.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        prevbtn4.setForeground(new java.awt.Color(0, 102, 255));
+        prevbtn4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-back-24 (1).png"))); // NOI18N
+        prevbtn4.setText("Previous");
+        prevbtn4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                prevbtn4MouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                prevbtn4MouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                prevbtn4MouseExited(evt);
+            }
+        });
+        prevpane4.add(prevbtn4, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 90, 30));
+
+        jPanel20.add(prevpane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 300, 100, 30));
+        jPanel20.add(notesTextArea, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 240, 120, -1));
+
+        paymentComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Online payment", "walk in" }));
+        jPanel20.add(paymentComboBox, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 200, -1, -1));
+
+        lblEstimatedFee.setText("jLabel11");
+        jPanel20.add(lblEstimatedFee, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 160, -1, -1));
+
+        lblDateTime.setText("jLabel11");
+        jPanel20.add(lblDateTime, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 130, -1, -1));
+
+        lblDentist.setText("jLabel11");
+        jPanel20.add(lblDentist, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 100, -1, -1));
+
+        lblService.setText("jLabel11");
+        jPanel20.add(lblService, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 70, -1, -1));
+
+        jLabel11.setText("Service");
+        jPanel20.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 70, -1, -1));
+
+        jLabel16.setText("Dentist");
+        jPanel20.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 100, -1, -1));
+
+        jLabel21.setText("Fee");
+        jPanel20.add(jLabel21, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 160, 40, -1));
+
+        jLabel23.setText("Schedule");
+        jPanel20.add(jLabel23, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 130, -1, -1));
+
+        jLabel34.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/a.jpg"))); // NOI18N
+        jPanel20.add(jLabel34, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -10, 550, 360));
+
+        bg5.add(jPanel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 110, 550, 340));
+
+        taab.addTab("b5", bg5);
+
+        bg1.setBackground(new java.awt.Color(255, 255, 255));
+        bg1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jPanel9.setBackground(new java.awt.Color(204, 255, 255));
+        jPanel9.setBorder(javax.swing.BorderFactory.createCompoundBorder());
+        jPanel9.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel71.setBackground(new java.awt.Color(153, 204, 255));
+        jLabel71.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel71.setForeground(new java.awt.Color(153, 204, 255));
+        jLabel71.setText("_____");
+        jLabel71.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        jPanel9.add(jLabel71, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 10, -1, -1));
+
+        jLabel24.setFont(new java.awt.Font("Times New Roman", 0, 13)); // NOI18N
+        jLabel24.setText("Date & Time");
+        jPanel9.add(jLabel24, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 50, -1, -1));
+
+        jLabel72.setBackground(new java.awt.Color(153, 204, 255));
+        jLabel72.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel72.setForeground(new java.awt.Color(153, 204, 255));
+        jLabel72.setText("_____");
+        jLabel72.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        jPanel9.add(jLabel72, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 10, -1, -1));
+
+        jLabel73.setFont(new java.awt.Font("Times New Roman", 0, 13)); // NOI18N
+        jLabel73.setText("Billing");
+        jPanel9.add(jLabel73, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 50, -1, -1));
+
+        jLabel75.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-clock-32.png"))); // NOI18N
+        jPanel9.add(jLabel75, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 10, 40, 40));
+
+        jLabel76.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-billing-32.png"))); // NOI18N
+        jPanel9.add(jLabel76, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 10, 40, 40));
+
+        jLabel77.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel77.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-calendar-32.png"))); // NOI18N
+        jPanel12.add(jLabel77);
+
+        jLabel22.setFont(new java.awt.Font("Times New Roman", 0, 13)); // NOI18N
+        jLabel22.setText("Serivice & Dentist");
+        jPanel12.add(jLabel22);
+
+        jPanel9.add(jPanel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 10, 100, 60));
+
+        bg1.add(jPanel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 20, 550, 80));
+
+        jPanel10.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel10.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        jPanel10.add(jLabel78, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 80, -1));
+
+        jLabel79.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        jLabel79.setText("Select Service");
+        jPanel10.add(jLabel79, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 80, -1));
+
+        jLabel80.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel80.setForeground(new java.awt.Color(204, 0, 0));
+        jLabel80.setText("*");
+        jPanel10.add(jLabel80, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 0, 40, 20));
+
+        dc.setBackground(new java.awt.Color(255, 255, 255));
+        dc.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255), 2));
+        dc.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                dcMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                dcMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                dcMouseExited(evt);
+            }
+        });
+        dc.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel81.setFont(new java.awt.Font("Segoe UI Symbol", 0, 14)); // NOI18N
+        jLabel81.setText("Dental Cleaning");
+        dc.add(jLabel81, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 1, -1, 30));
+
+        dentalcheckup.setFont(new java.awt.Font("Yu Gothic Medium", 0, 12)); // NOI18N
+        dentalcheckup.setForeground(new java.awt.Color(0, 51, 255));
+        dentalcheckup.setText("₱ 1,000");
+        dentalcheckup.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                dentalcheckupKeyTyped(evt);
+            }
+        });
+        dc.add(dentalcheckup, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, -1, 30));
+
+        jPanel10.add(dc, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 40, 150, 60));
+
+        gc.setBackground(new java.awt.Color(255, 255, 255));
+        gc.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255), 2));
+        gc.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                gcMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                gcMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                gcMouseExited(evt);
+            }
+        });
+        gc.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel82.setFont(new java.awt.Font("Segoe UI Symbol", 0, 14)); // NOI18N
+        jLabel82.setText("General Checkup");
+        gc.add(jLabel82, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, -1, 30));
+
+        dentalcleaning.setFont(new java.awt.Font("Yu Gothic Medium", 0, 12)); // NOI18N
+        dentalcleaning.setForeground(new java.awt.Color(0, 51, 255));
+        dentalcleaning.setText("₱ 500");
+        dentalcleaning.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                dentalcleaningKeyTyped(evt);
+            }
+        });
+        gc.add(dentalcleaning, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 40, 30));
+
+        jPanel10.add(gc, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 40, 150, 60));
+
+        df.setBackground(new java.awt.Color(255, 255, 255));
+        df.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255), 2));
+        df.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                dfMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                dfMouseExited(evt);
+            }
+        });
+        df.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel83.setFont(new java.awt.Font("Segoe UI Symbol", 0, 12)); // NOI18N
+        jLabel83.setText("Dental Filling");
+        df.add(jLabel83, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 110, 30));
+
+        dentalfilling.setFont(new java.awt.Font("Yu Gothic Medium", 0, 12)); // NOI18N
+        dentalfilling.setForeground(new java.awt.Color(0, 51, 255));
+        dentalfilling.setText("₱ 2,000");
+        dentalfilling.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                dentalfillingKeyTyped(evt);
+            }
+        });
+        df.add(dentalfilling, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, -1, 30));
+
+        jPanel10.add(df, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 40, 150, 60));
+
+        tw.setBackground(new java.awt.Color(255, 255, 255));
+        tw.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255), 2));
+        tw.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                twMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                twMouseExited(evt);
+            }
+        });
+        tw.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel42.setFont(new java.awt.Font("Segoe UI Symbol", 0, 14)); // NOI18N
+        jLabel42.setText("Teeth Whitening");
+        tw.add(jLabel42, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 1, -1, 30));
+
+        teethwhitening.setFont(new java.awt.Font("Yu Gothic Medium", 0, 12)); // NOI18N
+        teethwhitening.setForeground(new java.awt.Color(0, 51, 255));
+        teethwhitening.setText("₱ 14,000");
+        teethwhitening.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                teethwhiteningKeyTyped(evt);
+            }
+        });
+        tw.add(teethwhitening, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, -1, 30));
+
+        jPanel10.add(tw, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 120, 150, 60));
+
+        te.setBackground(new java.awt.Color(255, 255, 255));
+        te.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255), 2));
+        te.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                teMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                teMouseExited(evt);
+            }
+        });
+        te.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel43.setFont(new java.awt.Font("Segoe UI Symbol", 0, 14)); // NOI18N
+        jLabel43.setText("Tooth Extraction");
+        te.add(jLabel43, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, -1, 30));
+
+        toothextraction.setFont(new java.awt.Font("Yu Gothic Medium", 0, 12)); // NOI18N
+        toothextraction.setForeground(new java.awt.Color(0, 51, 255));
+        toothextraction.setText("₱ 1,500");
+        toothextraction.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                toothextractionKeyTyped(evt);
+            }
+        });
+        te.add(toothextraction, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, -1, 30));
+
+        jPanel10.add(te, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 120, 150, 60));
+
+        rc.setBackground(new java.awt.Color(255, 255, 255));
+        rc.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255), 2));
+        rc.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                rcMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                rcMouseExited(evt);
+            }
+        });
+        rc.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel44.setFont(new java.awt.Font("Segoe UI Symbol", 0, 14)); // NOI18N
+        jLabel44.setText("Root Canal");
+        rc.add(jLabel44, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, -1, 30));
+
+        rootcanal.setFont(new java.awt.Font("Yu Gothic Medium", 0, 12)); // NOI18N
+        rootcanal.setForeground(new java.awt.Color(0, 51, 255));
+        rootcanal.setText("₱ 8,000");
+        rootcanal.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                rootcanalKeyTyped(evt);
+            }
+        });
+        rc.add(rootcanal, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, -1, 30));
+
+        jPanel10.add(rc, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 120, 150, 60));
+
+        denc.setBackground(new java.awt.Color(255, 255, 255));
+        denc.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255), 2));
+        denc.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                dencMouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                dencMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                dencMouseExited(evt);
+            }
+        });
+        denc.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel45.setFont(new java.awt.Font("Segoe UI Symbol", 0, 14)); // NOI18N
+        jLabel45.setText("Dental Crown");
+        denc.add(jLabel45, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, -1, 30));
+
+        dentalcrown.setFont(new java.awt.Font("Yu Gothic Medium", 0, 12)); // NOI18N
+        dentalcrown.setForeground(new java.awt.Color(0, 51, 255));
+        dentalcrown.setText("₱ 15,000");
+        dentalcrown.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                dentalcrownKeyTyped(evt);
+            }
+        });
+        denc.add(dentalcrown, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, -1, 30));
+
+        jPanel10.add(denc, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 200, 150, 60));
+
+        bc.setBackground(new java.awt.Color(255, 255, 255));
+        bc.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 255), 2));
+        bc.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                bcMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                bcMouseExited(evt);
+            }
+        });
+        bc.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel46.setFont(new java.awt.Font("Segoe UI Symbol", 0, 14)); // NOI18N
+        jLabel46.setText("Brace Consultation");
+        bc.add(jLabel46, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, -1, 30));
+
+        braceconsultation.setFont(new java.awt.Font("Yu Gothic Medium", 0, 12)); // NOI18N
+        braceconsultation.setForeground(new java.awt.Color(0, 51, 255));
+        braceconsultation.setText("₱ 50,000");
+        braceconsultation.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                braceconsultationKeyTyped(evt);
+            }
+        });
+        bc.add(braceconsultation, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, -1, 30));
+
+        jPanel10.add(bc, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 200, 150, 60));
+
+        jLabel30.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/a.jpg"))); // NOI18N
+        jPanel10.add(jLabel30, new org.netbeans.lib.awtextra.AbsoluteConstraints(-2, -10, 550, 350));
+
+        bg1.add(jPanel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 110, 550, 340));
+
+        taab.addTab("b2", bg1);
+
+        tab.addTab("book", taab);
+
+        bg.add(tab, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, -10, 640, 530));
+
+        getContentPane().add(bg, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
+
+        pack();
+        setLocationRelativeTo(null);
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void hdrMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_hdrMouseDragged
+        // TODO add your handling code here:
+        int x = evt.getXOnScreen();
+        int y = evt.getYOnScreen();
+        this.setLocation(x - xMouse,y - yMouse);
+    }//GEN-LAST:event_hdrMouseDragged
+
+    private void hdrMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_hdrMousePressed
+        // TODO add your handling code here:
+                xMouse = evt.getX();
+        yMouse = evt.getY();
+    }//GEN-LAST:event_hdrMousePressed
+
+    private void XBTNMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_XBTNMouseClicked
+        // TODO add your handling code here:
+        System.exit(0);
+    }//GEN-LAST:event_XBTNMouseClicked
+
+    private void XBTNMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_XBTNMouseEntered
+        // TODO add your handling code here:
+        XPNL.setBackground(Color. red);
+        XBTN.setForeground(Color.white);
+    }//GEN-LAST:event_XBTNMouseEntered
+
+    private void XBTNMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_XBTNMouseExited
+        // TODO add your handling code here:
+        XPNL.setBackground(Color. white);
+        XBTN.setForeground(Color.black);
+    }//GEN-LAST:event_XBTNMouseExited
+
+    private void ovMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ovMouseEntered
+         // TODO add your handling code here:
+        overview.setBackground(Color. blue);
+        ov.setForeground(Color.white);
+    }//GEN-LAST:event_ovMouseEntered
+
+    private void ovMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ovMouseClicked
+     tab.setSelectedIndex(0);
+     loadTotalVisits();
+     loadNextAppointmentDate();
+    }//GEN-LAST:event_ovMouseClicked
+
+    private void ovMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ovMouseExited
+         overview.setBackground(Color. white);
+         ov.setForeground(new Color(0, 51, 204)); 
+        
+    }//GEN-LAST:event_ovMouseExited
+
+    private void appMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_appMouseClicked
+       tab.setSelectedIndex(1);
+       loadAppointments();
+       loadPastAppointments();
+    }//GEN-LAST:event_appMouseClicked
+
+    private void billingMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_billingMouseClicked
+       tab.setSelectedIndex(2);
+       loadBillingTable();
+    }//GEN-LAST:event_billingMouseClicked
+
+    private void appMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_appMouseEntered
+         // TODO add your handling code here:
+        app_pane.setBackground(Color. blue);
+        app.setForeground(Color.white);
+    }//GEN-LAST:event_appMouseEntered
+
+    private void appMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_appMouseExited
+         app_pane.setBackground(Color. white);
+        app.setForeground(new Color(0, 51, 204));  
+    }//GEN-LAST:event_appMouseExited
+
+    private void billingMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_billingMouseEntered
+         // TODO add your handling code here:
+        billingpane.setBackground(Color. blue);
+        billing.setForeground(Color.white);
+    }//GEN-LAST:event_billingMouseEntered
+
+    private void billingMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_billingMouseExited
+        billingpane.setBackground(Color. white);
+        billing.setForeground(new Color(0, 51, 204));  
+    }//GEN-LAST:event_billingMouseExited
+
+    private void logoutMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logoutMouseClicked
+         int confirm = JOptionPane.showConfirmDialog(
+        this,
+        "Are you sure you want to logout?",
+        "Logout",
+        JOptionPane.YES_NO_OPTION
+    );
+
+    if (confirm == JOptionPane.YES_OPTION) {
+
+        // ✅ Log the logout event first
+        int actorId = session.getId();
+        String actorRole = session.getRole();
+        String actorName = session.getName();
+
+        try (Connection con = config.connectDB()) {
+            String logSql = "INSERT INTO tbl_logs (actor_id, actor_role, action, details, created_at) " +
+                            "VALUES (?, ?, ?, ?, datetime('now'))";
+            PreparedStatement pst = con.prepareStatement(logSql);
+            pst.setInt(1, actorId);
+            pst.setString(2, actorRole);
+            pst.setString(3, "Logout");
+            pst.setString(4, actorName + " logged out");
+            pst.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // ✅ Clear session
+        session.clear();
+        for (java.awt.Window window : java.awt.Window.getWindows()) {
+            if (window != null && window.isDisplayable()) {
+                window.dispose();
+            }
+        }
+        new login().setVisible(true);
+    }
+    }//GEN-LAST:event_logoutMouseClicked
+
+    private void logoutMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logoutMouseEntered
+        logout.setForeground(Color.red);
+    }//GEN-LAST:event_logoutMouseEntered
+
+    private void logoutMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_logoutMouseExited
+        lg.setBackground(Color. white);
+        logout.setForeground(new Color(0, 51, 204)); 
+    }//GEN-LAST:event_logoutMouseExited
+
+    private void jLabel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseClicked
+        // TODO add your handling code here:
+        landingp logo = new landingp();
+        this.dispose();
+        logo.setVisible(true);
+    }//GEN-LAST:event_jLabel1MouseClicked
+
+    private void overviewMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_overviewMouseClicked
+    
+    }//GEN-LAST:event_overviewMouseClicked
+
+    private void saveMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_saveMouseClicked
+        
+    String newName = nam.getText().trim();
+    String newEmail = ema.getText().trim();
+    String newContact = cont.getText().trim();
+    String newPass = new String(pas.getPassword()).trim();
+
+    // ===== CHECK IF ALL FIELDS EMPTY =====
+    if (newName.isEmpty() && newEmail.isEmpty() &&
+        newContact.isEmpty() && newPass.isEmpty()) {
+
+        JOptionPane.showMessageDialog(this,
+                "Please enter at least one field to update!");
+        return;
+    }
+
+    // ===== VALIDATIONS =====
+    if (!newEmail.isEmpty() &&
+        !newEmail.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+
+        JOptionPane.showMessageDialog(this,
+                "Invalid email format!");
+        return;
+    }
+
+    if (!newContact.isEmpty() &&
+        !newContact.matches("\\d+")) {
+
+        JOptionPane.showMessageDialog(this,
+                "Contact must contain numbers only!");
+        return;
+    }
+
+    if (!newPass.isEmpty() && newPass.length() < 6) {
+
+        JOptionPane.showMessageDialog(this,
+                "Password must be at least 6 characters!");
+        return;
+    }
+
+    // ===== CHECK IF THERE IS ACTUAL CHANGE =====
+    boolean hasChange = false;
+
+    if (!newName.isEmpty() && !newName.equals(session.getName())) {
+        hasChange = true;
+    }
+
+    if (!newEmail.isEmpty() && !newEmail.equals(session.getEmail())) {
+        hasChange = true;
+    }
+
+    if (!newContact.isEmpty() && !newContact.equals(session.getContact())) {
+        hasChange = true;
+    }
+
+    if (!newPass.isEmpty()) {
+        hasChange = true;
+    }
+
+    if (!hasChange) {
+        JOptionPane.showMessageDialog(this,
+                "No new or changed data detected!");
+        return;
+    }
+
+    // ===== BUILD SQL DYNAMICALLY =====
+    StringBuilder sql = new StringBuilder("UPDATE tbl_accounts SET ");
+
+    if (!newName.isEmpty() && !newName.equals(session.getName())) {
+        sql.append("acc_name=?, ");
+    }
+
+    if (!newEmail.isEmpty() && !newEmail.equals(session.getEmail())) {
+        sql.append("acc_email=?, ");
+    }
+
+    if (!newContact.isEmpty() && !newContact.equals(session.getContact())) {
+        sql.append("acc_contact=?, ");
+    }
+
+    if (!newPass.isEmpty()) {
+        sql.append("acc_pass=?, ");
+    }
+
+    // remove last comma
+    sql.setLength(sql.length() - 2);
+    sql.append(" WHERE acc_id=?");
+
+    // ===== EXECUTE UPDATE =====
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(sql.toString())) {
+
+        int index = 1;
+
+        if (!newName.isEmpty() && !newName.equals(session.getName())) {
+            pst.setString(index++, newName);
+        }
+
+        if (!newEmail.isEmpty() && !newEmail.equals(session.getEmail())) {
+            pst.setString(index++, newEmail);
+        }
+
+        if (!newContact.isEmpty() && !newContact.equals(session.getContact())) {
+            pst.setString(index++, newContact);
+        }
+
+        if (!newPass.isEmpty()) {
+            pst.setString(index++, config.hashPassword(newPass));
+        }
+
+        pst.setInt(index, session.getId());
+
+        int updated = pst.executeUpdate();
+
+        if (updated > 0) {
+
+            JOptionPane.showMessageDialog(this,
+                    "Profile updated successfully!");
+
+            // Update session values
+            if (!newName.isEmpty()) session.setName(newName);
+            if (!newEmail.isEmpty()) session.setEmail(newEmail);
+            if (!newContact.isEmpty()) session.setContact(newContact);
+
+loadprofile();
+
+nam.setText("");
+ema.setText("");
+cont.setText("");
+pas.setText("");
+
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "No changes were made.");
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this,
+                "Error updating profile: " + e.getMessage());
+    }
+    }//GEN-LAST:event_saveMouseClicked
+
+    private void appointbtnMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_appointbtnMouseExited
+        appoint.setBackground(new Color(51,102,255));
+        appointbtn.setForeground(Color. white);
+    }//GEN-LAST:event_appointbtnMouseExited
+
+    private void appointbtnMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_appointbtnMouseEntered
+
+        appoint.setBackground(Color. blue);
+        appointbtn.setForeground(new Color(51,102,255));
+    }//GEN-LAST:event_appointbtnMouseEntered
+
+    private void appointbtnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_appointbtnMouseClicked
+    openPatientAddAppointmentWindow();
+    }//GEN-LAST:event_appointbtnMouseClicked
+
+    private void prevpane4MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_prevpane4MouseEntered
+
+    }//GEN-LAST:event_prevpane4MouseEntered
+
+    private void prevbtn4MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_prevbtn4MouseExited
+        prevbtn4.setForeground(new Color(0,102,255)); // original color
+    }//GEN-LAST:event_prevbtn4MouseExited
+
+    private void prevbtn4MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_prevbtn4MouseEntered
+        Color baseColor =( new Color(0,0,0));
+        prevbtn4.setForeground(new Color(0,0,0)); // darker on hover
+    }//GEN-LAST:event_prevbtn4MouseEntered
+
+    private void prevbtn4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_prevbtn4MouseClicked
+        taab.setSelectedIndex(2);
+    }//GEN-LAST:event_prevbtn4MouseClicked
+
+    private void nextsign4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextsign4MouseClicked
+
+    }//GEN-LAST:event_nextsign4MouseClicked
+
+    private void nextbtn4MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtn4MouseExited
+        nextpane4.setBackground(new Color(0,153,153)); // original color
+    }//GEN-LAST:event_nextbtn4MouseExited
+
+    private void nextbtn4MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtn4MouseEntered
+        Color baseColor = new Color(0,102,102);
+        nextpane4.setBackground(new Color(0,102,102)); // darker on hover
+    }//GEN-LAST:event_nextbtn4MouseEntered
+
+    private void nextbtn4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtn4MouseClicked
+        notes = notesTextArea.getText().trim();
+    paymentMethod = paymentComboBox.getSelectedItem().toString();
+
+    try {
+        addAppointment(
+            session.getId(),    // Patient ID
+            selectedDentist,
+            selectedDate,
+            selectedTime,
+            selectedService,
+            selectedPrice,
+            notes,
+            paymentMethod
+        );
+
+        JOptionPane.showMessageDialog(this, "Appointment booked successfully!");
+        taab.setSelectedIndex(0); // back to Services tab
+        resetTempSelections();
+        loadAppointments(); // refresh table or dashboard
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error adding appointment: " + e.getMessage());
+    }
+    }//GEN-LAST:event_nextbtn4MouseClicked
+
+    private void prevpane3MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_prevpane3MouseEntered
+
+    }//GEN-LAST:event_prevpane3MouseEntered
+
+    private void prevbtn3MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_prevbtn3MouseExited
+        prevbtn3.setForeground(new Color(0,102,255)); // original color
+    }//GEN-LAST:event_prevbtn3MouseExited
+
+    private void prevbtn3MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_prevbtn3MouseEntered
+        Color baseColor =( new Color(0,0,0));
+        prevbtn3.setForeground(new Color(0,0,0)); // darker on hover
+    }//GEN-LAST:event_prevbtn3MouseEntered
+
+    private void prevbtn3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_prevbtn3MouseClicked
+        taab.setSelectedIndex(1);
+    }//GEN-LAST:event_prevbtn3MouseClicked
+
+    private void nextsign3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextsign3MouseClicked
+
+    }//GEN-LAST:event_nextsign3MouseClicked
+
+    private void nextbtn3MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtn3MouseExited
+        nextpane3.setBackground(new Color(0,153,153)); // original color
+    }//GEN-LAST:event_nextbtn3MouseExited
+
+    private void nextbtn3MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtn3MouseEntered
+        Color baseColor = new Color(0,102,102);
+        nextpane3.setBackground(new Color(0,102,102)); // darker on hover
+    }//GEN-LAST:event_nextbtn3MouseEntered
+
+    private void nextbtn3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtn3MouseClicked
+
+    // ===== Get selected date from JCalendar =====
+    Date selectedDateOnly = calendar.getDate();
+    SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
+    String dateStr = sdfDate.format(selectedDateOnly);
+
+    // ===== Get selected time from timeSpinner =====
+    Date selectedTimeOnly = (Date) timeSpinner.getValue();
+    SimpleDateFormat sdfTime = new SimpleDateFormat("HH:mm");
+    String timeStr = sdfTime.format(selectedTimeOnly);
+
+    // ===== Save to your temporary variables =====
+    selectedDate = dateStr;
+    selectedTime = timeStr;
+
+    // ===== Validate =====
+    if (selectedDate.isEmpty() || selectedTime.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Please select date and time.");
+        return;
+    }
+
+    // ===== Move to Billing tab =====
+    taab.setSelectedIndex(3); // Billing tab index
+    updateBillingSummary();   // update labels immediately
+    }//GEN-LAST:event_nextbtn3MouseClicked
+
+    private void prevpane2MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_prevpane2MouseEntered
+
+    }//GEN-LAST:event_prevpane2MouseEntered
+
+    private void prevbtn2MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_prevbtn2MouseExited
+        prevbtn2.setForeground(new Color(0,102,255)); // original color
+    }//GEN-LAST:event_prevbtn2MouseExited
+
+    private void prevbtn2MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_prevbtn2MouseEntered
+        Color baseColor =( new Color(0,0,0));
+        prevbtn2.setForeground(new Color(0,0,0)); // darker on hover
+    }//GEN-LAST:event_prevbtn2MouseEntered
+
+    private void prevbtn2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_prevbtn2MouseClicked
+        taab.setSelectedIndex(0);
+    }//GEN-LAST:event_prevbtn2MouseClicked
+
+    private void nextsign2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextsign2MouseClicked
+
+    }//GEN-LAST:event_nextsign2MouseClicked
+
+    private void nextbtn2MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtn2MouseExited
+        nextpane2.setBackground(new Color(0,153,153)); // original color
+    }//GEN-LAST:event_nextbtn2MouseExited
+
+    private void nextbtn2MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtn2MouseEntered
+        Color baseColor = new Color(0,102,102);
+        nextpane2.setBackground(new Color(0,102,102)); // darker on hover
+    }//GEN-LAST:event_nextbtn2MouseEntered
+
+    private void nextbtn2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nextbtn2MouseClicked
+        int selectedRow = tblDentists.getSelectedRow(); // get selected row index
+
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this, "Please select a dentist from the table.");
+        return;
+    }
+
+    try {
+        // Get dentist ID from column 0 of the selected row
+        selectedDentist = Integer.parseInt(tblDentists.getValueAt(selectedRow, 0).toString());
+
+        taab.setSelectedIndex(2); // move to Date & Time tab
+
+    } catch (NumberFormatException ex) {
+        JOptionPane.showMessageDialog(this, "Invalid dentist ID selected.");
+    }
+    }//GEN-LAST:event_nextbtn2MouseClicked
+
+    private void bcMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bcMouseExited
+        bc.setBackground(new Color(255, 255, 255));
+
+        // Original light border color
+        bc.setBorder(BorderFactory.createLineBorder(new Color(204, 204, 255), 1));
+    }//GEN-LAST:event_bcMouseExited
+
+    private void bcMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_bcMouseEntered
+        bc.setOpaque(true);
+
+        // Light blue background
+        bc.setBackground(new Color(220, 230, 255));
+
+        // Blue border (highlight)
+        bc.setBorder(BorderFactory.createLineBorder(Color.BLUE, 2));
+    }//GEN-LAST:event_bcMouseEntered
+
+    private void braceconsultationKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_braceconsultationKeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_braceconsultationKeyTyped
+
+    private void dencMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dencMouseExited
+        denc.setBackground(new Color(255, 255, 255));
+
+        // Original light border color
+        denc.setBorder(BorderFactory.createLineBorder(new Color(204, 204, 255), 1));
+    }//GEN-LAST:event_dencMouseExited
+
+    private void dencMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dencMouseEntered
+        denc.setOpaque(true);
+
+        // Light blue background
+        denc.setBackground(new Color(220, 230, 255));
+
+        // Blue border (highlight)
+        denc.setBorder(BorderFactory.createLineBorder(Color.BLUE, 2));
+    }//GEN-LAST:event_dencMouseEntered
+
+    private void dencMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dencMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_dencMouseClicked
+
+    private void dentalcrownKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_dentalcrownKeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_dentalcrownKeyTyped
+
+    private void rcMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_rcMouseExited
+        rc.setBackground(new Color(255, 255, 255));
+
+        // Original light border color
+        rc.setBorder(BorderFactory.createLineBorder(new Color(204, 204, 255), 1));
+    }//GEN-LAST:event_rcMouseExited
+
+    private void rcMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_rcMouseEntered
+        rc.setOpaque(true);
+
+        // Light blue background
+        rc.setBackground(new Color(220, 230, 255));
+
+        // Blue border (highlight)
+        rc.setBorder(BorderFactory.createLineBorder(Color.BLUE, 2));
+    }//GEN-LAST:event_rcMouseEntered
+
+    private void rootcanalKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_rootcanalKeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_rootcanalKeyTyped
+
+    private void teMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_teMouseExited
+        te.setBackground(new Color(255, 255, 255));
+
+        // Original light border color
+        te.setBorder(BorderFactory.createLineBorder(new Color(204, 204, 255), 1));
+    }//GEN-LAST:event_teMouseExited
+
+    private void teMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_teMouseEntered
+        te.setOpaque(true);
+
+        // Light blue background
+        te.setBackground(new Color(220, 230, 255));
+
+        // Blue border (highlight)
+        te.setBorder(BorderFactory.createLineBorder(Color.BLUE, 2));
+    }//GEN-LAST:event_teMouseEntered
+
+    private void toothextractionKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_toothextractionKeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_toothextractionKeyTyped
+
+    private void twMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_twMouseExited
+        tw.setBackground(new Color(255, 255, 255));
+
+        // Original light border color
+        tw.setBorder(BorderFactory.createLineBorder(new Color(204, 204, 255), 1));
+    }//GEN-LAST:event_twMouseExited
+
+    private void twMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_twMouseEntered
+        tw.setOpaque(true);
+
+        // Light blue background
+        tw.setBackground(new Color(220, 230, 255));
+
+        // Blue border (highlight)
+        tw.setBorder(BorderFactory.createLineBorder(Color.BLUE, 2));
+    }//GEN-LAST:event_twMouseEntered
+
+    private void teethwhiteningKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_teethwhiteningKeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_teethwhiteningKeyTyped
+
+    private void dfMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dfMouseExited
+        df.setBackground(new Color(255, 255, 255));
+
+        // Original light border color
+        df.setBorder(BorderFactory.createLineBorder(new Color(204, 204, 255), 1));
+    }//GEN-LAST:event_dfMouseExited
+
+    private void dfMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dfMouseEntered
+        df.setOpaque(true);
+
+        // Light blue background
+        df.setBackground(new Color(220, 230, 255));
+
+        // Blue border (highlight)
+        df.setBorder(BorderFactory.createLineBorder(Color.BLUE, 2));
+    }//GEN-LAST:event_dfMouseEntered
+
+    private void dentalfillingKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_dentalfillingKeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_dentalfillingKeyTyped
+
+    private void gcMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_gcMouseExited
+        gc.setBackground(new Color(255, 255, 255));
+
+        // Original light border color
+        gc.setBorder(BorderFactory.createLineBorder(new Color(204, 204, 255), 1));
+    }//GEN-LAST:event_gcMouseExited
+
+    private void gcMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_gcMouseEntered
+        gc.setOpaque(true);
+
+        // Light blue background
+        gc.setBackground(new Color(220, 230, 255));
+
+        // Blue border (highlight)
+        gc.setBorder(BorderFactory.createLineBorder(Color.BLUE, 2));
+    }//GEN-LAST:event_gcMouseEntered
+
+    private void gcMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_gcMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_gcMouseClicked
+
+    private void dentalcleaningKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_dentalcleaningKeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_dentalcleaningKeyTyped
+
+    private void dcMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dcMouseExited
+        // Original white background
+        dc.setBackground(new Color(255, 255, 255));
+
+        // Original light border color
+        dc.setBorder(BorderFactory.createLineBorder(new Color(204, 204, 255), 1));
+    }//GEN-LAST:event_dcMouseExited
+
+    private void dcMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dcMouseEntered
+
+        dc.setOpaque(true);
+
+        // Light blue background
+        dc.setBackground(new Color(220, 230, 255));
+
+        // Blue border (highlight)
+        dc.setBorder(BorderFactory.createLineBorder(Color.BLUE, 2));
+    }//GEN-LAST:event_dcMouseEntered
+
+    private void dentalcheckupKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_dentalcheckupKeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_dentalcheckupKeyTyped
+
+    private void dcMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_dcMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_dcMouseClicked
+
+    private void jLabel20MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel20MouseClicked
+        tab.setSelectedIndex(3);
+    }//GEN-LAST:event_jLabel20MouseClicked
+
+    private void BackMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_BackMouseClicked
+        tab.setSelectedIndex(0); 
+    }//GEN-LAST:event_BackMouseClicked
+
+    private void emaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_emaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_emaActionPerformed
+    
+
+private void loadprofile() {
+
+    String sql = "SELECT acc_id, acc_name, acc_email, acc_contact FROM tbl_accounts WHERE acc_id = ?";
+
+    try (Connection con = new config().connectDB();
+         PreparedStatement pst = con.prepareStatement(sql)) {
+
+        // Set the logged-in user's ID
+        pst.setInt(1, session.getId());
+
+        try (ResultSet rs = pst.executeQuery()) {
+
+            if (rs.next()) {
+
+                String fullName = rs.getString("acc_name");
+                name.setText(fullName);
+
+                email.setText(rs.getString("acc_email"));
+                contact.setText(rs.getString("acc_contact"));
+                id.setText(String.valueOf(rs.getInt("acc_id")));
+            } else {
+                JOptionPane.showMessageDialog(this, "No profile data found.");
+            }
+            pst.close();
+            con.close();
+        }
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error loading profile: " + e.getMessage());
+        e.printStackTrace();
+    }
+}
+
+void apptable(){
+    String sql = "SELECT app_id AS Id"
+            + ", app_date AS Date"
+            + ", app_time AS Time"
+            + ", app_service AS Service"
+            + ", app_status AS status"
+            + " FROM tbl_appointments WHERE pat_id = " + currentPatientId;
+    
+    config con = new config();
+    con.displayData(sql, apptbl);
+}
+  
+
+public void loadNextAppointmentDate() {
+
+    String sql = "SELECT app_date AS Date " +
+                 "FROM tbl_appointments " +
+                 "WHERE pat_id = ? " +
+                 "AND app_status = 'Scheduled' " +
+                 "AND datetime(app_date || ' ' || app_time) >= datetime('now') " +
+                 "ORDER BY app_date ASC, app_time ASC " +
+                 "LIMIT 1";
+
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(sql)) {
+
+        pst.setInt(1, currentPatientId);
+
+        ResultSet rs = pst.executeQuery();
+
+        if (rs.next()) {
+
+            // ✅ MUST MATCH ALIAS NAME
+            String nextDate = rs.getString("Date");
+
+            date_next_app.setText("Date: " + nextDate);
+
+        } else {
+            date_next_app.setText("");
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        date_next_app.setText("Error loading appointment.");
+    }
+}
+
+
+public void loadTotalVisits() {
+
+    String sql = "SELECT COUNT(app_id) AS TotalVisits"
+            + " FROM tbl_appointments"
+            + " WHERE pat_id = ?"
+            + " AND app_status = 'Completed'"; // Only count completed visits
+
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(sql)) {
+
+        pst.setInt(1, currentPatientId);
+
+        ResultSet rs = pst.executeQuery();
+
+        if (rs.next()) {
+            int total = rs.getInt("TotalVisits");
+            total_visit.setText(" " + total);
+        } else {
+            total_visit.setText("Total Visits: 0");
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        total_visit.setText("Error loading total visits");
+    }
+}
+
+
+private void updateBillingSummary() {
+
+    lblService.setText("Service: " + (selectedService.isEmpty() ? "N/A" : selectedService));
+
+    String dentistName = "N/A";
+    if (selectedDentist != 0) {
+        for (int i = 0; i < tblDentists.getRowCount(); i++) {
+            int id = Integer.parseInt(tblDentists.getValueAt(i, 0).toString());
+            if (id == selectedDentist) {
+                dentistName = tblDentists.getValueAt(i, 1).toString(); 
+                break;
+            }
+        }
+    }
+    lblDentist.setText("Dentist: " + dentistName);
+
+    // Date & Time
+    lblDateTime.setText("Date & Time: " +
+            (selectedDate.isEmpty() ? "N/A" : selectedDate + " " + selectedTime));
+
+    // Estimated Fee
+    lblEstimatedFee.setText("Estimated Fee: ₱" + selectedPrice);
+}
+
+
+
+// ===== Call this when moving to Billing tab =====
+private void setupBillingTabListener(JTabbedPane taab) {
+    taab.addChangeListener(e -> {
+        if (taab.getSelectedIndex() == 3) { // Billing tab index
+            updateBillingSummary();
+        }
+    });
+}
+
+
+private void loadDentists() {
+    tblDentistsModel.setRowCount(0); // clear table
+
+    String sql = "SELECT d.dentist_id, a.acc_name, d.specialty, d.work_start, d.work_end, d.work_days "
+               + "FROM tbl_dentists d "
+               + "INNER JOIN tbl_accounts a ON a.acc_id = d.acc_id"; 
+
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(sql);
+         ResultSet rs = pst.executeQuery()) {
+
+        while (rs.next()) {
+            Object[] row = new Object[]{
+                rs.getInt("dentist_id"),        // Dentist ID
+                rs.getString("acc_name"),       // Name
+                rs.getString("specialty"),      // Specialty
+                rs.getString("work_start"),     // Start time
+                rs.getString("work_end"),       // End time
+                rs.getString("work_days")       // Working days
+            };
+            tblDentistsModel.addRow(row);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error loading dentists: " + e.getMessage());
+    }
+}
+
+// ===== ADD APPOINTMENT METHOD (EXISTING) =====
+public void addAppointment(int patId, int dentistId, String date, String time,
+                           String service, double price, String notes,
+                           String paymentMethod) {
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(
+             "INSERT INTO tbl_appointments "
+             + "(pat_id, dentist_id, app_date, app_time, app_service, app_service_price, app_status, app_notes, payment_method, payment_status, created_at) "
+             + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)"
+         )) {
+
+        pst.setInt(1, currentPatientId > 0 ? currentPatientId : patId);
+        pst.setInt(2, dentistId);
+        pst.setString(3, date);
+        pst.setString(4, time);
+        pst.setString(5, service);
+        pst.setDouble(6, price);
+        pst.setString(7, "Scheduled");
+        pst.setString(8, notes);
+        pst.setString(9, paymentMethod);
+        pst.setString(10, "Pending");
+
+        int inserted = pst.executeUpdate();
+        if (inserted <= 0) {
+            JOptionPane.showMessageDialog(null, "Failed to add appointment.");
+        } else {
+            loadAppointments();
+            loadPastAppointments();
+            loadBillingTable();
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, "Error adding appointment: " + e.getMessage());
+    }
+}
+
+
+
+
+
+public void loadAppointments() {
+    isLoading = true;
+    apptblModel.setRowCount(0); // clear table
+
+    String sql =
+        "SELECT a.app_id, a.app_date, a.app_time, a.app_service, a.app_service_price AS app_service_price, a.app_status, " +
+        "COALESCE(da.acc_name, 'Unassigned Dentist') AS dentist_name, 'You' AS patient_name " +
+        "FROM tbl_appointments a " +
+        "LEFT JOIN tbl_dentists d ON (a.dentist_id = d.dentist_id OR a.dentist_id = d.acc_id) " +
+        "LEFT JOIN tbl_accounts da ON d.acc_id = da.acc_id " +
+        "WHERE a.pat_id = ? " + 
+        "ORDER BY a.app_date ASC, a.app_time ASC";
+
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(sql)) {
+
+        pst.setInt(1, currentPatientId);
+
+        try (ResultSet rs = pst.executeQuery()) {
+            while (rs.next()) {
+                apptblModel.addRow(new Object[]{
+                    rs.getInt("app_id"),
+                    rs.getString("app_date"),
+                    rs.getString("app_time"),
+                    rs.getString("app_service"),
+                    rs.getDouble("app_service_price"),
+                    rs.getString("app_status"),
+                    rs.getString("dentist_name"),
+                    rs.getString("patient_name"),
+                    "Cancel"
+                });
+            }
+        }
+
+        System.out.println("Loaded rows: " + apptblModel.getRowCount());
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, "Error loading appointments: " + e.getMessage());
+    }
+
+    isLoading = false;
+}
+
+private void loadPastAppointments() {
+    DefaultTableModel pastModel = new DefaultTableModel(
+        new String[]{"Appointment ID", "Date", "Time", "Service", "Status", "Dentist"}, 0
+    ) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
+    jTable1.setModel(pastModel);
+
+    String sql =
+        "SELECT a.app_id, a.app_date, a.app_time, a.app_service, a.app_status, " +
+        "COALESCE(da.acc_name, 'Unassigned Dentist') AS dentist_name " +
+        "FROM tbl_appointments a " +
+        "LEFT JOIN tbl_dentists d ON (a.dentist_id = d.dentist_id OR a.dentist_id = d.acc_id) " +
+        "LEFT JOIN tbl_accounts da ON d.acc_id = da.acc_id " +
+        "WHERE a.pat_id = ? AND lower(COALESCE(a.app_status, '')) IN ('completed', 'cancelled', 'no-show') " +
+        "ORDER BY a.app_date DESC, a.app_time DESC";
+
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(sql)) {
+
+        pst.setInt(1, currentPatientId);
+
+        try (ResultSet rs = pst.executeQuery()) {
+            while (rs.next()) {
+                pastModel.addRow(new Object[]{
+                    rs.getInt("app_id"),
+                    rs.getString("app_date"),
+                    rs.getString("app_time"),
+                    rs.getString("app_service"),
+                    rs.getString("app_status"),
+                    rs.getString("dentist_name")
+                });
+            }
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error loading past appointments: " + e.getMessage());
+    }
+}
+
+private void loadBillingTable() {
+    DefaultTableModel billingModel = new DefaultTableModel(
+        new String[]{"Appointment ID", "Service", "Amount", "Payment Method", "Payment Status", "Appointment Status"}, 0
+    ) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
+    jTable3.setModel(billingModel);
+
+    String sql =
+        "SELECT app_id, app_service, app_service_price, payment_method, payment_status, app_status " +
+        "FROM tbl_appointments WHERE pat_id = ? " +
+        "ORDER BY created_at DESC, app_id DESC";
+
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(sql)) {
+
+        pst.setInt(1, currentPatientId);
+
+        try (ResultSet rs = pst.executeQuery()) {
+            while (rs.next()) {
+                billingModel.addRow(new Object[]{
+                    rs.getInt("app_id"),
+                    rs.getString("app_service"),
+                    rs.getDouble("app_service_price"),
+                    rs.getString("payment_method"),
+                    rs.getString("payment_status"),
+                    rs.getString("app_status")
+                });
+            }
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error loading billing details: " + e.getMessage());
+    }
+}
+
+
+
+private void updateAppointmentFromTable(int row) {
+
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(
+             "UPDATE tbl_appointments SET " +
+             "app_date=?, app_time=?, app_service=?, app_service_price=? " +
+             "WHERE app_id=?"
+         )) {
+
+        int id = Integer.parseInt(apptblModel.getValueAt(row, 0).toString());
+
+        pst.setString(1, apptblModel.getValueAt(row, 1).toString());
+        pst.setString(2, apptblModel.getValueAt(row, 2).toString());
+        pst.setString(3, apptblModel.getValueAt(row, 3).toString());
+        pst.setDouble(4,
+            Double.parseDouble(apptblModel.getValueAt(row, 4).toString()));
+        pst.setInt(5, id);
+
+        pst.executeUpdate();
+
+        System.out.println("Appointment updated ID: " + id);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+
+
+
+// Button Renderer
+class ButtonRenderer extends JButton implements TableCellRenderer {
+
+    public ButtonRenderer() {
+        setOpaque(true);
+    }
+
+    public Component getTableCellRendererComponent(
+            JTable table, Object value,
+            boolean isSelected, boolean hasFocus,
+            int row, int column) {
+
+        setText("Cancel");
+        return this;
+    }
+}
+
+
+// Button Editor
+class ButtonEditor extends DefaultCellEditor {
+
+    private JButton button;
+    private int row;
+
+    public ButtonEditor(JCheckBox checkBox) {
+        super(checkBox);
+
+        button = new JButton("Cancel");
+
+        button.addActionListener(e -> {
+
+            int id = Integer.parseInt(
+                apptblModel.getValueAt(row, 0).toString()
+            );
+
+            cancelAppointment(id);
+            fireEditingStopped();
+        });
+    }
+
+    @Override
+    public Component getTableCellEditorComponent(
+            JTable table, Object value,
+            boolean isSelected, int row, int column) {
+
+        this.row = row;
+        return button;
+    }
+
+    @Override
+    public Object getCellEditorValue() {
+        return "Cancel";
+    }
+}
+
+
+// Cancel appointment in database
+private void cancelAppointment(int id) {
+
+    int confirm = JOptionPane.showConfirmDialog(
+            this,
+            "Cancel this appointment?",
+            "Confirm",
+            JOptionPane.YES_NO_OPTION);
+
+    if (confirm != JOptionPane.YES_OPTION) return;
+
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(
+             "UPDATE tbl_appointments SET app_status='Cancelled' WHERE app_id=?"
+         )) {
+
+        pst.setInt(1, id);
+        pst.executeUpdate();
+
+        loadAppointments(); // refresh
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+
+
+
+private void searchAppointments() {
+
+    String keyword = searchapp.getText().trim();
+
+    // If empty → reload all data
+    if (keyword.isEmpty()) {
+        loadAppointments();
+        return;
+    }
+
+    apptblModel.setRowCount(0);
+
+    String sql =
+        "SELECT " +
+        "a.app_id, " +
+        "a.app_date, " +
+        "a.app_time, " +
+        "a.app_service, " +
+        "a.app_service_price, " +
+        "a.app_status, " +  
+        "da.acc_name AS dentist_name, " +
+        "p.pat_name AS patient_name " +
+        "FROM tbl_appointments a " +
+        "LEFT JOIN tbl_patients p ON a.pat_id = p.pat_id " +
+        "LEFT JOIN tbl_accounts da ON da.acc_role='Dentist' " +
+        "WHERE " +
+        "CAST(a.app_id AS TEXT) LIKE ? OR " +
+        "a.app_date LIKE ? OR " +
+        "a.app_service LIKE ? OR " +
+        "a.app_status LIKE ? OR " +  
+        "p.pat_name LIKE ? OR " +
+        "da.acc_name LIKE ? " +
+        "ORDER BY a.app_date, a.app_time";
+
+    try (Connection con = config.connectDB();
+         PreparedStatement pst = con.prepareStatement(sql)) {
+
+        String search = "%" + keyword + "%";
+
+        for (int i = 1; i <= 6; i++) {
+            pst.setString(i, search);
+        }
+
+        ResultSet rs = pst.executeQuery();
+
+        while (rs.next()) {
+
+            apptblModel.addRow(new Object[]{
+                rs.getInt("app_id"),
+                rs.getString("app_date"),
+                rs.getString("app_time"),
+                rs.getString("app_service"),
+                rs.getDouble("app_service_price"),
+                rs.getString("app_status"),
+                rs.getString("dentist_name"),
+                rs.getString("patient_name"),
+                "Cancel"
+            });
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Search Error: " + e.getMessage());
+    }
+}
+
+
+
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(patient.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(patient.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(patient.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(patient.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+               
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel Back;
+    private javax.swing.JPanel Jpanel_date_time;
+    private javax.swing.JLabel XBTN;
+    private javax.swing.JPanel XPNL;
+    private javax.swing.JLabel app;
+    private javax.swing.JPanel app_pane;
+    private javax.swing.JPanel app_tab;
+    private javax.swing.JPanel appoint;
+    private javax.swing.JLabel appointbtn;
+    private javax.swing.JLabel appointment_date;
+    private javax.swing.JTable apptbl;
+    private javax.swing.JPanel bc;
+    private javax.swing.JPanel bg;
+    private javax.swing.JPanel bg1;
+    private javax.swing.JPanel bg3;
+    private javax.swing.JPanel bg4;
+    private javax.swing.JPanel bg5;
+    private javax.swing.JPanel bill_tab;
+    private javax.swing.JLabel billing;
+    private javax.swing.JPanel billingpane;
+    private javax.swing.JLabel braceconsultation;
+    private javax.swing.JTextField cont;
+    private javax.swing.JLabel contact;
+    private javax.swing.JPanel dashbox;
+    private javax.swing.JLabel date_next_app;
+    private javax.swing.JPanel dc;
+    private javax.swing.JPanel denc;
+    private javax.swing.JLabel dentalcheckup;
+    private javax.swing.JLabel dentalcleaning;
+    private javax.swing.JLabel dentalcrown;
+    private javax.swing.JLabel dentalfilling;
+    private javax.swing.JPanel df;
+    private javax.swing.JTextField ema;
+    private javax.swing.JLabel email;
+    private javax.swing.JPanel gc;
+    private javax.swing.JPanel hdr;
+    private javax.swing.JLabel id;
+    private javax.swing.JLabel id2;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel100;
+    private javax.swing.JLabel jLabel101;
+    private javax.swing.JLabel jLabel103;
+    private javax.swing.JLabel jLabel104;
+    private javax.swing.JLabel jLabel106;
+    private javax.swing.JLabel jLabel107;
+    private javax.swing.JLabel jLabel108;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel110;
+    private javax.swing.JLabel jLabel111;
+    private javax.swing.JLabel jLabel112;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel17;
+    private javax.swing.JLabel jLabel18;
+    private javax.swing.JLabel jLabel19;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel20;
+    private javax.swing.JLabel jLabel21;
+    private javax.swing.JLabel jLabel22;
+    private javax.swing.JLabel jLabel23;
+    private javax.swing.JLabel jLabel24;
+    private javax.swing.JLabel jLabel25;
+    private javax.swing.JLabel jLabel26;
+    private javax.swing.JLabel jLabel27;
+    private javax.swing.JLabel jLabel28;
+    private javax.swing.JLabel jLabel29;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel30;
+    private javax.swing.JLabel jLabel31;
+    private javax.swing.JLabel jLabel32;
+    private javax.swing.JLabel jLabel33;
+    private javax.swing.JLabel jLabel34;
+    private javax.swing.JLabel jLabel35;
+    private javax.swing.JLabel jLabel36;
+    private javax.swing.JLabel jLabel37;
+    private javax.swing.JLabel jLabel38;
+    private javax.swing.JLabel jLabel39;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel40;
+    private javax.swing.JLabel jLabel41;
+    private javax.swing.JLabel jLabel42;
+    private javax.swing.JLabel jLabel43;
+    private javax.swing.JLabel jLabel44;
+    private javax.swing.JLabel jLabel45;
+    private javax.swing.JLabel jLabel46;
+    private javax.swing.JLabel jLabel47;
+    private javax.swing.JLabel jLabel48;
+    private javax.swing.JLabel jLabel49;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel50;
+    private javax.swing.JLabel jLabel51;
+    private javax.swing.JLabel jLabel52;
+    private javax.swing.JLabel jLabel53;
+    private javax.swing.JLabel jLabel54;
+    private javax.swing.JLabel jLabel55;
+    private javax.swing.JLabel jLabel56;
+    private javax.swing.JLabel jLabel57;
+    private javax.swing.JLabel jLabel58;
+    private javax.swing.JLabel jLabel59;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel60;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel71;
+    private javax.swing.JLabel jLabel72;
+    private javax.swing.JLabel jLabel73;
+    private javax.swing.JLabel jLabel75;
+    private javax.swing.JLabel jLabel76;
+    private javax.swing.JLabel jLabel77;
+    private javax.swing.JLabel jLabel78;
+    private javax.swing.JLabel jLabel79;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel80;
+    private javax.swing.JLabel jLabel81;
+    private javax.swing.JLabel jLabel82;
+    private javax.swing.JLabel jLabel83;
+    private javax.swing.JLabel jLabel85;
+    private javax.swing.JLabel jLabel86;
+    private javax.swing.JLabel jLabel87;
+    private javax.swing.JLabel jLabel88;
+    private javax.swing.JLabel jLabel89;
+    private javax.swing.JLabel jLabel9;
+    private javax.swing.JLabel jLabel91;
+    private javax.swing.JLabel jLabel92;
+    private javax.swing.JLabel jLabel94;
+    private javax.swing.JLabel jLabel95;
+    private javax.swing.JLabel jLabel96;
+    private javax.swing.JLabel jLabel98;
+    private javax.swing.JLabel jLabel99;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel10;
+    private javax.swing.JPanel jPanel11;
+    private javax.swing.JPanel jPanel12;
+    private javax.swing.JPanel jPanel13;
+    private javax.swing.JPanel jPanel14;
+    private javax.swing.JPanel jPanel15;
+    private javax.swing.JPanel jPanel16;
+    private javax.swing.JPanel jPanel17;
+    private javax.swing.JPanel jPanel18;
+    private javax.swing.JPanel jPanel19;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel20;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel8;
+    private javax.swing.JPanel jPanel9;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JTable jTable1;
+    private javax.swing.JTable jTable3;
+    private javax.swing.JLabel lblDateTime;
+    private javax.swing.JLabel lblDentist;
+    private javax.swing.JLabel lblEstimatedFee;
+    private javax.swing.JLabel lblService;
+    private javax.swing.JPanel lg;
+    private javax.swing.JLabel logout;
+    private javax.swing.JPanel mp1;
+    private javax.swing.JTextField nam;
+    private javax.swing.JLabel name;
+    private javax.swing.JLabel nextbtn2;
+    private javax.swing.JLabel nextbtn3;
+    private javax.swing.JLabel nextbtn4;
+    private javax.swing.JPanel nextpane2;
+    private javax.swing.JPanel nextpane3;
+    private javax.swing.JPanel nextpane4;
+    private javax.swing.JLabel nextsign2;
+    private javax.swing.JLabel nextsign3;
+    private javax.swing.JLabel nextsign4;
+    private javax.swing.JTextField notesTextArea;
+    private javax.swing.JLabel ov;
+    private javax.swing.JPanel overview;
+    private javax.swing.JPanel ovtab;
+    private javax.swing.JPasswordField pas;
+    private javax.swing.JComboBox<String> paymentComboBox;
+    private javax.swing.JLabel prevbtn2;
+    private javax.swing.JLabel prevbtn3;
+    private javax.swing.JLabel prevbtn4;
+    private javax.swing.JPanel prevpane2;
+    private javax.swing.JPanel prevpane3;
+    private javax.swing.JPanel prevpane4;
+    private javax.swing.JPanel rc;
+    private javax.swing.JLabel rootcanal;
+    private javax.swing.JLabel save;
+    private javax.swing.JTextField searchapp;
+    private javax.swing.JTabbedPane taab;
+    private javax.swing.JTabbedPane tab;
+    private javax.swing.JTable tblDentists;
+    private javax.swing.JPanel te;
+    private javax.swing.JLabel teethwhitening;
+    private javax.swing.JLabel toothextraction;
+    private javax.swing.JLabel total_visit;
+    private javax.swing.JPanel tw;
+    private javax.swing.JLabel user;
+    // End of variables declaration//GEN-END:variables
+
+   
+
+}
